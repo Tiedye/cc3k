@@ -12,7 +12,7 @@ public:
 		Character *character;
 	};
 
-	virtual std::unique_ptr<EventTarget> getAsTarget() override;
+	std::unique_ptr<EventTarget> getAsTarget() override;
 
 	virtual int getAttackStrength();
 	virtual int getSpellStrength();

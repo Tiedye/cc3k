@@ -1,11 +1,9 @@
-#ifndef CC3K_STATE_H
-#define CC3K_STATE_H
+#pragma once
 
-#include "Character.h"
+#include "entity/Character.h"
 
 struct State {
     Character player;
 };
 
 
-#endif //CC3K_STATE_H

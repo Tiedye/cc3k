@@ -1,5 +1,4 @@
-#ifndef CC3K_ITEM_H
-#define CC3K_ITEM_H
+#pragma once
 
 #include "Entity.h"
 
@@ -19,4 +18,3 @@ public:
 };
 
 
-#endif //CC3K_ITEM_H

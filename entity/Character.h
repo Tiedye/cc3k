@@ -14,14 +14,16 @@ public:
 
 	std::unique_ptr<EventTarget> getAsTarget() override;
 
-	virtual int getAttackStrength();
-	virtual int getSpellStrength();
-	virtual int getSpeed();
-	virtual int getTenacity();
+	int getAttackStrength();
+	int getSpellStrength();
+	int getSpeed();
+	int getTenacity();
+	int getAccuracy();
 
 protected:
 	int attackStrength {0};
-	int spellStrenght {0};
+	int spellStrength {0};
 	int speed {0};
 	int tenacity {0};
+	int accuracy {0};
 };

@@ -1,16 +1,19 @@
-#ifndef CC3K_DUNGEON_H
-#define CC3K_DUNGEON_H
+#pragma once
 
 #include <list>
 #include <vector>
-#include "Entity.h"
+#include "entity/Entity.h"
 #include "CellType.h"
+#include "Stage.h"
+#include "util/Position.h"
 
-class Dungeon {
+class Dungeon : public Stage {
 public:
-    std::list<Entity*> getEntitiesAt(int x, int y);
-    CellType getCellType(int x, int y);
-    void start();
+    Dungeon(State &state, int width, int height);
+
+    std::list<Entity *> getEntitiesAt(Position position);
+    CellType getCellType(Position position);
+    void start() override;
 private:
     const int width;
     const int height;
@@ -20,4 +23,3 @@ private:
 };
 
 
-#endif //CC3K_DUNGEON_H

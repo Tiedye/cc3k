@@ -21,7 +21,7 @@ int Character::getAttackStrength() {
 }
 
 int Character::getSpellStrength() {
-	return spellStrenght;
+	return spellStrength;
 }
 
 int Character::getSpeed() {
@@ -30,4 +30,8 @@ int Character::getSpeed() {
 
 int Character::getTenacity() {
 	return tenacity;
+}
+
+int Character::getAccuracy() {
+    return accuracy;
 }

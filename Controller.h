@@ -1,5 +1,4 @@
-#ifndef CC3K_CONTROLLER_H
-#define CC3K_CONTROLLER_H
+#pragma once
 
 
 class Controller {
@@ -7,4 +6,3 @@ class Controller {
 };
 
 
-#endif //CC3K_CONTROLLER_H

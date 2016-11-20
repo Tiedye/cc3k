@@ -1,12 +1,16 @@
-#ifndef CC3K_STAGE_H
-#define CC3K_STAGE_H
+#pragma once
 
+
+#include "State.h"
 
 class Stage {
 public:
-    void setState(State &state);
-    void start();
+    Stage(State &state);
+
+    virtual void start() = 0;
+
+protected:
+    State &state;
 };
 
 
-#endif //CC3K_STAGE_H

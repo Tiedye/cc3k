@@ -1,5 +1,4 @@
-#ifndef CC3K_CELLTYPE_H
-#define CC3K_CELLTYPE_H
+#pragma once
 
 enum CellType {
     EMPTY,
@@ -8,4 +7,3 @@ enum CellType {
     HALL
 };
 
-#endif //CC3K_CELLTYPE_H

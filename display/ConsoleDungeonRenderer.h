@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "display/DungeonRenderer.h"
+#include "DungeonRenderer.h"
 
 class ConsoleDungeonRenderer : public DungeonRenderer {
 public:

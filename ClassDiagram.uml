@@ -1,0 +1,33 @@
+@startuml
+class Position {
+    +int row
+    +int col
+    +operator+(Position position)
+}
+
+class Stat {
+    +int value
+    +multiset<pair<int, int>> bases
+    +int base
+    +int shift
+    +int multiplier
+    +int divider
+    +void update()
+}
+
+class Entity {
+    #Position position
+    #int health
+    #Stat size
+    #Stat maxHealth
+    #Stat initiative
+    #Stat defenceStrength
+    #Stat knockbaskResist
+    __ Event __
+    +void addListener(Listener &lister)
+    +void removeListener(Listener &lister)
+}
+
+Entity *-- Position
+Entity *-- "0..*" Stat
+@enduml

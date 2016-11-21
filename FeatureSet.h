@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "Listener.h"
 #include "StatModifier.h"
-#include "Action.h"
+class Action;
+class Listener;
 
 struct FeatureSet {
     std::vector<Listener*> listeners;

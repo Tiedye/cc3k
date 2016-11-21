@@ -35,13 +35,15 @@ public:
     virtual void addModifier(StatModifier &modifier);
     virtual void removeModifier(StatModifier &modifier);
 
-    virtual void addAction(Action &action) = default;
-    virtual void removeAction(Action &action) = default;
+    virtual void addAction(Action &action);
+    virtual void removeAction(Action &action);
 
     void addFeatureSet(FeatureSet &featureSet);
     void removeFeatureSet(FeatureSet &featureSet);
 
     void addTemporaryFeatureSet(FeatureSet featureSet, EffectType effectType, int numTurns);
+
+    bool isA(int type);
 
     void attack(Entity *source, int amount);
     void damage(int damage);
@@ -53,21 +55,25 @@ public:
     void removeListReference(std::list<Entity*> &list);
 
 	Position getPosition();
-	Size getSize();
+	int getSize();
 	int getMaxHealth();
 	int getHealth();
 	int getInitiative();
 	int getDefenceStrength();
-	int getKnockbackResist();
+    int getKnockbackResist();
+    int getDodge();
+
+    virtual Entity * clone();
 protected:
 	Position position {0,0};
-    int health;
+    int health = {0};
 
-	Stat size {MINISCULE};
+	Stat size;
 	Stat maxHealth;
 	Stat initiative;
 	Stat defenseStrength;
 	Stat knockbackResist;
+    Stat dodge;
 
     void checkDead();
 
@@ -86,4 +92,8 @@ private:
     std::set<Listener*> createdDoneListeners;
     std::set<Listener*> destroyedListeners;
     std::set<Listener*> destroyedDoneListeners;
+
+    std::set<int> types;
+
+    friend class Loader;
 };

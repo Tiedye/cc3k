@@ -1,0 +1,19 @@
+start item smallGold
+    value 1
+end
+start item normalGold
+    value 2
+end
+start item merchantHoard
+    value 4
+end
+start item dragonHoard
+    value 6
+end
+start item sword
+    value 8
+    equippable swordSet
+end
+start set swordSet
+    stat mult atk 2
+end

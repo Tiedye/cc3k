@@ -1,11 +1,14 @@
 #pragma once
 
 enum StatType {
+    NONE,
+
     SIZE,
     MAX_HEALTH,
     INITIATIVE,
     DEFENSE_STRENGTH,
     KNOCKBACK_RESIST,
+    DODGE,
 
     ATTACK_STRENGTH,
     SPELL_STRENGTH,

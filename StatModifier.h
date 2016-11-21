@@ -18,6 +18,9 @@ struct StatModifier {
         };
         std::int_least32_t amount;
     };
+    StatModifier() = default;
+    StatModifier(StatType stat, Type type, int_least32_t amount);
+    StatModifier(StatType stat, Type type, int_least16_t one, int_least16_t two);
 };
 
 

@@ -6,8 +6,8 @@ unique_ptr<EventTarget> Entity::getAsTarget() {
     return make_unique<Target>(this);
 }
 
-Size Entity::getSize() {
-    return size;
+int Entity::getSize() {
+    return size.value;
 }
 
 int Entity::getMaxHealth() {
@@ -28,6 +28,10 @@ int Entity::getDefenceStrength() {
 
 int Entity::getKnockbackResist() {
     return knockbackResist.value;
+}
+
+int Entity::getDodge() {
+    return dodge.value;
 }
 
 Position Entity::getPosition() {
@@ -276,6 +280,9 @@ void Entity::removeModifier(StatModifier &modifier) {
         case KNOCKBACK_RESIST:
             stat = &knockbackResist;
             break;
+        case DODGE:
+            stat = &dodge;
+            break;
         default:
             return;
     }
@@ -302,6 +309,30 @@ void Entity::removeModifier(StatModifier &modifier) {
         default:
             return;
     }
+}
+
+bool Entity::isA(int type) {
+    return (bool) types.count(type);
+}
+
+void Entity::doTurn() {
+
+}
+
+void Entity::addTemporaryFeatureSet(FeatureSet featureSet, EffectType effectType, int numTurns) {
+
+}
+
+Entity *Entity::clone() {
+    return nullptr;
+}
+
+void Entity::addAction(Action &action) {
+
+}
+
+void Entity::removeAction(Action &action) {
+
 }
 
 Entity::Target::Target(Entity *entity) : entity{entity} {}

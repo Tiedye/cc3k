@@ -5,5 +5,3 @@
 struct State {
     Character player;
 };
-
-

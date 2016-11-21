@@ -1,4 +1,5 @@
 @startuml
+skinparam linetype ortho
 class Position {
     +int row
     +int col

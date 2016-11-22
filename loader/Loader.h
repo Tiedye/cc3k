@@ -30,9 +30,9 @@ private:
     void parseItem(std::istream &s);
     void parseConsumable(std::istream &s);
     void parseEquippable(std::istream &s);
-    Listener * loadEffect(std::istream &s);
-    Action * loadAction(std::istream &s);
-    Controller * loadController(std::istream &s);
+    std::shared_ptr<Listener> loadEffect(std::istream &s);
+    std::shared_ptr<Action> loadAction(std::istream &s);
+    std::shared_ptr<Controller> loadController(std::istream &s);
     int parseId(std::string name);
 
     std::map<std::string, std::unique_ptr<FeatureSet>> setTable;

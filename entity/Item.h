@@ -8,12 +8,12 @@ public:
 
     class Target : public EventTarget {
     public:
-        Target(Item *item);
-        Entity * asEntity() override;
-        Item * asItem() override;
+        Target(std::shared_ptr<Item> item);
+        std::shared_ptr<Entity> asEntity() override;
+        std::shared_ptr<Item> asItem() override;
 
     private:
-        Item *item;
+        std::shared_ptr<Item> item;
     };
 
     std::unique_ptr<EventTarget> getAsTarget() override;

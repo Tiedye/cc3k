@@ -4,9 +4,9 @@
 #include "../entity/Entity.h"
 
 void Allergy::notify(EventInfo &info) {
-    Entity *self = info.primary->asEntity();
+    std::shared_ptr<Entity> self {info.primary->asEntity()};
     for (auto target:info.secondaries) {
-        Entity *other = target->asEntity();
+        std::shared_ptr<Entity> other {target->asEntity()};
         for (int allergy: to){
             if (other->isA(allergy)) {
                 self->damage(other, amount);

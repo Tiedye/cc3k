@@ -1,14 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include "StatModifier.h"
 class Action;
 class Listener;
 
 struct FeatureSet {
-    std::vector<Listener*> listeners;
+    std::vector<std::shared_ptr<Listener>> listeners;
     std::vector<StatModifier> statModifiers;
-    std::vector<Action*> actions;
+    std::vector<std::shared_ptr<Action>> actions;
 };
 
 

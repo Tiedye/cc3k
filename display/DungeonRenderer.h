@@ -19,9 +19,9 @@ protected:
 
     DungeonRenderer(const std::vector<CellType> &cells);
 
-    virtual void entityMoved(const Entity *entity, Position oldPos) = 0;
-    virtual void entityCreated(const Entity *entity) = 0;
-    virtual void entityDestroyed(const Entity *entity) = 0;
+    virtual void entityMoved(const std::shared_ptr<Entity> entity, Position oldPos) = 0;
+    virtual void entityCreated(const std::shared_ptr<Entity> entity) = 0;
+    virtual void entityDestroyed(const std::shared_ptr<Entity> entity) = 0;
     virtual void cellChanged(Position position) = 0;
 
     const std::vector<CellType> &cells;

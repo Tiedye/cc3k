@@ -3,13 +3,13 @@
 
 using namespace std;
 
-Character::Target::Target( Character * character ) : character {character} {}
+Character::Target::Target( std::shared_ptr<Character> &character ) : character {character} {}
 
-Entity * Character::Target::asEntity() {
+shared_ptr<Entity> Character::Target::asEntity() {
 	return character;
 }
 
-Character * Character::Target::asCharacter() {
+std::shared_ptr<Character> Character::Target::asCharacter() {
 	return character;
 }
 
@@ -55,7 +55,7 @@ void Character::removeAction(Action &action) {
 	Entity::removeAction(action);
 }
 
-Entity *Character::clone() {
+shared_ptr<Entity> Character::clone() {
 	return new Character(*this);
 }
 
@@ -63,7 +63,7 @@ void Character::doTurn() {
 
 }
 
-Stat *Character::getCorrespondingStat(StatModifier &modifier) {
+Stat & Character::getCorrespondingStat(StatModifier &modifier) {
     switch (modifier.stat) {
         case ATTACK_STRENGTH:
             return &attackStrength;

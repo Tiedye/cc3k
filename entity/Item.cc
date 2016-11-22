@@ -3,13 +3,13 @@
 
 using namespace std;
 
-Item::Target::Target(Item *item):item{item} {}
+Item::Target::Target(std::shared_ptr<Item> item):item{item} {}
 
-Entity* Item::Target::asEntity() {
+shared_ptr<Entity> Item::Target::asEntity() {
     return item;
 }
 
-Item* Item::Target::asItem() {
+std::shared_ptr<Item> Item::Target::asItem() {
     return item;
 }
 

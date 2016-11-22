@@ -202,7 +202,7 @@ void Loader::parseSet(istream &s) {
     }
 }
 
-Listener *Loader::loadEffect(istream &s) {
+shared_ptr<Listener> Loader::loadEffect(istream &s) {
     string effect;
     s >> effect;
     string drain;
@@ -234,7 +234,7 @@ Listener *Loader::loadEffect(istream &s) {
     return nullptr;
 }
 
-Action *Loader::loadAction(istream &s) {
+shared_ptr<Action> Loader::loadAction(istream &s) {
     string action;
     s >> action;
     string drain;
@@ -283,11 +283,10 @@ void Loader::parseRace(istream &s){
 }
 
 void Loader::parseMob(istream &s) {
-    Character *newMob {new Character()};
+    unique_ptr<Character> newMob {make_unique()};
     string name;
     s >> name;
     int id {parseId(name)};
-    mobs.emplace(id, unique_ptr<Character>(newMob));
     newMob->types.insert(id);
     newMob->types.insert(parseId("mob"));
     string command;
@@ -306,9 +305,10 @@ void Loader::parseMob(istream &s) {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
+    mobs.emplace(id, move(newMob));
 }
 
-Controller *Loader::loadController(istream &s) {
+shared_ptr<Controller> Loader::loadController(istream &s) {
     Controller * newController {nullptr};
     string name;
     while(s >> name, name != "done") {

@@ -1,21 +1,21 @@
 #include "EventTarget.h"
 
-Entity * EventTarget::asEntity() {
+std::shared_ptr<Entity> EventTarget::asEntity() {
 	return nullptr;
 }
 
-Character * EventTarget::asCharacter() {
+std::shared_ptr<Character> EventTarget::asCharacter() {
 	return nullptr;
 }
 
-Item * EventTarget::asItem() {
+std::shared_ptr<Item> EventTarget::asItem() {
 	return nullptr;
 }
 
-Consumable * EventTarget::asConsumable() {
+std::shared_ptr<Consumable> EventTarget::asConsumable() {
 	return nullptr;
 }
 
-Equipable * EventTarget::asEquipable() {
+std::shared_ptr<Equipable> EventTarget::asEquipable() {
 	return nullptr;
 }

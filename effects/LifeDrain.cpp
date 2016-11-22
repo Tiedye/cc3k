@@ -5,7 +5,7 @@
 
 void LifeDrain::notify(EventInfo &info) {
     if (!info.secondaries.empty()) {
-        Entity *self {info.primary->asEntity()};
+        std::shared_ptr<Entity> self {info.primary->asEntity()};
         self->heal(self, amount);
     }
 }

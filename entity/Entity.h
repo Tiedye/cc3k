@@ -19,10 +19,10 @@ class Entity {
 public:
 	class Target : public EventTarget {
 	public:
-		Target( Entity *entity );
-		Entity * asEntity() override;
+		Target( std::shared_ptr<Entity> &entity );
+		std::shared_ptr<Entity> asEntity() override;
 	private:
-		Entity *entity;
+        std::shared_ptr<Entity> entity;
 	};
 
 	virtual void doTurn();
@@ -44,28 +44,29 @@ public:
     void addFeatureSet(FeatureSet &featureSet);
     void removeFeatureSet(FeatureSet &featureSet);
 
-    void addTemporaryFeatureSet(Entity *source, FeatureSet &featureSet, EffectType effectType, int numTurns);
+    void addTemporaryFeatureSet(std::shared_ptr<Entity> source, FeatureSet &featureSet, EffectType effectType,
+                                int numTurns);
 
     bool isA(int type);
 
     // acting upon this entity
-    void damage(Entity *source, int amount);
+    void damage(std::shared_ptr<Entity> source, int amount);
     int damage(int damage);
-    void heal(Entity *source, int amount);
+    void heal(std::shared_ptr<Entity> source, int amount);
     void heal(int amount);
-    void move(Entity *source, int distance, Direction direction);
+    void move(std::shared_ptr<Entity> source, int distance, Direction direction);
     void move(int distance, Direction direction);
-    void move(Entity *source, Position destination);
+    void move(std::shared_ptr<Entity> source, Position destination);
     void move(Position destination);
-    void kill(Entity *source);
+    void kill(std::shared_ptr<Entity> source);
     void destroy();
     virtual void interact(Character *source);
 
     int getHealth();
     void setHealth(int amount);
 
-    void addListReference(std::list<Entity *> &list, std::list<Entity *>::iterator reference);
-    void removeListReference(std::list<Entity*> &list);
+    void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
+    void removeListReference(std::list<std::shared_ptr<Entity>> &list);
 
 	Position getPosition();
 	int getSize();
@@ -75,12 +76,12 @@ public:
     int getKnockbackResist();
     int getDodge();
 
-    virtual Entity * clone();
+    virtual std::shared_ptr<Entity> clone();
 
     int tempModNumerator {1};
     int tempModDenominator {1};
 protected:
-    virtual Stat * getCorrespondingStat(StatModifier &modifier);
+    virtual Stat & getCorrespondingStat(StatModifier &modifier);
 
 	Position position {0,0};
     int health = {0};
@@ -97,20 +98,20 @@ protected:
     void checkDead();
 
     void trigger(EventType eventType);
-    void trigger(EventType eventType, Entity* secondary);
-    void trigger(EventType eventType, std::vector<Entity*> secondaries);
+    void trigger(EventType eventType, std::shared_ptr<Entity> secondary);
+    void trigger(EventType eventType, std::vector<std::shared_ptr<Entity>> secondaries);
     void trigger(EventType eventType, Position position);
-    void trigger(EventType eventType, Position position, Entity* secondary);
-    void trigger(EventType eventType, Position position, std::vector<Entity*> secondaries);
+    void trigger(EventType eventType, Position position, std::shared_ptr<Entity> secondary);
+    void trigger(EventType eventType, Position position, std::vector<std::shared_ptr<Entity>> secondaries);
     void trigger(EventType eventType, int integer);
-    void trigger(EventType eventType, int integer, Entity* secondary);
-    void trigger(EventType eventType, int integer, std::vector<Entity*> secondaries);
+    void trigger(EventType eventType, int integer, std::shared_ptr<Entity> secondary);
+    void trigger(EventType eventType, int integer, std::vector<std::shared_ptr<Entity>> secondaries);
     void trigger(EventType eventType, float num);
-    void trigger(EventType eventType, float num, Entity* secondary);
-    void trigger(EventType eventType, float num, std::vector<Entity*> secondaries);
+    void trigger(EventType eventType, float num, std::shared_ptr<Entity> secondary);
+    void trigger(EventType eventType, float num, std::vector<std::shared_ptr<Entity>> secondaries);
     void trigger(EventType eventType, double num);
-    void trigger(EventType eventType, double num, Entity* secondary);
-    void trigger(EventType eventType, double num, std::vector<Entity*> secondaries);
+    void trigger(EventType eventType, double num, std::shared_ptr<Entity> secondary);
+    void trigger(EventType eventType, double num, std::vector<std::shared_ptr<Entity>> secondaries);
 
 private:
     struct TempFeatureSet {
@@ -119,15 +120,15 @@ private:
         EffectType effectType;
     };
 
-    std::map<std::list<Entity*>*, std::list<Entity*>::iterator> listReferences;
+    std::map<std::list<std::shared_ptr<Entity>>*, std::list<std::shared_ptr<Entity>>::iterator> listReferences;
 
-	std::map<EventType, std::set<Listener*>> listeners;
+	std::map<EventType, std::set<std::shared_ptr<Listener>>> listeners;
 
-    std::map<int, FeatureSet*>
+    std::map<int, TempFeatureSet> tempFeatureSets;
 
     std::set<int> types;
 
-	Controller *controller {nullptr};
+    std::shared_ptr<Controller> controller;
 
     friend class Loader;
 };

@@ -2,6 +2,7 @@
 
 #include <map>
 #include <stack>
+#include <memory>
 #include "stage/Stage.h"
 #include "entity/Entity.h"
 #include "State.h"
@@ -18,8 +19,8 @@ public:
     State & getState();
     void start();
 private:
-    std::map<int, Stage*> stages;
-    Stage *currentStage;
+    std::map<int, std::shared_ptr<Stage>> stages;
+    std::shared_ptr<Stage> currentStage;
     State state;
 };
 

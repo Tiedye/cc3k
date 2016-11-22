@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "util/EventType.h"
-#include "util/Position.h"
+#include "../util/EventType.h"
+#include "../util/Position.h"
 
 class Entity;
 class Character;

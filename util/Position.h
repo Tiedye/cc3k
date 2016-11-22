@@ -4,7 +4,13 @@
 struct Position {
     int row;
     int col;
-    Position operator+(const Position&other);
+    Position();
+    Position(int row, int col);
+    Position(const Position &other) = default;
+    Position(Position &&other) = default;
+    Position &operator=(const Position &other) = default;
+    Position &operator=(Position &&other) = default;
+    Position operator+(const Position &other);
 };
 
 

@@ -23,7 +23,7 @@ private:
     public:
         virtual void notify(EventInfo &info) override;
 
-        static std::vector<EventType> eventTypes;
+        static const std::vector<EventType> eventTypes;
         const std::vector<EventType> listeningFor() const override;
     };
     static PickupOnInteract pickupOnInteract;

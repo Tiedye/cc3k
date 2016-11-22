@@ -34,11 +34,11 @@ public:
 protected:
     Stat *getCorrespondingStat(StatModifier &modifier) override;
 
-    Stat attackStrength;
-    Stat spellStrength;
-    Stat speed;
-    Stat tenacity;
-    Stat accuracy;
+    Stat attackStrength; // base value 0
+    Stat spellStrength; // base value 0
+    Stat speed; // base value 0
+    Stat tenacity; // base value 0
+    Stat accuracy; // base value 0
 
     std::list<Item *> inventory;
     std::map<int, Item*> slots;

@@ -1,7 +1,15 @@
 #include "Stat.h"
 
 void Stat::update() {
-    base = bases.rbegin()->second;
+    if (bases.size()) {
+        base = bases.rbegin()->second;
+    } else {
+        base = 0
+    }
     value = (base + shift) * multiplier / divider;
     if (value < 0) value = 0;
+}
+Stat::Stat() {}
+Stat::Stat(int base) {
+    bases.emplace(-1, base);
 }

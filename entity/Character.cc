@@ -60,7 +60,7 @@ Entity *Character::clone() {
 }
 
 void Character::doTurn() {
-	Entity::doTurn();
+
 }
 
 Stat *Character::getCorrespondingStat(StatModifier &modifier) {

@@ -9,45 +9,31 @@ unique_ptr<EventTarget> Entity::getAsTarget() {
 int Entity::getSize() {
     return size.value;
 }
-
 int Entity::getMaxHealth() {
     return maxHealth.value;
+}
+int Entity::getInitiative() {
+    return initiative.value;
+}
+int Entity::getDefenceStrength() {
+    return defenseStrength.value;
+}
+int Entity::getKnockbackResist() {
+    return knockbackResist.value;
+}
+int Entity::getDodge() {
+    return dodge.value;
 }
 
 int Entity::getHealth() {
     return health;
 }
-
-int Entity::getInitiative() {
-    return initiative.value;
-}
-
-int Entity::getDefenceStrength() {
-    return defenseStrength.value;
-}
-
-int Entity::getKnockbackResist() {
-    return knockbackResist.value;
-}
-
-int Entity::getDodge() {
-    return dodge.value;
-}
-
 Position Entity::getPosition() {
     return position;
 }
 
-void Entity::interact(Character *source) {
-
-}
-
-void Entity::attack(Entity *source, int amount) {
-    // trigger attacked event here
-    trigger(ATTACKED, source);
-    damage(amount);
-    // trigger attacked_done event here
-    trigger(ATTACKED_DONE, source);
+void Entity::setHealth(int amount) {
+    health = amount;
 }
 
 void Entity::addListReference(std::list<Entity *> &list, std::list<Entity *>::iterator reference) {
@@ -68,11 +54,46 @@ void Entity::removeFromContainers() {
     }
 }
 
-void Entity::damage(int damage) {
-    health -= damage * 100 / (100 + defenseStrength.value);
+void Entity::interact(Character *source) {
+
 }
 
-void Entity::knock(Entity *source, int distance, Direction direction) {
+void Entity::damage(Entity *source, int amount) {
+    // trigger attacked event here
+    trigger(ATTACKED, amount, source);
+    int damageDone = damage(amount);
+    // trigger attacked_done event here
+    trigger(ATTACKED_DONE, damageDone, source);
+}
+
+int Entity::damage(int damage) {
+    int preDamage {health};
+    health -= damage * 100 / (100 + defenseStrength.value);
+    checkDead();
+    return preDamage - health;
+}
+
+void Entity::heal(Entity *source, int amount) {
+    // trigger healed
+    trigger(HEALED, amount, source);
+    heal(amount);
+    // trigger healed_done
+    trigger(HEALED_DONE, amount, source);
+}
+
+void Entity::heal(int amount) {
+    health += amount;
+}
+
+void Entity::move(Entity *source, int distance, Direction direction) {
+    // Trigger moved event here
+    trigger(MOVED, source);
+    move(distance, direction);
+    // Trigger moved_done event here
+    trigger(MOVED_DONE, source);
+}
+
+void Entity::move(int distance, Direction direction) {
     distance = knockbackResist.value >= distance ? 0 : distance - knockbackResist.value;
     Position delta;
     switch (direction) {
@@ -103,11 +124,14 @@ void Entity::knock(Entity *source, int distance, Direction direction) {
         default:
             break;
     }
-    // Trigger moved event here
-    trigger(MOVED, source);
     move(position + delta);
-    // Trigger moved_done event here
-    trigger(MOVED_DONE, source);
+}
+
+void Entity::move(Entity *source, Position destination) {
+    trigger(MOVED, destination, source);
+    Position origin {position};
+    move(destination);
+    trigger(MOVED_DONE, origin, source);
 }
 
 void Entity::move(Position destination) {
@@ -218,7 +242,9 @@ void Entity::doTurn() {
 
 }
 
-void Entity::addTemporaryFeatureSet(FeatureSet featureSet, EffectType effectType, int numTurns) {
+void Entity::addTemporaryFeatureSet(Entity *source, FeatureSet &featureSet, EffectType effectType, int numTurns) {
+    tempModNumerator = tempModDenominator = 1;
+    trigger(SET_ADD);
 
 }
 
@@ -423,3 +449,4 @@ Stat * Entity::getCorrespondingStat(StatModifier &modifier) {
             return nullptr;
     }
 }
+

@@ -211,26 +211,22 @@ Listener *Loader::loadEffect(istream &s) {
     } else if (effect == "lifeDrain") {
         s >> drain;
     } else if (effect == "allergy") {
-        string drain;
         while (s >> drain, drain != "done") {}
     } else if (effect == "consumeMod") {
         s >> drain;
     } else if (effect == "resistance") {
-        string drain;
         while (s >> drain, drain != "done") {}
     } else if (effect == "regen") {
         s >> drain;
     } else if (effect == "loot") {
         s >> drain;
     } else if (effect == "venerability") {
-        string drain;
         while (s >> drain, drain != "done") {}
     } else if (effect == "depleteOnConsume") {
         s >> drain;
     } else if (effect == "restoreOnConsume") {
         s >> drain;
     } else if (effect == "dropItems") {
-        string drain;
         while (s >> drain, drain != "done") {}
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;

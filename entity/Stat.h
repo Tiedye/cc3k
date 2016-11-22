@@ -4,6 +4,8 @@
 #include <utility>
 
 struct Stat {
+    Stat();
+    Stat(int base);
     int value {0};
     std::multiset<std::pair<int, int>> bases;  // priority, value
     int base {0};

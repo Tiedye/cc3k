@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/Position.h"
+#include "../util/Position.h"
 
 struct Command {
     enum Type {PASS, MOVE, ATTACK, INTERACT};

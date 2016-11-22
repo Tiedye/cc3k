@@ -1,6 +1,6 @@
 #include "DungeonRenderer.h"
 
-void DungeonRenderer::notify(EventInfo info) {
+void DungeonRenderer::notify(EventInfo &info) {
     switch (info.eventType) {
         case MOVE_DONE:
         case MOVED_DONE:
@@ -17,20 +17,14 @@ void DungeonRenderer::notify(EventInfo info) {
     }
 }
 
-bool DungeonRenderer::isListeningFor(EventType type) {
-    switch (type) {
-        case MOVE_DONE:
-        case MOVED_DONE:
-        case DESTROYED_DONE:
-        case CREATED_DONE:
-            return true;
-        default:
-            return false;
-    }
-}
-
 void DungeonRenderer::changeCell(Position position) {
     cellChanged(position);
 }
 
 DungeonRenderer::DungeonRenderer(const std::vector<CellType> &cells):cells{cells} {}
+
+std::vector<EventType> DungeonRenderer::eventTypes {MOVE_DONE, MOVED_DONE, CREATED_DONE, DESTROYED_DONE};
+
+const std::vector<EventType> DungeonRenderer::listeningFor() const {
+    return eventTypes;
+}

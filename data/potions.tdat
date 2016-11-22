@@ -1,22 +1,26 @@
-start item restoreHealthPotion
-    consumable
+start set restoreHealthPotionSet
     effect restoreOnConsume 10
 end
-start item boostAtkPotion
-    consumable 50 atkBoost
+start consumable restoreHealthPotion
+    set restoreHealthPotionSet
 end
-start item boostDefPotion
-    consumable 50 defBoost
+start consumable boostAtkPotion
+    consumed 50 atkBoost
 end
-start item poisonHealthPotion
-    consumable
+start consumable boostDefPotion
+    consumed 50 defBoost
+end
+start set poisonHealthPotionSet
     effect depleteOnConsume 10
 end
-start item woundAtkPotion
-    consumable 50 atkPenalty
+start consumable poisonHealthPotion
+    set poisonHealthPotionSet
 end
-start item woundDefPotion
-    consumable 50 defPenalty
+start consumable woundAtkPotion
+    consumed 50 atkPenalty
+end
+start consumable woundDefPotion
+    consumed 50 defPenalty
 end
 start set atkBoost
     stat add atk 5

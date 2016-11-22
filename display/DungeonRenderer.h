@@ -11,10 +11,12 @@ class DungeonRenderer : public Listener {
 public:
     void changeCell(Position position);
 
-    void notify(EventInfo info) final;
-    bool isListeningFor(EventType type);
+    void notify(EventInfo &info) final;
+    const std::vector<EventType> listeningFor() const override;
 
 protected:
+    static std::vector<EventType> eventTypes;
+
     DungeonRenderer(const std::vector<CellType> &cells);
 
     virtual void entityMoved(const Entity *entity, Position oldPos) = 0;

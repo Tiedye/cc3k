@@ -44,11 +44,13 @@ void Entity::interact(Character *source) {
 
 void Entity::attack(Entity *source, int amount) {
     // trigger attacked event here
+    trigger(ATTACKED, source);
     damage(amount);
     // trigger attacked_done event here
+    trigger(ATTACKED_DONE, source);
 }
 
-void Entity::addListReference(std::list<Entity *> &list, std::list<Entity*>::iterator reference) {
+void Entity::addListReference(std::list<Entity *> &list, std::list<Entity *>::iterator reference) {
     listReferences[&list] = reference;
 }
 
@@ -57,6 +59,10 @@ void Entity::removeListReference(std::list<Entity *> &list) {
 }
 
 Entity::~Entity() {
+    removeFromContainers();
+}
+
+void Entity::removeFromContainers() {
     for (auto it = listReferences.begin(); it != listReferences.end(); ++it) {
         it->first->erase(it->second);
     }
@@ -98,8 +104,10 @@ void Entity::knock(Entity *source, int distance, Direction direction) {
             break;
     }
     // Trigger moved event here
+    trigger(MOVED, source);
     move(position + delta);
     // Trigger moved_done event here
+    trigger(MOVED_DONE, source);
 }
 
 void Entity::move(Position destination) {
@@ -107,80 +115,14 @@ void Entity::move(Position destination) {
 }
 
 void Entity::addListener(Listener &listener) {
-    if (listener.isListeningFor(INTERACTED)) {
-        interactedListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(INTERACTED_DONE)) {
-        interactedDoneListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(ATTACKED)) {
-        attackedListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(ATTACKED_DONE)) {
-        attackedDoneListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(MOVED)) {
-        movedListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(MOVED_DONE)) {
-        movedDoneListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(OCCUPIED)) {
-        occupiedListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(OCCUPIED_DONE)) {
-        occupiedDoneListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(CREATED)) {
-        createdListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(CREATED_DONE)) {
-        createdDoneListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(DESTROYED)) {
-        destroyedListeners.insert(&listener);
-    }
-    if (listener.isListeningFor(DESTROYED_DONE)) {
-        destroyedDoneListeners.insert(&listener);
+    for(EventType type:listener.listeningFor()) {
+        listeners[type].insert(&listener);
     }
 }
 
 void Entity::removeListener(Listener &listener) {
-    if (listener.isListeningFor(INTERACTED)) {
-        interactedListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(INTERACTED_DONE)) {
-        interactedDoneListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(ATTACKED)) {
-        attackedListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(ATTACKED_DONE)) {
-        attackedDoneListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(MOVED)) {
-        movedListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(MOVED_DONE)) {
-        movedDoneListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(OCCUPIED)) {
-        occupiedListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(OCCUPIED_DONE)) {
-        occupiedDoneListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(CREATED)) {
-        createdListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(CREATED_DONE)) {
-        createdDoneListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(DESTROYED)) {
-        destroyedListeners.erase(&listener);
-    }
-    if (listener.isListeningFor(DESTROYED_DONE)) {
-        destroyedDoneListeners.erase(&listener);
+    for(EventType type:listener.listeningFor()) {
+        listeners[type].erase(&listener);
     }
 }
 
@@ -210,33 +152,12 @@ void Entity::removeFeatureSet(FeatureSet &featureSet) {
 
 void Entity::checkDead() {
     if (health <= 0) {
-        // Trigger destroy
-        delete this;
-        // Trigger destroy_done
+        destroy();
     }
 }
 
 void Entity::addModifier(StatModifier &modifier) {
-    Stat *stat;
-    switch (modifier.stat) {
-        case SIZE:
-            stat = &size;
-            break;
-        case MAX_HEALTH:
-            stat = &maxHealth;
-            break;
-        case INITIATIVE:
-            stat = &initiative;
-            break;
-        case DEFENSE_STRENGTH:
-            stat = &defenseStrength;
-            break;
-        case KNOCKBACK_RESIST:
-            stat = &knockbackResist;
-            break;
-        default:
-            return;
-    }
+    Stat *stat {getCorrespondingStat(modifier)};
     switch (modifier.type) {
         case StatModifier::BASE:
             stat->bases.emplace(modifier.priority, modifier.base);
@@ -263,32 +184,10 @@ void Entity::addModifier(StatModifier &modifier) {
 }
 
 void Entity::removeModifier(StatModifier &modifier) {
-    Stat *stat;
-    switch (modifier.stat) {
-        case SIZE:
-            stat = &size;
-            break;
-        case MAX_HEALTH:
-            stat = &maxHealth;
-            break;
-        case INITIATIVE:
-            stat = &initiative;
-            break;
-        case DEFENSE_STRENGTH:
-            stat = &defenseStrength;
-            break;
-        case KNOCKBACK_RESIST:
-            stat = &knockbackResist;
-            break;
-        case DODGE:
-            stat = &dodge;
-            break;
-        default:
-            return;
-    }
+    Stat *stat {getCorrespondingStat(modifier)};
     switch (modifier.type) {
         case StatModifier::BASE:
-            stat->bases.erase(std::make_pair(modifier.priority, modifier.base));
+            stat->bases.erase(stat->bases.find(std::make_pair(modifier.priority, modifier.base)));
             break;
         case StatModifier::ADD:
             stat->shift -= modifier.amount;
@@ -335,8 +234,192 @@ void Entity::removeAction(Action &action) {
 
 }
 
+void Entity::kill(Entity *source) {
+    destroy();
+}
+
+void Entity::destroy() {
+    // Trigger destroy
+    trigger(DESTROYED);
+    delete this;
+    // Trigger destroy_done
+    trigger(DESTROYED_DONE);
+}
+
 Entity::Target::Target(Entity *entity) : entity{entity} {}
 
 Entity *Entity::Target::asEntity() {
     return entity;
+}
+
+void Entity::trigger(EventType eventType) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.eventType = eventType;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, Entity *secondary) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.secondary = secondary->getAsTarget();
+    info.eventType = eventType;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, std::vector<Entity *> secondaries) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    for (Entity * secondary: secondaries) {
+        info.secondaries.push_back(secondary->getAsTarget());
+    }
+    info.eventType = eventType;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, Position position) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.eventType = eventType;
+    info.eventPosition = position;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, Position position, Entity *secondary) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.secondary = secondary->getAsTarget();
+    info.eventType = eventType;
+    info.eventPosition = position;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, Position position, std::vector<Entity *> secondaries) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    for (Entity * secondary: secondaries) {
+        info.secondaries.push_back(secondary->getAsTarget());
+    }
+    info.eventType = eventType;
+    info.eventPosition = position;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, int integer) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.eventType = eventType;
+    info.eventInteger = integer;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, int integer, Entity *secondary) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.secondary = secondary->getAsTarget();
+    info.eventType = eventType;
+    info.eventInteger = integer;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, int integer, std::vector<Entity *> secondaries) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    for (Entity * secondary: secondaries) {
+        info.secondaries.push_back(secondary->getAsTarget());
+    }
+    info.eventType = eventType;
+    info.eventInteger = integer;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, float num) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.eventType = eventType;
+    info.eventFloat = num;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, float num, Entity *secondary) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.secondary = secondary->getAsTarget();
+    info.eventType = eventType;
+    info.eventFloat = num;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, float num, std::vector<Entity *> secondaries) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    for (Entity * secondary: secondaries) {
+        info.secondaries.push_back(secondary->getAsTarget());
+    }
+    info.eventType = eventType;
+    info.eventFloat = num;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, double num) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.eventType = eventType;
+    info.eventDouble = num;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, double num, Entity *secondary) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.secondary = secondary->getAsTarget();
+    info.eventType = eventType;
+    info.eventDouble = num;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, double num, std::vector<Entity *> secondaries) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    for (Entity * secondary: secondaries) {
+        info.secondaries.push_back(secondary->getAsTarget());
+    }
+    info.eventType = eventType;
+    info.eventDouble = num;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+
+Stat * Entity::getCorrespondingStat(StatModifier &modifier) {
+    switch (modifier.stat) {
+        case SIZE:
+            return &size;
+        case MAX_HEALTH:
+            return &maxHealth;
+        case INITIATIVE:
+            return &initiative;
+        case DEFENSE_STRENGTH:
+            return &defenseStrength;
+        case KNOCKBACK_RESIST:
+            return &knockbackResist;
+        case DODGE:
+            return &dodge;
+        default:
+            return nullptr;
+    }
 }

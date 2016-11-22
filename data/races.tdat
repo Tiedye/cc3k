@@ -22,9 +22,6 @@ start set drowSet
     effect consumeMod 1.5
     effect resistance 2 1 elf done
 end
-start set drowSet
-    set drowSet
-end
 start race drow
     set drowSet
 end

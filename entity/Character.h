@@ -1,5 +1,7 @@
 #pragma once
 #include "Entity.h"
+#include <list>
+#include <map>
 
 class Character: public Entity {
 public:
@@ -12,7 +14,14 @@ public:
 		Character *character;
 	};
 
-	std::unique_ptr<EventTarget> getAsTarget() override;
+    void doTurn() override;
+
+    std::unique_ptr<EventTarget> getAsTarget() override;
+
+    void addAction(Action &action) override;
+    void removeAction(Action &action) override;
+
+    void give(Item *item);
 
 	int getAttackStrength();
 	int getSpellStrength();
@@ -20,10 +29,17 @@ public:
 	int getTenacity();
 	int getAccuracy();
 
+    virtual Entity *clone() override;
+
 protected:
-	int attackStrength {0};
-	int spellStrength {0};
-	int speed {0};
-	int tenacity {0};
-	int accuracy {0};
+    Stat *getCorrespondingStat(StatModifier &modifier) override;
+
+    Stat attackStrength;
+    Stat spellStrength;
+    Stat speed;
+    Stat tenacity;
+    Stat accuracy;
+
+    std::list<Item *> inventory;
+    std::map<int, Item*> slots;
 };

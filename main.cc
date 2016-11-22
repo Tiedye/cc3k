@@ -1,3 +1,7 @@
+#include "State.h"
+
 int main() {
-    // Load
+    // Loader
+    State state;
+    state.loader.loadFile("data/game.tdat");
 }

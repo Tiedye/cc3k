@@ -44,7 +44,7 @@ void Loader::parseSets(std::string gameFile) {
             if (command == "include") {
                 string file;
                 s >> file;
-                parseSets(getPath(gameFile) + "/" + file);
+                parseSets(getPath(gameFile) + "/" + file + ".tdat");
             } else if (command == "start") {
                 string object;
                 s >> object;
@@ -59,8 +59,7 @@ void Loader::parseSets(std::string gameFile) {
             }
         }
     } catch (const ifstream::failure &e) {
-        cerr << "Error reading from \"" << gameFile << "\"" << endl;
-        cerr << "Either unreadable or format issue." << endl;
+        // TODO, error on no file
     }
     s.close();
 }
@@ -76,7 +75,7 @@ void Loader::parseRest(std::string gameFile) {    ifstream s;
             if (command == "include") {
                 string file;
                 s >> file;
-                parseRest(getPath(gameFile) + "/" + file);
+                parseRest(getPath(gameFile) + "/" + file + ".tdat");
             } else if (command == "start") {
                 string object;
                 s >> object;
@@ -86,20 +85,25 @@ void Loader::parseRest(std::string gameFile) {    ifstream s;
                     parseItem(s);
                 } else if (object == "mob"){
                     parseMob(s);
+                } else if (object == "consumable"){
+                    parseConsumable(s);
+                } else if (object == "equippable"){
+                    parseEquippable(s);
                 } else {
                     if (object != "set") {
-                        cerr << "Unreconized object type \"" << object << "\"" << endl;
+                        cerr << "Unrecognized object type \"" << object << "\"" << endl;
                     }
                     string buf;
                     do {
                         s >> buf;
                     } while (buf != "end");
                 }
+            } else {
+                cerr << "Unrecognized command \"" << command << "\"" << endl;
             }
         }
     } catch (const ifstream::failure &e) {
-        cerr << "Error reading from \"" << gameFile << "\"" << endl;
-        cerr << "Either unreadable or format issue." << endl;
+        // TODO, error on no file
     }
     s.close();
 }
@@ -201,28 +205,33 @@ void Loader::parseSet(istream &s) {
 Listener *Loader::loadEffect(istream &s) {
     string effect;
     s >> effect;
+    string drain;
     if (effect == "startHp") {
-
+        s >> drain;
     } else if (effect == "lifeDrain") {
-
+        s >> drain;
     } else if (effect == "allergy") {
-
+        string drain;
+        while (s >> drain, drain != "done") {}
     } else if (effect == "consumeMod") {
-
+        s >> drain;
     } else if (effect == "resistance") {
-
+        string drain;
+        while (s >> drain, drain != "done") {}
     } else if (effect == "regen") {
-
+        s >> drain;
     } else if (effect == "loot") {
-
+        s >> drain;
     } else if (effect == "venerability") {
-
+        string drain;
+        while (s >> drain, drain != "done") {}
     } else if (effect == "depleteOnConsume") {
-
+        s >> drain;
     } else if (effect == "restoreOnConsume") {
-
+        s >> drain;
     } else if (effect == "dropItems") {
-
+        string drain;
+        while (s >> drain, drain != "done") {}
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;
     }
@@ -232,31 +241,16 @@ Listener *Loader::loadEffect(istream &s) {
 Action *Loader::loadAction(istream &s) {
     string action;
     s >> action;
+    string drain;
     if (action == "melee") {
-
+        s >> drain;
+        s >> drain;
     } else if (action == "shoot") {
-
+        s >> drain;
+        s >> drain;
+        s >> drain;
     } else {
         cerr << "No such action \"" << action << "\"" << endl;
-    }
-    return nullptr;
-}
-
-Controller *Loader::loadController(istream &s) {
-    Controller * newController {nullptr};
-    string name;
-    while(s >> name, name != "done") {
-        if (name == "wander") {
-
-        } else if (name == "localAttack") {
-
-        } else if (name == "merchant") {
-
-        } else if (name == "dragon") {
-
-        } else {
-            cerr << "No such controller \"" << name << "\"" << endl;
-        }
     }
     return nullptr;
 }
@@ -299,19 +293,60 @@ void Loader::parseMob(istream &s) {
     int id {parseId(name)};
     mobs.emplace(id, unique_ptr<Character>(newMob));
     newMob->types.insert(id);
+    newMob->types.insert(parseId("mob"));
     string command;
     while(s >> command, command != "end") {
         if (command == "set") {
-
+            string set;
+            s >> set;
+            if (setTable.count(set)) {
+                newMob->addFeatureSet(*setTable.at(set));
+            } else {
+                cerr << "Could not find set \"" << set << "\"" << endl;
+            }
         } else if (command == "controller") {
-
+            newMob->controller = loadController(s);
         } else {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
 }
 
+Controller *Loader::loadController(istream &s) {
+    Controller * newController {nullptr};
+    string name;
+    while(s >> name, name != "done") {
+        if (name == "wander") {
+
+        } else if (name == "localAttack") {
+
+        } else if (name == "merchant") {
+
+        } else if (name == "dragon") {
+
+        } else {
+            cerr << "No such controller \"" << name << "\"" << endl;
+        }
+    }
+    controllers.emplace_back(newController);
+    return newController;
+}
+
 void Loader::parseItem(istream &s) {
+    string command;
+    while(s >> command, command != "end") {
+
+    }
+}
+
+void Loader::parseConsumable(std::istream &s) {
+    string command;
+    while(s >> command, command != "end") {
+
+    }
+}
+
+void Loader::parseEquippable(std::istream &s) {
     string command;
     while(s >> command, command != "end") {
 
@@ -329,4 +364,8 @@ int Loader::parseId(std::string name) {
 
 const std::map<int, Race> Loader::getClassOptions() const {
     return races;
+}
+
+void Loader::loadFile(std::string file) {
+    parseFile(file);
 }

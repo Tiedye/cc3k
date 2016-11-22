@@ -8,11 +8,12 @@ start item merchantHoard
     value 4
 end
 start item dragonHoard
+    stat base size 1 0
     value 6
 end
-start item sword
+start equippable sword
     value 8
-    equippable swordSet
+    equipped swordSet
 end
 start set swordSet
     stat mult atk 2

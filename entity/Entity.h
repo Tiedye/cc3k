@@ -28,7 +28,7 @@ public:
 	virtual void doTurn();
 
     void removeFromContainers();
-	virtual ~Entity();
+	virtual ~Entity() = default;
 
     // Entity is an EventEmmiter, as their are no other th functionality is included here
     void addListener(Listener &listener);

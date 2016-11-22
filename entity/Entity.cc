@@ -44,10 +44,6 @@ void Entity::removeListReference(std::list<std::shared_ptr<Entity>> &list) {
     listReferences.erase(&list);
 }
 
-Entity::~Entity() {
-    removeFromContainers();
-}
-
 void Entity::removeFromContainers() {
     for (auto it = listReferences.begin(); it != listReferences.end(); ++it) {
         it->first->erase(it->second);
@@ -268,7 +264,7 @@ void Entity::kill(shared_ptr<Entity> source) {
 void Entity::destroy() {
     // Trigger destroy
     trigger(DESTROYED);
-    delete this;
+    removeFromContainers();
     // Trigger destroy_done
     trigger(DESTROYED_DONE);
 }

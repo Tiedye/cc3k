@@ -37,12 +37,12 @@ int Character::getAccuracy() {
     return accuracy.value;
 }
 
-void Character::give(Item *item) {
+void Character::give(std::shared_ptr<Item> item) {
     // Trigger pick_up
 	trigger(PICK_UP, item);
 	inventory.push_front(item);
     // next line is super type hacky, the reason fo this is c++ doesnt think list<Enity *> is compatible with list<Item *>
-	item->addListReference((list<Entity *> &) inventory, ((list<Entity *> &) inventory).begin());
+	item->addListReference(static_cast<list<std::shared_ptr<Entity>> &>(inventory), static_cast<list<std::shared_ptr<Entity>> &>(inventory).begin());
     // Trigger pick_up_done
 	trigger(PICK_UP_DONE, item);
 }
@@ -66,15 +66,15 @@ void Character::doTurn() {
 Stat & Character::getCorrespondingStat(StatModifier &modifier) {
     switch (modifier.stat) {
         case ATTACK_STRENGTH:
-            return &attackStrength;
+            return attackStrength;
         case SPELL_STRENGTH:
-            return &spellStrength;
+            return spellStrength;
         case SPEED:
-            return &speed;
+            return speed;
         case TENACITY:
-            return &tenacity;
+            return tenacity;
         case ACCURACY:
-            return &accuracy;
+            return accuracy;
         default:
             return Entity::getCorrespondingStat(modifier);
     }

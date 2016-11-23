@@ -146,24 +146,24 @@ void Entity::removeListener(Listener &listener) {
     }
 }
 
-void Entity::addFeatureSet(FeatureSet &featureSet) {
+void Entity::addFeatureSet(FeatureSet &featureSet, int modNumerator, int modDenominator) {
     for (auto listener: featureSet.listeners) {
         addListener(*listener);
     }
     for (auto statModifier:featureSet.statModifiers) {
-        addModifier(statModifier);
+        addModifier(statModifier, modNumerator, modDenominator);
     }
     for (auto action: featureSet.actions) {
         addAction(*action);
     }
 }
 
-void Entity::removeFeatureSet(FeatureSet &featureSet) {
+void Entity::removeFeatureSet(FeatureSet &featureSet, int modNumerator, int modDenominator) {
     for (auto listener: featureSet.listeners) {
         removeListener(*listener);
     }
     for (auto statModifier:featureSet.statModifiers) {
-        removeModifier(statModifier);
+        removeModifier(statModifier, modNumerator, modDenominator);
     }
     for (auto action: featureSet.actions) {
         removeAction(*action);
@@ -176,54 +176,54 @@ void Entity::checkDead() {
     }
 }
 
-void Entity::addModifier(StatModifier &modifier) {
+void Entity::addModifier(StatModifier &modifier, int modNumerator, int modDenominator) {
     Stat &stat = getCorrespondingStat(modifier);
     switch (modifier.type) {
         case StatModifier::BASE:
             stat.bases.emplace(modifier.priority, modifier.base);
             break;
         case StatModifier::ADD:
-            stat.shift += modifier.amount;
+            stat.shift += modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::SUBTRACT:
-            stat.shift -= modifier.amount;
+            stat.shift -= modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::MULTIPLY:
-            stat.multiplier *= modifier.amount;
+            stat.multiplier *= modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::DIVIDE:
-            stat.divider *= modifier.amount;
+            stat.divider *= modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::MULTDIV:
-            stat.multiplier *= modifier.numerator;
-            stat.divider *= modifier.denominator;
+            stat.multiplier *= modifier.numerator * modNumerator;
+            stat.divider *= modifier.denominator * modDenominator;
             break;
         default:
             return;
     }
 }
 
-void Entity::removeModifier(StatModifier &modifier) {
-    Stat *stat {getCorrespondingStat(modifier)};
+void Entity::removeModifier(StatModifier &modifier, int modNumerator, int modDenominator) {
+    Stat &stat = getCorrespondingStat(modifier);
     switch (modifier.type) {
         case StatModifier::BASE:
-            stat->bases.erase(stat->bases.find(std::make_pair(modifier.priority, modifier.base)));
+            stat.bases.erase(stat.bases.find(std::make_pair(modifier.priority, modifier.base)));
             break;
         case StatModifier::ADD:
-            stat->shift -= modifier.amount;
+            stat.shift -= modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::SUBTRACT:
-            stat->shift += modifier.amount;
+            stat.shift += modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::MULTIPLY:
-            stat->multiplier /= modifier.amount;
+            stat.multiplier /= modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::DIVIDE:
-            stat->divider /= modifier.amount;
+            stat.divider /= modifier.amount * modNumerator / modDenominator;
             break;
         case StatModifier::MULTDIV:
-            stat->multiplier /= modifier.numerator;
-            stat->divider /= modifier.denominator;
+            stat.multiplier /= modifier.numerator * modNumerator;
+            stat.divider /= modifier.denominator * modDenominator;
             break;
         default:
             return;
@@ -236,13 +236,36 @@ bool Entity::isA(int type) {
 
 void Entity::doTurn() {
 
+
+    ++turnCount;
 }
 
-void Entity::addTemporaryFeatureSet(shared_ptr<Entity> source, FeatureSet &featureSet, EffectType effectType,
-                                    int numTurns) {
-    tempModNumerator = tempModDenominator = 1;
-    trigger(SET_ADD);
+void Entity::checkTempFeatures() {
+    while (tempFeatureSets.size() && tempFeatureSets.begin()->first == turnCount) {
+        TempFeatureSet &tempFeatureSet = tempFeatureSets.begin()->second;
+        removeFeatureSet(*tempFeatureSet.set, tempFeatureSet.modNumerator, tempFeatureSet.modDenominator);
+        tempFeatureSets.erase(tempFeatureSets.begin());
+    }
+}
 
+void Entity::addTemporaryFeatureSet(shared_ptr<Entity> source, shared_ptr<FeatureSet> featureSet, EffectType effectType,
+                                    int numTurns) {
+    EventInfo::Data data;
+    data.integer1 = 1;
+    data.integer2 = 1;
+
+    trigger(SET_ADD, data);
+
+    TempFeatureSet tempFeatureSet;
+    tempFeatureSet.effectType = effectType;
+    tempFeatureSet.modNumerator = data.integer1;
+    tempFeatureSet.modDenominator = data.integer2;
+    tempFeatureSet.set = featureSet;
+    tempFeatureSet.source = source;
+
+    tempFeatureSets.emplace(turnCount+numTurns, tempFeatureSet);
+
+    addFeatureSet(*featureSet, 0, 0);
 }
 
 shared_ptr<Entity> Entity::clone() {
@@ -423,6 +446,37 @@ void Entity::trigger(EventType eventType, double num, std::vector<std::shared_pt
     }
     info.eventType = eventType;
     info.eventDouble = num;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, EventInfo::Data &reference) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.eventType = eventType;
+    info.eventDataPointer = &reference;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, EventInfo::Data &reference, std::shared_ptr<Entity> secondary) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    info.secondary = secondary->getAsTarget();
+    info.eventType = eventType;
+    info.eventDataPointer = &reference;
+    for (auto listener: listeners[eventType]) {
+        listener->notify(info);
+    }
+}
+void Entity::trigger(EventType eventType, EventInfo::Data &reference, std::vector<std::shared_ptr<Entity>> secondaries) {
+    EventInfo info;
+    info.primary = getAsTarget();
+    for (auto secondary: secondaries) {
+        info.secondaries.push_back(secondary->getAsTarget());
+    }
+    info.eventType = eventType;
+    info.eventDataPointer = &reference;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }

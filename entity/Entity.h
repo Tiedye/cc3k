@@ -35,16 +35,17 @@ public:
     void removeListener(Listener &listener);
 	virtual std::unique_ptr<EventTarget> getAsTarget();
 
-    void addModifier(StatModifier &modifier);
-    void removeModifier(StatModifier &modifier);
+    void addModifier(StatModifier &modifier, int modNumerator = 1, int modDenominator = 1);
+    void removeModifier(StatModifier &modifier, int modNumerator = 1, int modDenominator = 1);
 
     virtual void addAction(Action &action);
     virtual void removeAction(Action &action);
 
-    void addFeatureSet(FeatureSet &featureSet);
-    void removeFeatureSet(FeatureSet &featureSet);
+    void addFeatureSet(FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1);
+    void removeFeatureSet(FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1);
 
-    void addTemporaryFeatureSet(std::shared_ptr<Entity> source, FeatureSet &featureSet, EffectType effectType,
+    void addTemporaryFeatureSet(std::shared_ptr<Entity> source, std::shared_ptr<FeatureSet> featureSet,
+                                EffectType effectType,
                                 int numTurns);
 
     bool isA(int type);
@@ -78,8 +79,6 @@ public:
 
     virtual std::shared_ptr<Entity> clone();
 
-    int tempModNumerator {1};
-    int tempModDenominator {1};
 protected:
     virtual Stat & getCorrespondingStat(StatModifier &modifier);
 
@@ -112,12 +111,20 @@ protected:
     void trigger(EventType eventType, double num);
     void trigger(EventType eventType, double num, std::shared_ptr<Entity> secondary);
     void trigger(EventType eventType, double num, std::vector<std::shared_ptr<Entity>> secondaries);
+    void trigger(EventType eventType, EventInfo::Data &reference);
+    void trigger(EventType eventType, EventInfo::Data &reference, std::shared_ptr<Entity> secondary);
+    void trigger(EventType eventType, EventInfo::Data &reference, std::vector<std::shared_ptr<Entity>> secondaries);
 
 private:
+    int turnCount {0};
+
+    void checkTempFeatures();
     struct TempFeatureSet {
         std::shared_ptr<FeatureSet> set;
         std::shared_ptr<Entity> source;
         EffectType effectType;
+        int modNumerator;
+        int modDenominator;
     };
 
     std::map<std::list<std::shared_ptr<Entity>>*, std::list<std::shared_ptr<Entity>>::iterator> listReferences;

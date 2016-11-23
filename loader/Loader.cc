@@ -295,7 +295,7 @@ void Loader::parseMob(istream &s) {
             string set;
             s >> set;
             if (setTable.count(set)) {
-                newMob->addFeatureSet(*setTable.at(set));
+                newMob->addFeatureSet(*setTable.at(set), 0, 0);
             } else {
                 cerr << "Could not find set \"" << set << "\"" << endl;
             }

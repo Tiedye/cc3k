@@ -42,7 +42,8 @@ void Character::give(std::shared_ptr<Item> item) {
 	trigger(PICK_UP, item);
 	inventory.push_front(item);
     // next line is super type hacky, the reason fo this is c++ doesnt think list<Enity *> is compatible with list<Item *>
-	item->addListReference(static_cast<list<std::shared_ptr<Entity>> &>(inventory), static_cast<list<std::shared_ptr<Entity>> &>(inventory).begin());
+	item->addListReference(reinterpret_cast<list<std::shared_ptr<Entity>> &>(inventory),
+                           reinterpret_cast<list<std::shared_ptr<Entity>> &>(inventory).begin());
     // Trigger pick_up_done
 	trigger(PICK_UP_DONE, item);
 }

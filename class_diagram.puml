@@ -1,0 +1,333 @@
+@startuml
+
+skinparam linetype ortho
+set namespaceSeparator ::
+
+class EventTarget {
+}
+
+namespace Action {
+
+    enum Shape {
+        POINT
+        LINE
+        CONE
+        CIRCLE
+        SQUARE
+    }
+
+    enum Targets {
+        SELF
+        FRIENDLY
+        HOSTILE
+        ALL
+    }
+
+}
+
+enum ActionType {
+    PASS
+    MOVE
+    CONSUME
+    EQUIP
+    INTERACT
+    ATTACK
+    AID
+    EFFECT
+}
+
+abstract class Action {
+    + const EventType preEvent
+    + const EventType postEvent
+
+    + const Targets targets
+    + const int range
+    + const Shape shape
+    + const bool aoe
+    + const int aoeSize
+
+    + Action(EventType preEvent, EventType postEvent, Targets targets, int range, Shape shape, bool aoe, int aoeSize)
+
+    + {abstract} void onHit(std::shared_ptr<Character> from, std::shared_ptr<Entity> to, Position castPoint)
+}
+
+
+class ConsoleDungeonRenderer {
+    # void entityMoved(const std::shared_ptr<Entity> entity, Position oldPos)
+
+    # void entityCreated(const std::shared_ptr<Entity> entity)
+
+    # void entityDestroyed(const std::shared_ptr<Entity> entity)
+
+    # void cellChanged(Position position)
+}
+
+DungeonRenderer <|- ConsoleDungeonRenderer
+
+abstract class DungeonRenderer {
+    + void changeCell(Position position)
+
+    + void notify(EventInfo &info)
+    + const std::vector<EventType> listeningFor() const
+
+    #static std::vector<EventType> eventTypes;
+
+    #DungeonRenderer(const std::vector<CellType> &cells);
+
+    # {abstract} void entityMoved(const std::shared_ptr<Entity> entity, Position oldPos)
+    # {abstract} void entityCreated(const std::shared_ptr<Entity> entity)
+    # {abstract} void entityDestroyed(const std::shared_ptr<Entity> entity)
+    # {abstract} void cellChanged(Position position)
+
+    const std::vector<CellType> &cells
+}
+
+Listener <|- DungeonRenderer
+
+namespace Entity {
+
+    class Target {
+        + Target( std::shared_ptr<Entity> &entity )
+        + std::shared_ptr<Entity> asEntity()
+        - std::shared_ptr<Entity> entity
+    }
+
+
+    Target -- Entity
+
+    class TempFeatureSet {
+        + std::shared_ptr<FeatureSet> set
+        + std::shared_ptr<Entity> source
+        + EffectType effectType
+        + int modNumerator
+        + int modDenominator
+    }
+
+    TempFeatureSet -- Entity
+
+}
+EventTarget <|- Entity::Target
+
+
+class Entity {
+    + void doTurn()
+
+    + void removeFromContainers()
+    + ~Entity()
+
+    + void addListener(Listener &listener)
+    + void removeListener(Listener &listener)
+    + std::unique_ptr<EventTarget> getAsTarget()
+
+    + void addModifier(StatModifier &modifier, int modNumerator = 1, int modDenominator = 1)
+    + void removeModifier(StatModifier &modifier, int modNumerator = 1, int modDenominator = 1)
+
+    + void addAction(Action &action)
+    + void removeAction(Action &action)
+
+    + void addFeatureSet(FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1)
+    + void removeFeatureSet(FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1)
+
+    + void addTemporaryFeatureSet(std::shared_ptr<Entity> source, std::shared_ptr<FeatureSet> featureSet, EffectType effectType, int numTurns)
+
+    + bool isA(int type)
+
+    + void damage(std::shared_ptr<Entity> source, int amount)
+    + int damage(int damage)
+    + void heal(std::shared_ptr<Entity> source, int amount)
+    + void heal(int amount)
+    + void move(std::shared_ptr<Entity> source, int distance, Direction direction)
+    + void move(int distance, Direction direction)
+    + void move(std::shared_ptr<Entity> source, Position destination)
+    + void move(Position destination)
+    + void kill(std::shared_ptr<Entity> source)
+    + void destroy()
+    + void interact(Character *source)
+
+    + int getHealth()
+    + void setHealth(int amount)
+
+    + void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference)
+    + void removeListReference(std::list<std::shared_ptr<Entity>> &list)
+
+    + Position getPosition()
+    + int getSize()
+    + int getMaxHealth()
+    + int getInitiative()
+    + int getDefenceStrength()
+    + int getKnockbackResist()
+    + int getDodge()
+
+    + std::shared_ptr<Entity> clone()
+
+    # virtual Stat & getCorrespondingStat(StatModifier &modifier)
+
+    # Position position
+    # int health
+
+    # Stat size
+    # Stat maxHealth
+    # Stat initiative
+    # Stat defenseStrength
+    # Stat knockbackResist
+    # Stat dodge
+
+    # void checkDead()
+
+    # void trigger(EventType eventType)
+    # void trigger(EventType eventType, std::shared_ptr<Entity> secondary)
+    # void trigger(EventType eventType, std::vector<std::shared_ptr<Entity>> secondaries)
+    # void trigger(EventType eventType, Position position)
+    # void trigger(EventType eventType, Position position, std::shared_ptr<Entity> secondary)
+    # void trigger(EventType eventType, Position position, std::vector<std::shared_ptr<Entity>> secondaries)
+    # void trigger(EventType eventType, int integer)
+    # void trigger(EventType eventType, int integer, std::shared_ptr<Entity> secondary)
+    # void trigger(EventType eventType, int integer, std::vector<std::shared_ptr<Entity>> secondaries)
+    # void trigger(EventType eventType, float num)
+    # void trigger(EventType eventType, float num, std::shared_ptr<Entity> secondary)
+    # void trigger(EventType eventType, float num, std::vector<std::shared_ptr<Entity>> secondaries)
+    # void trigger(EventType eventType, double num)
+    # void trigger(EventType eventType, double num, std::shared_ptr<Entity> secondary)
+    # void trigger(EventType eventType, double num, std::vector<std::shared_ptr<Entity>> secondaries)
+    # void trigger(EventType eventType, EventInfo::Data &reference)
+    # void trigger(EventType eventType, EventInfo::Data &reference, std::shared_ptr<Entity> secondary)
+    # void trigger(EventType eventType, EventInfo::Data &reference, std::vector<std::shared_ptr<Entity>> secondaries)
+
+    - int turnCount {0}
+
+    - void checkTempFeatures()
+
+
+    - std::map<std::list<std::shared_ptr<Entity>>*, std::list<std::shared_ptr<Entity>>::iterator> listReferences
+
+    - std::map<EventType, std::set<std::shared_ptr<Listener>>> listeners
+
+    - std::map<int, TempFeatureSet> tempFeatureSets
+
+    - std::set<int> types
+
+    - std::shared_ptr<Controller> controller
+}
+
+namespace Character {
+	class Target {
+		+ Target( std::shared_ptr<Character> &character )
+		+ std::shared_ptr<Entity> asEntity()
+		+ std::shared_ptr<Character> asCharacter()
+		- std::shared_ptr<Character> character
+	}
+	
+	Target -- Character
+}
+EventTarget <|- Character::Target
+
+class Character {
+    + void doTurn()
+
+    + std::unique_ptr<EventTarget> getAsTarget()
+
+    + void addAction(Action &action)
+    + void removeAction(Action &action)
+
+    + void give(std::shared_ptr<Item> item)
+
+    + int getAttackStrength()
+    + int getSpellStrength()
+    + int getSpeed()
+    + int getTenacity()
+    + int getAccuracy()
+
+    + std::shared_ptr<Entity> clone()
+
+    # Stat & getCorrespondingStat(StatModifier &modifier)
+
+    # Stat attackStrength
+    # Stat spellStrength
+    # Stat speed
+    # Stat tenacity
+    # Stat accuracy
+
+    # std::list<std::shared_ptr<Item>> inventory
+    # std::map<int, std::shared_ptr<Item>> slots
+}
+
+Entity <|- Character
+
+namespace Item {
+    class Target {
+        + Target(std::shared_ptr<Item> item)
+        + std::shared_ptr<Entity> asEntity()
+        + std::shared_ptr<Item> asItem()
+
+        - std::shared_ptr<Item> item
+    }
+    Target -- Item
+}
+
+EventTarget <|- Item::Target
+
+class Item {
+    + Item()
+    + std::unique_ptr<EventTarget> getAsTarget()
+}
+
+Entity <|- Item
+
+namespace Consumable {
+    class Target {
+        + Target(std::shared_ptr<Item> item)
+        + std::shared_ptr<Entity> asEntity()
+        + std::shared_ptr<Item> asItem()
+        + std::shared_ptr<Consumable> asConsumable()
+
+        - std::shared_ptr<Consumable> Consumable
+    }
+
+    Target -- Consumable
+}
+EventTarget <|- Consumable::Target
+
+class Consumable {
+    + Item()
+    + std::unique_ptr<EventTarget> getAsTarget()
+}
+
+Item <|- Consumable
+
+namespace Equippable {
+    class Target {
+        + Target(std::shared_ptr<Item> item)
+        + std::shared_ptr<Entity> asEntity()
+        + std::shared_ptr<Item> asItem()
+        + std::shared_ptr<Equippable> asEquippable()
+
+        - std::shared_ptr<Equippable> equippable
+    }
+
+    Target -- Equippable
+}
+EventTarget <|- Equippable::Target
+
+class Equippable {
+    + Item()
+    + std::unique_ptr<EventTarget> getAsTarget()
+}
+
+Item <|- Equippable
+
+class Stat {
+    + Stat()
+    + Stat(int base)
+    + int value
+    + std::multiset<std::pair<int, int>> bases
+    + int base
+    + int shift
+    + int multiplier
+    + int divider
+    + void update()
+}
+
+Stat *-- Entity
+Stat *-- Character
+
+@enduml

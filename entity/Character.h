@@ -1,9 +1,11 @@
 #pragma once
 #include "Entity.h"
+#include "../Game.h"
+#include "../stage/Dungeon.h"
 #include <list>
 #include <map>
 
-class Character: public Entity {
+class Character: public Entity, std::enable_shared_from_this<Character> {
 public:
 	class Target : public EventTarget {
 	public:
@@ -14,16 +16,13 @@ public:
 		std::shared_ptr<Character> character;
 	};
 
-    void doTurn() override;
+    void doTurn(Dungeon &dungeon) override;
 
     std::unique_ptr<EventTarget> getAsTarget() override;
 
-    void addAction(Action &action) override;
-    void removeAction(Action &action) override;
+    void give(std::shared_ptr<Item> item) override ;
 
-    void give(std::shared_ptr<Item> item);
-
-	int getAttackStrength();
+    int getAttackStrength();
 	int getSpellStrength();
 	int getSpeed();
 	int getTenacity();
@@ -41,5 +40,13 @@ protected:
     Stat accuracy; // base value 0
 
     std::list<std::shared_ptr<Item>> inventory;
-    std::map<int, std::shared_ptr<Item>> slots;
+    std::map<int, std::shared_ptr<Equippable>> slots;
+
+private:
+    void equip(std::shared_ptr<Equippable> equippable);
+    void unequip(std::shared_ptr<Equippable> equippable);
+
+    friend class Equippable;
+
+    std::shared_ptr<Controller> controller;
 };

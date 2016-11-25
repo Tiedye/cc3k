@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Item::Target::Target(std::shared_ptr<Item> item):item{item} {}
+Item::Target::Target(shared_ptr<Item> &item): item{item} {}
 
 shared_ptr<Entity> Item::Target::asEntity() {
     return item;
@@ -14,7 +14,7 @@ std::shared_ptr<Item> Item::Target::asItem() {
 }
 
 std::unique_ptr<EventTarget> Item::getAsTarget() {
-    return make_unique<Target>(this);
+    return make_unique<Target>(shared_from_this());
 }
 
 Item::Item() {
@@ -32,4 +32,12 @@ const std::vector<EventType> Item::PickupOnInteract::listeningFor() const {
     return eventTypes;
 }
 
-Item::PickupOnInteract Item::pickupOnInteract {};
+shared_ptr<Item::PickupOnInteract> Item::pickupOnInteract = make_shared<Item::PickupOnInteract>();
+
+shared_ptr<Entity> Item::clone() {
+    return new Item(*this);
+}
+
+int Item::getValue() {
+    return value;
+}

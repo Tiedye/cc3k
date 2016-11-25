@@ -14,6 +14,7 @@ public:
     void addEntity(Entity &entity);
 
     std::list<std::shared_ptr<Entity>> getEntitiesAt(Position position);
+    std::shared_ptr<Entity> getEntityAt(Position position);
     CellType getCellType(Position position);
     void start(Game &game) override;
 private:

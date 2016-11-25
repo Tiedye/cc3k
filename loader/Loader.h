@@ -35,14 +35,17 @@ private:
     std::shared_ptr<Controller> loadController(std::istream &s);
     int parseId(std::string name);
 
-    std::map<std::string, std::unique_ptr<FeatureSet>> setTable;
+    std::map<std::string, std::shared_ptr<FeatureSet>> setTable;
     std::map<std::string, int> typeTable;
 
     std::map<int, Race> races;
 
     std::map<int, std::unique_ptr<Character>> mobs;
+    std::map<int, std::unique_ptr<Item>> items;
+    std::map<int, std::unique_ptr<Consumable>> consumables;
+    std::map<int, std::unique_ptr<Equippable>> equippables;
 
-    std::vector<std::unique_ptr<Controller>> controllers;
+    std::vector<std::shared_ptr<Controller>> controllers;
 };
 
 

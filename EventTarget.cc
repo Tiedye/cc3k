@@ -16,6 +16,6 @@ std::shared_ptr<Consumable> EventTarget::asConsumable() {
 	return nullptr;
 }
 
-std::shared_ptr<Equipable> EventTarget::asEquipable() {
+std::shared_ptr<Equippable> EventTarget::asEquippable() {
 	return nullptr;
 }

@@ -6,9 +6,11 @@ start consumable restoreHealthPotion
 end
 start consumable boostAtkPotion
     consumed 50 atkBoost
+    effectType positive
 end
 start consumable boostDefPotion
     consumed 50 defBoost
+    effectType positive
 end
 start set poisonHealthPotionSet
     effect depleteOnConsume 10
@@ -18,9 +20,11 @@ start consumable poisonHealthPotion
 end
 start consumable woundAtkPotion
     consumed 50 atkPenalty
+    effectType negative
 end
 start consumable woundDefPotion
     consumed 50 defPenalty
+    effectType negative
 end
 start set atkBoost
     stat add atk 5

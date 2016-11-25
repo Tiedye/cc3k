@@ -13,7 +13,7 @@ start item dragonHoard
 end
 start equippable sword
     value 8
-    equipped swordSet
+    equipped hand swordSet
 end
 start set swordSet
     stat mult atk 2

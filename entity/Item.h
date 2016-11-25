@@ -2,13 +2,13 @@
 
 #include "Entity.h"
 
-class Item : public Entity {
+class Item : public Entity, std::enable_shared_from_this<Item> {
 public:
     Item();
 
     class Target : public EventTarget {
     public:
-        Target(std::shared_ptr<Item> item);
+        Target(std::shared_ptr<Item> &item);
         std::shared_ptr<Entity> asEntity() override;
         std::shared_ptr<Item> asItem() override;
 
@@ -18,7 +18,13 @@ public:
 
     std::unique_ptr<EventTarget> getAsTarget() override;
 
+    std::shared_ptr<Entity> clone() override;
+
+    int getValue();
+
 private:
+    int value;
+
     class PickupOnInteract : public Listener {
     public:
         virtual void notify(EventInfo &info) override;
@@ -26,7 +32,9 @@ private:
         static const std::vector<EventType> eventTypes;
         const std::vector<EventType> listeningFor() const override;
     };
-    static PickupOnInteract pickupOnInteract;
+    static std::shared_ptr<PickupOnInteract> pickupOnInteract;
+
+    friend class Loader;
 };
 
 

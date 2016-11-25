@@ -7,6 +7,8 @@
 #include <sstream>
 
 #include "../entity/Character.h"
+#include "../entity/Consumable.h"
+#include "../entity/Equippable.h"
 
 using namespace std;
 
@@ -252,18 +254,23 @@ shared_ptr<Action> Loader::loadAction(istream &s) {
 }
 
 void Loader::parseRace(istream &s){
-    Race race;
-    s >> race.name;
-    race.id = parseId(race.name);
+    auto race = make_unique<Race>();
+    s >> race->name;
+    race->id = parseId(race->name);
     string command;
     while(s >> command, command != "end") {
         if (command == "set") {
             string set;
             s >> set;
             if (setTable.count(set)) {
-                race.featureSet = setTable.at(set).get();
+                race->featureSet = setTable[set];
             } else {
                 cerr << "Could not find set \"" << set << "\"" << endl;
+            }
+        } else if (command == "slots") {
+            string slot;
+            while(s >> slot, slot != "done") {
+                race->slots.insert(parseId(slot));
             }
         } else if (command == "desc") {
             string word;
@@ -272,14 +279,14 @@ void Loader::parseRace(istream &s){
                 if (word == "nl") desc << endl;
                 else desc << word;
             }
-            race.description = desc.str();
+            race->description = desc.str();
         } else if (command == "shortcut") {
-            s >> race.shortCut;
+            s >> race->shortcut;
         } else {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
-    races.emplace(race.id, race);
+    races.emplace(race->id, race);
 }
 
 void Loader::parseMob(istream &s) {
@@ -295,7 +302,7 @@ void Loader::parseMob(istream &s) {
             string set;
             s >> set;
             if (setTable.count(set)) {
-                newMob->addFeatureSet(*setTable.at(set), 0, 0);
+                newMob->addFeatureSet(*setTable[set]);
             } else {
                 cerr << "Could not find set \"" << set << "\"" << endl;
             }
@@ -329,23 +336,119 @@ shared_ptr<Controller> Loader::loadController(istream &s) {
 }
 
 void Loader::parseItem(istream &s) {
+    auto newItem = make_unique<Item>();
+    string name;
+    s >> name;
+    int id {parseId(name)};
+    newItem->types.insert(id);
+    newItem->types.insert(parseId("item"));
     string command;
     while(s >> command, command != "end") {
-
+        if (command == "set") {
+            string set;
+            s >> set;
+            if (setTable.count(set)) {
+                newItem->addFeatureSet(*setTable[set]);
+            } else {
+                cerr << "Could not find set \"" << set << "\"" << endl;
+            }
+        } else if (command == "value") {
+            int value;
+            s >> value;
+            newItem->value = value;
+        } else {
+            cerr << "Unknown Command \"" << command << "\"" << endl;
+        }
     }
 }
 
 void Loader::parseConsumable(std::istream &s) {
+    auto newConsumable = make_unique<Consumable>();
+    string name;
+    s >> name;
+    int id {parseId(name)};
+    newConsumable->types.insert(id);
+    newConsumable->types.insert(parseId("item"));
+    newConsumable->types.insert(parseId("consumable"));
     string command;
     while(s >> command, command != "end") {
-
+        if (command == "set") {
+            string set;
+            s >> set;
+            if (setTable.count(set)) {
+                newConsumable->addFeatureSet(*setTable[set]);
+            } else {
+                cerr << "Could not find set \"" << set << "\"" << endl;
+            }
+        } else if (command == "value") {
+            int value;
+            s >> value;
+            newConsumable->value = value;
+        } else if (command == "consumed") {
+            int numTurns; // TODO check syntax error
+            s >> numTurns;
+            string set;
+            s >> set;
+            if (setTable.count(set)) {
+                newConsumable->set = setTable[set];
+                newConsumable->numTurns = numTurns;
+            } else {
+                cerr << "Could not find set \"" << set << "\"" << endl;
+            }
+        } else if (command == "effectType"){
+            string effectType;
+            s >> effectType;
+            if (effectType == "positive") {
+                newConsumable->effectType = POSITIVE;
+            } else if (effectType == "negative") {
+                newConsumable->effectType = NEGATIVE;
+            } else if (effectType == "neutral") {
+                newConsumable->effectType = NEUTRAL;
+            } else {
+                cerr << "Unknown effectType \"" << effectType << "\"" << endl;
+            }
+        } else {
+            cerr << "Unknown Command \"" << command << "\"" << endl;
+        }
     }
 }
 
 void Loader::parseEquippable(std::istream &s) {
+    auto newEquippable = make_unique<Equippable>();
+    string name;
+    s >> name;
+    int id {parseId(name)};
+    newEquippable->types.insert(id);
+    newEquippable->types.insert(parseId("item"));
+    newEquippable->types.insert(parseId("equippable"));
     string command;
     while(s >> command, command != "end") {
-
+        if (command == "set") {
+            string set;
+            s >> set;
+            if (setTable.count(set)) {
+                newEquippable->addFeatureSet(*setTable[set]);
+            } else {
+                cerr << "Could not find set \"" << set << "\"" << endl;
+            }
+        } else if (command == "value") {
+            int value;
+            s >> value;
+            newEquippable->value = value;
+        } else if (command == "equipped") {
+            string slot;
+            s >> slot;
+            string set;
+            s >> set;
+            if (setTable.count(set)) {
+                newEquippable->slot = parseId(slot);
+                newEquippable->set = setTable[set];
+            } else {
+                cerr << "Could not find set \"" << set << "\"" << endl;
+            }
+        } else {
+            cerr << "Unknown Command \"" << command << "\"" << endl;
+        }
     }
 }
 

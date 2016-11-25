@@ -11,7 +11,11 @@ void Dungeon::start(Game &game) {
 }
 
 CellType Dungeon::getCellType(Position position) {
-    return cells[position.col+position.row+width];
+    if (position.row < height && position.row >= 0 && position.col < width && position.col >= 0) {
+        return cells[position.col + position.row + width];
+    } else {
+        return WALL;
+    }
 }
 
 Dungeon::Dungeon(State &state, int id, int width, int height) : Stage(state, id), width{width}, height{height} {}
@@ -26,4 +30,16 @@ void Dungeon::addEntity(Entity &entity) {
 
 std::list<std::shared_ptr<Entity>> &Dungeon::getCellListAt(Position position) {
     return cellEntities[position.col+position.row*width];
+}
+
+std::shared_ptr<Entity> Dungeon::getEntityAt(Position position) {
+    shared_ptr<Entity> largest;
+    for(auto entity:getEntitiesAt(position)) {
+        if (largest) {
+            if (entity->getSize() > largest->getSize()) largest = entity;
+        } else {
+            largest = entity;
+        }
+    }
+    return largest;
 }

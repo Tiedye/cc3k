@@ -1,34 +1,51 @@
 @startuml
-skinparam linetype ortho
-class Position {
-    +int row
-    +int col
-    +operator+(Position position)
-}
 
-class Stat {
-    +int value
-    +multiset<pair<int, int>> bases
-    +int base
-    +int shift
-    +int multiplier
-    +int divider
-    +void update()
-}
+set namespaceSeparator ::
 
-class Entity {
-    #Position position
-    #int health
-    #Stat size
-    #Stat maxHealth
-    #Stat initiative
-    #Stat defenceStrength
-    #Stat knockbaskResist
-    __ Event __
-    +void addListener(Listener &lister)
-    +void removeListener(Listener &lister)
-}
+class Entity
+class Character
+class Item
+class Equippable
+class Consumable
+class EventInfo
+class Action
 
-Entity *-- Position
-Entity *-- "0..*" Stat
+
+Entity::TempFeatureSet *-- Entity
+
+EventInfo::Data *-- EventInfo
+
+Loader *-- Character
+
+Loader *-- Controller
+
+Stage <|- Menu
+Stage <|- Dungeon
+
+Action::Shape *-- Action
+Action::Targets *-- Action
+
+Listener <|- DungeonRenderer
+
+DungeonRenderer <|- ConsoleDungeonRenderer
+
+EventTarget <|- Entity::Target
+EventTarget <|- Character::Target
+EventTarget <|- Item::Target
+EventTarget <|- Consumable::Target
+EventTarget <|- Equippable::Target
+
+Entity <|- Item
+Entity <|- Character
+Item <|- Consumable
+Item <|- Equippable
+
+Entity::Target .. Entity
+Character::Target .. Character
+Item::Target .. Item
+Consumable::Target .. Consumable
+Equippable::Target .. Equippable
+
+Stat *-- Entity
+Stat *-- Character
 @enduml

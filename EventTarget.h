@@ -6,7 +6,7 @@ class Entity;
 class Character;
 class Item;
 class Consumable;
-class Equipable;
+class Equippable;
 
 struct EventTarget {
 	virtual ~EventTarget() = default;
@@ -14,5 +14,5 @@ struct EventTarget {
 	virtual std::shared_ptr<Character> asCharacter();
 	virtual std::shared_ptr<Item> asItem();
 	virtual std::shared_ptr<Consumable> asConsumable();
-	virtual std::shared_ptr<Equipable> asEquipable();
+	virtual std::shared_ptr<Equippable> asEquippable();
 };

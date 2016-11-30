@@ -1,32 +1,42 @@
 #pragma once
-#include "../EventTarget.h"
-#include "../util/Size.h"
-#include "../util/Position.h"
-#include "../Listener.h"
-#include "../FeatureSet.h"
-#include "../util/Direction.h"
-#include "../StatModifier.h"
-#include "Stat.h"
-#include "../util/EffectType.h"
-#include "../State.h"
-#include "../Game.h"
-#include "../stage/Dungeon.h"
+
 #include <memory>
 #include <list>
 #include <map>
 #include <set>
+#include <vector>
 
+#include "../util/Size.h"
+#include "../util/Position.h"
+#include "../util/Direction.h"
+#include "../util/EffectType.h"
+#include "../event/EventType.h"
+
+#include "Stat.h"
+
+#include "../event/EventTarget.h"
+#include "../event/EventInfo.h"
+
+class Listener;
+class FeatureSet;
+class StatModifier;
+class Action;
+class Dungeon;
 class Controller;
+class Dungeon;
 
-class Entity : std::enable_shared_from_this<Entity> {
+class Entity : public std::enable_shared_from_this<Entity> {
 public:
 	class Target : public EventTarget {
 	public:
-		Target( std::shared_ptr<Entity> &entity );
+		Target(const std::shared_ptr<Entity> &entity);
 		std::shared_ptr<Entity> asEntity() override;
 	private:
         std::shared_ptr<Entity> entity;
 	};
+
+    Entity();
+    Entity(const Entity&other);
 
 	virtual void doTurn(Dungeon &dungeon);
 
@@ -34,20 +44,20 @@ public:
 	virtual ~Entity() = default;
 
     // Entity is an EventEmmiter, as their are no other th functionality is included here
-    void addListener(std::shared_ptr<Listener> listener);
-    void removeListener(std::shared_ptr<Listener> listener);
+    void addListener(const std::shared_ptr<Listener> &listener);
+    void removeListener(const std::shared_ptr<Listener> &listener);
 	virtual std::unique_ptr<EventTarget> getAsTarget();
 
     void addModifier(const StatModifier &modifier, int modNumerator = 1, int modDenominator = 1);
     void removeModifier(const StatModifier &modifier, int modNumerator = 1, int modDenominator = 1);
 
-    void addAction(std::shared_ptr<Action> action);
-    void removeAction(std::shared_ptr<Action> action);
+    void addAction(const std::shared_ptr<Action> &action);
+    void removeAction(const std::shared_ptr<Action> &action);
 
     void addFeatureSet(const FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1);
     void removeFeatureSet(const FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1);
 
-    void addTemporaryFeatureSet(std::shared_ptr<Entity> source, const std::shared_ptr<FeatureSet> featureSet,
+    void addTemporaryFeatureSet(const std::shared_ptr<Entity> &source, const std::shared_ptr<FeatureSet> &featureSet,
                                 EffectType effectType,
                                 int numTurns);
 
@@ -56,31 +66,34 @@ public:
     // acting upon this entity
 	void create();
 
-    void occupy(std::shared_ptr<Entity> &source);
+    void occupy(const std::shared_ptr<Entity> &source);
 
-    void interact(std::shared_ptr<Entity> source);
+    void interact(const std::shared_ptr<Entity> &source);
 
-    void damage(std::shared_ptr<Entity> source, int amount);
-    int damage(int damage);
-    void heal(std::shared_ptr<Entity> source, int amount);
-    void heal(int amount);
-    void move(std::shared_ptr<Entity> &source, int distance, Direction direction);
-    void move(int distance, Direction direction);
-    void move(std::shared_ptr<Entity> &source, Position destination);
-    void move(Position destination);
-    void kill(std::shared_ptr<Entity> &source);
+    void damage(const int amount, const std::shared_ptr<Entity> &source);
+    int damage(const int damage);
+    void heal(const int amount, const std::shared_ptr<Entity> &source);
+    void heal(const int amount);
+    void move(const int distance, const Direction direction, const std::shared_ptr<Entity> &source);
+    void move(const int distance, const Direction direction);
+    void move(const Position destination, const std::shared_ptr<Entity> &source);
+    void move(const Position destination);
+    void kill(const std::shared_ptr<Entity> &source);
     void destroy();
 
-	virtual void give(std::shared_ptr<Item> item);
-    virtual void equip(std::shared_ptr<Character> onto);
+	virtual void give(const std::shared_ptr<Item> &item);
+    virtual void equip(const std::shared_ptr<Character> &onto);
     virtual void unequip();
-    virtual void consume(std::shared_ptr<Character> by);
+    virtual void consume(const std::shared_ptr<Character> &by);
 
     int getHealth();
-    void setHealth(int amount);
+    void setHealth(const int amount);
+    bool isDead();
 
-    void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
-    void removeListReference(std::list<std::shared_ptr<Entity>> &list);
+	void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
+	void addListReference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference);
+	void removeListReference(std::list<std::shared_ptr<Entity>> &list);
+	void removeListReference(std::list<std::shared_ptr<Item>> &list);
 
 	Position getPosition();
 	int getSize();
@@ -90,29 +103,43 @@ public:
     int getKnockbackResist();
     int getDodge();
 
+    const std::string & getName();
+
+    bool onFloor {false};
+
+    char representation;
+
     virtual std::shared_ptr<Entity> clone();
 
 	void trigger(EventType eventType);
-	void trigger(EventType eventType, std::shared_ptr<Entity> secondary);
-	void trigger(EventType eventType, std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(EventType eventType, const std::shared_ptr<Entity> &secondary);
+	void trigger(EventType eventType, const std::vector<std::shared_ptr<Entity>> &secondaries);
 	void trigger(EventType eventType, Position position);
-	void trigger(EventType eventType, Position position, std::shared_ptr<Entity> secondary);
-	void trigger(EventType eventType, Position position, std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(EventType eventType, Position position, const std::shared_ptr<Entity> &secondary);
+	void trigger(EventType eventType, Position position, const std::vector<std::shared_ptr<Entity>> &secondaries);
 	void trigger(EventType eventType, int integer);
-	void trigger(EventType eventType, int integer, std::shared_ptr<Entity> secondary);
-	void trigger(EventType eventType, int integer, std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(EventType eventType, int integer, const std::shared_ptr<Entity> &secondary);
+	void trigger(EventType eventType, int integer, const std::vector<std::shared_ptr<Entity>> &secondaries);
 	void trigger(EventType eventType, float num);
-	void trigger(EventType eventType, float num, std::shared_ptr<Entity> secondary);
-	void trigger(EventType eventType, float num, std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(EventType eventType, float num, const std::shared_ptr<Entity> &secondary);
+	void trigger(EventType eventType, float num, const std::vector<std::shared_ptr<Entity>> &secondaries);
 	void trigger(EventType eventType, double num);
-	void trigger(EventType eventType, double num, std::shared_ptr<Entity> secondary);
-	void trigger(EventType eventType, double num, std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(EventType eventType, double num, const std::shared_ptr<Entity> &secondary);
+	void trigger(EventType eventType, double num, const std::vector<std::shared_ptr<Entity>> &secondaries);
 	void trigger(EventType eventType, EventInfo::Data &reference);
-	void trigger(EventType eventType, EventInfo::Data &reference, std::shared_ptr<Entity> secondary);
-	void trigger(EventType eventType, EventInfo::Data &reference, std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(EventType eventType, EventInfo::Data &reference, const std::shared_ptr<Entity> &secondary);
+	void trigger(EventType eventType, EventInfo::Data &reference, const std::vector<std::shared_ptr<Entity>> &secondaries);
 
 protected:
-    virtual Stat & getCorrespondingStat(StatModifier &modifier);
+    template <typename Derived>
+    std::shared_ptr<Derived> shared_from_base()
+    {
+        return std::static_pointer_cast<Derived>(shared_from_this());
+    }
+
+    std::string name;
+
+    virtual Stat & getCorrespondingStat(const StatModifier &modifier);
 
 	Position position {0,0};
     int health = {0};
@@ -149,6 +176,8 @@ private:
     std::map<int, TempFeatureSet> tempFeatureSets;
 
     std::set<int> types;
+
+    bool dead {false};
 
     friend class Loader;
 };

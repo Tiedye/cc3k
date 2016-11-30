@@ -2,12 +2,12 @@
 
 #include "../entity/Character.h"
 
-WalkAction::WalkAction() :Action(Type::MOVE, MOVE) {
+WalkAction::WalkAction() :Action(MOVE, MOVEACTION) {
 
 }
 
 int WalkAction::getRange(Character &source) const {
-    return source->getSpeed();
+    return source.getSpeed();
 }
 
 int WalkAction::getMinRange(Character &source) const {

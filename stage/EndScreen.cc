@@ -1,3 +1,7 @@
 #include "EndScreen.h"
 
-EndScreen::EndScreen(State &state, int id) : Stage(state, id) {}
+EndScreen::EndScreen(const std::shared_ptr<State> &state, const int returnId) : Stage(state), returnId{returnId} {}
+
+int EndScreen::run(Game &game) {
+    return returnId;
+}

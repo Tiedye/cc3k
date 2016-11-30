@@ -4,12 +4,12 @@
 #include "../entity/Character.h"
 
 BasicAttack::BasicAttack(const int atkNumerator, const int atkDenominator, const int spellNumerator,
-                         const int spellDenominator) : Action(Type::ATTACK, ACTION, ALL),
+                         const int spellDenominator) : Action(Type::ATTACK, ACTION, EXTERNAL),
                                                        atkNumerator(atkNumerator), atkDenominator(atkDenominator),
                                                        spellNumerator(spellNumerator),
                                                        spellDenominator(spellDenominator) {}
 
-int BasicAttack::getAmount(Character &source) {
-    return source->getAttackStrength() * atkNumerator / atkDenominator +
-           source->getSpellStrength() * spellNumerator / spellDenominator;
+int BasicAttack::getAmount(Character &source) const {
+    return source.getAttackStrength() * atkNumerator / atkDenominator +
+           source.getSpellStrength() * spellNumerator / spellDenominator;
 }

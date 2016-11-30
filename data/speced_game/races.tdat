@@ -1,0 +1,63 @@
+start set player
+    stat base size 1 0
+    stat base init 10 0
+    stat base acc 100 0
+    stat base speed 1 0
+    action melee 1 0
+    action walkAsAction
+    action eat
+end
+start set shadeSet
+    inherit player
+    stat base hp 125 0
+    stat base atk 25 0
+    stat base def 25 0
+end
+start race shade
+    set shadeSet
+end
+start set drowSet
+    inherit player
+    stat base hp 150 0
+    stat base atk 25 0
+    stat base def 15 0
+    effect healthGainEnhancer 3 2 potion
+    effect damageTakenEnhancer 3 2 potion
+    effect resistance 2 1 elf done
+end
+start race drow
+    set drowSet
+end
+start set vampireSet
+    inherit player
+    stat base hp 100000000 0
+    stat base atk 25 0
+    stat base def 25 0
+    effect StartHp 50
+    effect lifeDrain 5
+    effect allergy 10 dwarf done
+end
+start race vampire
+    set vampireSet
+end
+run set trollSet
+    inherit player
+    stat base hp 120 0
+    stat base atk 25 0
+    stat base def 15 0
+    effect regen 5
+end
+start race troll
+    set trollSet
+end
+start set goblinSet
+    inherit player
+    stat base hp 110 0
+    stat base atk 15 0
+    stat base def 20 0
+    effect loot 5
+    effect venerability 3 2 orc done
+end
+start race goblin
+    set goblinSet
+end

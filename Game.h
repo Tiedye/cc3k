@@ -9,19 +9,24 @@
 
 class Game {
 public:
+    Game(const std::shared_ptr<State> &state);
+
     void setInitialStage(int stage);
 
-    void addStage(int group, Stage *stage);
+    void addStage(int group, const std::shared_ptr<Stage> &stage);
     void removeState(int id);
     void removeStates(int group);
 
-    void addEntityClass(int id, Entity *entity);
-    State & getState();
     void start();
+
+    static int getId();
+    static int nextId();
 private:
+    static int ids;
     std::map<int, std::shared_ptr<Stage>> stages;
+    std::map<int, std::vector<std::map<int, std::shared_ptr<Stage>>::iterator>> groups;
     std::shared_ptr<Stage> currentStage;
-    State state;
+    std::shared_ptr<State> state;
 };
 
 

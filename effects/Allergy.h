@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "../Listener.h"
+#include "../event/Listener.h"
 #include <set>
 
 class Allergy : public Listener {
@@ -10,10 +10,10 @@ public:
 
     void notify(EventInfo &info) override;
 
-    static const std::vector<EventType> eventTypes;
     const std::vector<EventType> listeningFor() const override;
 
 private:
+    static const std::vector<EventType> eventTypes;
     const int amount;
     const std::vector<int> to;
 };

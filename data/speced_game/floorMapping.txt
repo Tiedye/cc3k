@@ -1,0 +1,17 @@
+0 restoreHealthPotion
+1 boostAtkPotion
+2 boostDefPotion
+3 poisonHealthPotion
+4 woundAtkPotion
+5 woundDefPotion
+6 normalGold
+7 smallGold
+8 merchantHoard
+9 dragonHoard
+H human
+W dwarf
+E elf
+O orc
+M merchant
+D dragon
+L halfling

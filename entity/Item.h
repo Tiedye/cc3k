@@ -2,13 +2,17 @@
 
 #include "Entity.h"
 
-class Item : public Entity, std::enable_shared_from_this<Item> {
+#include "../event/Listener.h"
+
+class Item : public Entity {
 public:
+    Item(const Item&other);
+
     Item();
 
     class Target : public EventTarget {
     public:
-        Target(std::shared_ptr<Item> &item);
+        Target(const std::shared_ptr<Item> &item);
         std::shared_ptr<Entity> asEntity() override;
         std::shared_ptr<Item> asItem() override;
 

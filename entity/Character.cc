@@ -1,14 +1,17 @@
 #include "Character.h"
+
+#include <algorithm>
+
 #include "Item.h"
 #include "Equippable.h"
+
 #include "../controller/Controller.h"
-#include "../Game.h"
 #include "../stage/Dungeon.h"
-#include <algorithm>
+#include "../util/StatModifier.h"
 
 using namespace std;
 
-Character::Target::Target( std::shared_ptr<Character> &character ) : character {character} {}
+Character::Target::Target(const shared_ptr<Character> &character) : character {character} {}
 
 shared_ptr<Entity> Character::Target::asEntity() {
 	return character;
@@ -19,7 +22,7 @@ std::shared_ptr<Character> Character::Target::asCharacter() {
 }
 
 std::unique_ptr<EventTarget> Character::getAsTarget() {
-	return make_unique<Target>( shared_from_this() );
+	return make_unique<Target>( shared_from_base<Character>() );
 }
 
 int Character::getAttackStrength() {
@@ -42,182 +45,130 @@ int Character::getAccuracy() {
     return accuracy.value;
 }
 
-void Character::give(std::shared_ptr<Item> item) {
-	trigger(PICK_UP, item);
+void Character::give(const shared_ptr<Item> &item) {
+	trigger(REMOVED_FROM_FLOOR, item);
 	inventory.push_front(item);
-    // next line is super type hacky, the reason fo this is c++ doesnt think list<Enity *> is compatible with list<Item *>
-	item->addListReference(reinterpret_cast<list<std::shared_ptr<Entity>> &>(inventory),
-                           reinterpret_cast<list<std::shared_ptr<Entity>> &>(inventory).begin());
-	trigger(PICK_UP_DONE, item);
-}
-
-void Character::addAction(shared_ptr<Action> action) {
-	Entity::addAction(action);
-}
-
-void Character::removeAction(shared_ptr<Action> action) {
-	Entity::removeAction(action);
+	item->addListReference(inventory, inventory.begin());
+	trigger(REMOVED_FROM_FLOOR_DONE, item);
 }
 
 shared_ptr<Entity> Character::clone() {
-	return new Character(*this);
+	return make_shared<Character>(*this);
 }
 
 void Character::doTurn(Dungeon &dungeon) {
-    if (controller) {
-        vector<Controller::ActionAndRange> actionsAndRanges;
-        for(auto action:actions) {
-            actionsAndRanges.emplace_back();
-            Controller::ActionAndRange &actionAndRange = actionsAndRanges.back();
-            for(int range {0}; range < action->getRange(*this); ++range) {
-                for(int y {position.row - range}; y < position.row + range; ++y) {
-                    if (dungeon.getCellType({y, position.col + range}) != WALL) {
-                        actionAndRange.range.emplace_back(y, position.col + range);
-                    }
-                }
-                for(int x {position.col - range}; x < position.col + range; ++x) {
-                    if (dungeon.getCellType({position.row + range, x}) != WALL) {
-                        actionAndRange.range.emplace_back(position.row + range, x);
-                    }
-                }
-                for(int y {position.row - range + 1}; y <= position.row + range; ++y) {
-                    if (dungeon.getCellType({y, position.col - range}) != WALL) {
-                        actionAndRange.range.emplace_back(y, position.col - range);
-                    }
-                }
-                for(int x {position.col - range + 1}; x <= position.col + range; ++x) {
-                    if (dungeon.getCellType({position.row - range, x}) != WALL) {
-                        actionAndRange.range.emplace_back(position.row - range, x);
-                    }
-                }
+    const shared_ptr<Character> self = shared_from_base<Character>();
+    EventInfo::Data shouldSkip;
+    shouldSkip.integer1 = 0;
+    trigger(TURN_START, shouldSkip, self);
+    if (!shouldSkip.integer1) {
+        trigger(TURN_START_DONE, self);
+        if (controller) {
+            vector<Controller::ActionAndRange> actionsAndRanges;
+            for(auto action:actions) {
+                // gets the possible targets of all actions,
+                //  if an action targets inventory, it can be returned in the actionAndTarget struct see tag:INV
+                actionsAndRanges.emplace_back();
+                Controller::ActionAndRange &actionAndRange = actionsAndRanges.back();
+
+                actionAndRange.range = dungeon.getTargetable(position, action->range, action->getMinRange(*this), action->getRange(*this), action->actionType == Action::MOVE);
+                actionAndRange.action = action;
             }
-            actionAndRange.action = action;
-        }
-        while (!actionsAndRanges.empty()) {
-            Controller::ActionAndTarget actionAndTarget = controller->getAction(shared_from_this(), actionsAndRanges);
-            if (actionAndTarget.action->type == Action::Step::MOVE) {
-                actionsAndRanges.erase(remove_if(actionsAndRanges.begin(), actionsAndRanges.end(), [](const Controller::ActionAndRange &obj){ return obj.action->type == Action::Step::MOVE; }), actionsAndRanges.end());
-            } else if (actionAndTarget.action->type == Action::Step::ACTION) {
-                actionsAndRanges.erase(remove_if(actionsAndRanges.begin(), actionsAndRanges.end(), [](const Controller::ActionAndRange &obj){ return obj.action->type == Action::Step::ACTION; }), actionsAndRanges.end());
-            } else if (actionAndTarget.action->type == Action::Step::BONUS) {
-                actionsAndRanges.erase(remove_if(actionsAndRanges.begin(), actionsAndRanges.end(), [](const Controller::ActionAndRange &obj){ return obj.action->type == Action::Step::BONUS; }), actionsAndRanges.end());
-            } else {
-                actionsAndRanges.clear();
-            }
-            auto action = actionAndTarget.action;
-            Position &target = actionAndTarget.target;
-            switch (action->actionType) {
-                case Action::Type::AID:
-                    switch (action->targets) {
-                        case Action::Targets::SELF:
-                            heal(action->getAmount(*this));
-                            action->onUse(shared_from_this(), target);
+            while (!actionsAndRanges.empty()) {
+                Controller::ActionAndTarget actionAndTarget = controller->getAction(self, actionsAndRanges, dungeon.getState());
+
+                if (actionAndTarget.action->type != Action::Step::PASSACTION) { // cant do more than one of an action type per turn
+                    actionsAndRanges.erase(remove_if(actionsAndRanges.begin(), actionsAndRanges.end(), [&actionAndTarget](const Controller::ActionAndRange &obj){ return obj.action->type == actionAndTarget.action->type; }), actionsAndRanges.end());
+                } else {
+                    actionsAndRanges.clear(); // passactions dont have targets
+                    continue;
+                }
+
+                auto action = actionAndTarget.action;
+                auto targetPosition = actionAndTarget.target;
+
+                vector<shared_ptr<Entity>> targets;
+
+                if (actionAndTarget.targetEntity) {  // tag:INV
+                    targets.push_back(actionAndTarget.targetEntity);
+                } else {
+                    targets = dungeon.getTargeted(self, targetPosition, action);
+                }
+
+                const Action::Type actionType = action->actionType;
+                for(auto target:targets) {
+                    switch (actionType) {
+                        case Action::PASS: // pass and move are special
+                        case Action::MOVE:
+                            continue;
+                        case Action::CONSUME: // everythin else triggers desired action
+                            target->consume(self);
                             break;
-                        case Action::Targets::ALL:
-                            if (action->aoe) {
-                                // TODO aoe
+                        case Action::EQUIP:
+                            target->equip(self);
+                            break;
+                        case Action::UNEQUIP:
+                            target->unequip();
+                            break;
+                        case Action::INTERACT:
+                            target->interact(self);
+                            break;
+                        case Action::ATTACK: {
+
+                            int amount{action->getAmount(*this)};
+                            EventInfo::Data data;
+                            data.integer1 = amount;
+                            data.integer2 = true; // does it hit?
+
+                            trigger(ATTACK, data, target);
+
+                            bool miss = (rand() % 100) < getAccuracy();
+                            bool dodge = (rand() % 100) < target->getDodge();
+                            if (!data.integer2 || miss || dodge) {
+                                trigger(MISS, target);
+                                trigger(MISS_DONE, target);
+                                trigger(ATTACK_DONE, 0, target);
                             } else {
-                                std::shared_ptr<Entity> targetEntity = dungeon.getEntityAt(target);
-                                targetEntity->heal(shared_from_this(), action->getAmount(*this));
-                                action->onUse(shared_from_this(), targetEntity, target);
+                                target->damage(data.integer1, self);
+                                trigger(ATTACK_DONE, data.integer1, target);
                             }
+
+                            break;
+                        }
+                        case Action::AID: {
+                            int amount {action->getAmount(*this)};
+                            EventInfo::Data data;
+                            data.integer1 = amount;
+                            trigger(HEAL, data, target);
+                            target->heal(data.integer1, self);
+                            trigger(HEAL_DONE, data.integer1, target);
+                            break;
+                        }
+                        case Action::EFFECT:
                             break;
                     }
-                    break;
-                case Action::Type::ATTACK:
-                    switch (action->targets) {
-                        case Action::Targets::ALL:
-                            if (action->aoe) {
-                                // TODO aoe
-                            } else {
-                                std::shared_ptr<Entity> targetEntity = dungeon.getEntityAt(target);
-                                targetEntity->damage(shared_from_this(), action->getAmount(*this));
-                                action->onUse(shared_from_this(), targetEntity, target);
-                            }
-                            break;
+                    action->onUse(self, target, targetPosition);
+                }
+
+                if (actionType == Action::MOVE) {
+                    EventInfo::Data data;
+                    data.position = targetPosition;
+                    trigger(MOVE, data);
+                    move(data.position);
+                    trigger(MOVE_DONE, data.position);
+                    action->onUse(self, targetPosition);
+                    for (auto& occupied:dungeon.getEntitiesAt(targetPosition)) {
+                        occupied->occupy(self);
                     }
                     break;
-                case Action::Type::CONSUME:
-                    switch (action->targets) {
-                        case Action::Targets::ALL:
-                            if (action->aoe) {
-                                // TODO aoe
-                            } else {
-                                std::shared_ptr<Entity> targetEntity = actionAndTarget.targetEntity ? actionAndTarget.targetEntity : dungeon.getEntityAt(target);
-                                targetEntity->consume(shared_from_this());
-                                action->onUse(shared_from_this(), targetEntity, target);
-                            }
-                            break;
-                    }
-                    break;
-                case Action::Type::EFFECT:
-                    switch (action->targets) {
-                        case Action::Targets::SELF:
-                            heal(action->getAmount(*this));
-                            action->onUse(shared_from_this(), target);
-                            break;
-                        case Action::Targets::ALL:
-                            if (action->aoe) {
-                                // TODO aoe
-                            } else {
-                                std::shared_ptr<Entity> targetEntity = dungeon.getEntityAt(target);
-                                action->onUse(shared_from_this(), targetEntity, target);
-                            }
-                            break;
-                    }
-                    break;
-                case Action::Type::EQUIP:
-                    switch (action->targets) {
-                        case Action::Targets::ALL:
-                            if (action->aoe) {
-                                // TODO aoe
-                            } else {
-                                std::shared_ptr<Entity> targetEntity = actionAndTarget.targetEntity ? actionAndTarget.targetEntity : dungeon.getEntityAt(target);
-                                targetEntity->equip(shared_from_this());
-                                action->onUse(shared_from_this(), targetEntity, target);
-                            }
-                            break;
-                    }
-                    break;
-                case Action::Type::UNEQUIP:
-                    switch (action->targets) {
-                        case Action::Targets::ALL:
-                            if (action->aoe) {
-                                // TODO aoe
-                            } else {
-                                std::shared_ptr<Entity> targetEntity = actionAndTarget.targetEntity ? actionAndTarget.targetEntity : dungeon.getEntityAt(target);
-                                targetEntity->unequip();
-                                action->onUse(shared_from_this(), targetEntity, target);
-                            }
-                            break;
-                    }
-                    break;
-                case Action::Type::INTERACT:
-                    switch (action->targets) {
-                        case Action::Targets::ALL:
-                            if (action->aoe) {
-                                // TODO aoe
-                            } else {
-                                std::shared_ptr<Entity> targetEntity = actionAndTarget.targetEntity ? actionAndTarget.targetEntity : dungeon.getEntityAt(target);
-                                targetEntity->interact(shared_from_this());
-                                action->onUse(shared_from_this(), targetEntity, target);
-                            }
-                            break;
-                    }
-                    break;
-                case Action::Type::MOVE:
-                    move(target);
-                    action->onUse(shared_from_this(), target);
-                    break;
-                case Action::Type::PASS:
-                    break;
+                }
             }
         }
     }
-    Entity::doTurn(dungeon);
+    Entity::doTurn(dungeon); // manage things like turn events and temp effects
 }
 
-Stat & Character::getCorrespondingStat(StatModifier &modifier) {
+Stat & Character::getCorrespondingStat(const StatModifier &modifier) {
     switch (modifier.stat) {
         case ATTACK_STRENGTH:
             return attackStrength;
@@ -234,17 +185,55 @@ Stat & Character::getCorrespondingStat(StatModifier &modifier) {
     }
 }
 
-void Character::equip(shared_ptr<Equippable> equippable) {
+void Character::equip(const shared_ptr<Equippable> &equippable) {
     trigger(EQUIP, equippable);
-    if (slots[equippable->slot]) {
-        slots[equippable->slot]->unequip();
+    if (slots[equippable->getSlot()]) {
+        slots[equippable->getSlot()]->unequip();
     }
-    slots[equippable->slot] = equippable;
+    slots[equippable->getSlot()] = equippable;
     trigger(EQUIP_DONE, equippable);
 }
 
-void Character::unequip(shared_ptr<Equippable> equippable) {
+void Character::unequip(const shared_ptr<Equippable> &equippable) {
     trigger(UNEQUIP, equippable);
-    slots[equippable->slot] = nullptr;
+    slots[equippable->getSlot()] = nullptr;
     trigger(UNEQUIP_DONE, equippable);
+}
+
+Character::Character(const Character &other) :
+        Entity(other),
+        attackStrength{other.attackStrength},
+        spellStrength{other.spellStrength},
+        speed{other.speed},
+        tenacity{other.tenacity},
+        accuracy{other.accuracy},
+        slots{other.slots},
+        gold{other.gold},
+        controller{other.controller}{
+    for(auto item:other.inventory) {
+        inventory.push_front(item);
+        item->addListReference(inventory, inventory.begin());
+    }
+
+}
+
+Character::Character() : gold{0} {
+
+}
+
+void Character::addGold(const int value) {
+    gold += gold;
+}
+
+bool Character::removeGold(const int value) {
+    if (value >= gold) {
+        gold -= value;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int Character::currentGold() {
+    return gold;
 }

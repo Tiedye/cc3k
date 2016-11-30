@@ -1,0 +1,40 @@
+start set restoreHealthPotionSet
+    effect restoreOnConsume 10
+end
+start consumable restoreHealthPotion
+    set restoreHealthPotionSet
+end
+start consumable boostAtkPotion
+    consumed 50 atkBoost
+    effectType positive
+end
+start consumable boostDefPotion
+    consumed 50 defBoost
+    effectType positive
+end
+start set poisonHealthPotionSet
+    effect depleteOnConsume 10
+end
+start consumable poisonHealthPotion
+    set poisonHealthPotionSet
+end
+start consumable woundAtkPotion
+    consumed 50 atkPenalty
+    effectType negative
+end
+start consumable woundDefPotion
+    consumed 50 defPenalty
+    effectType negative
+end
+run set atkBoost
+    stat add atk 5
+end
+start set defBoost
+    stat add def 5
+end
+start set atkPenalty
+    stat sub atk 5
+end
+start set defPenalty
+    stat sub def 5
+end

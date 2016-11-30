@@ -1,10 +1,9 @@
 #pragma once
 
 
-#include "../util/EffectType.h"
 #include "Item.h"
 
-class Consumable : public Item, std::enable_shared_from_this<Item> {
+class Consumable : public Item {
 public:
     class Target : public EventTarget {
     public:
@@ -17,10 +16,13 @@ public:
         std::shared_ptr<Consumable> consumable;
     };
 
+    Consumable(const Consumable&other);
 
     Consumable();
 
-    void consume(std::shared_ptr<Character> by) override;
+    void consume(const std::shared_ptr<Character> &by) override;
+
+    std::shared_ptr<Entity> clone() override;
 
 private:
     EffectType effectType;

@@ -4,6 +4,8 @@ enum CellType {
     EMPTY,
     WALL,
     FLOOR,
-    HALL
+    HALL,
+    OPEN_DOOR,
+    CLOSED_DOOR
 };
 

@@ -6,15 +6,16 @@ class Game;
 
 class Stage {
 public:
-    Stage(State &state, int id);
+    Stage(const std::shared_ptr<State> &state, int id = -1);
 
-    virtual void start(Game &game) = 0;
+    virtual int run(Game &game) = 0;
 
     virtual ~Stage() = default;
 
-protected:
-    State &state;
     const int id;
+
+protected:
+    const std::shared_ptr<State> state;
 };
 
 

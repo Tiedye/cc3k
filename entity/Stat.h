@@ -4,6 +4,7 @@
 #include <utility>
 
 struct Stat {
+    Stat(const Stat&other);
     Stat();
     Stat(int base);
     int value {0};

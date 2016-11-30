@@ -2,7 +2,7 @@
 
 #include "Item.h"
 
-class Equippable : public Item, std::enable_shared_from_this<Equippable> {
+class Equippable : public Item {
 public:
     class Target : public EventTarget {
     public:
@@ -15,10 +15,16 @@ public:
         std::shared_ptr<Equippable> equippable;
     };
 
+    Equippable(const Equippable&other);
+
     Equippable();
 
-    void equip(std::shared_ptr<Character> onto) override;
+    void equip(const std::shared_ptr<Character> &onto) override;
     void unequip() override;
+
+    int getSlot();
+
+    std::shared_ptr<Entity> clone() override;
 
 private:
     std::shared_ptr<FeatureSet> set;

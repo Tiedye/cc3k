@@ -3,10 +3,14 @@
 
 #include "Stage.h"
 
-class EndScreen : Stage {
+class EndScreen : public Stage {
 public:
-    EndScreen(State &state, int id);
+    EndScreen(const std::shared_ptr<State> &state, const int returnId);
 
+    int run(Game &game) override;
+
+private:
+    const int returnId;
 };
 
 

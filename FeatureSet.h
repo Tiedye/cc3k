@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <memory>
-#include "StatModifier.h"
+#include "util/StatModifier.h"
 class Action;
 class Listener;
 

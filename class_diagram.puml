@@ -130,8 +130,8 @@ abstract class DungeonRenderer {
     # DungeonRenderer(const std::vector<CellType> &cells);
 
     # {abstract} void entityMoved(const std::shared_ptr<Entity> entity, Position oldPos)
-    # {abstract} void entityCreated(const std::shared_ptr<Entity> entity)
-    # {abstract} void entityDestroyed(const std::shared_ptr<Entity> entity)
+    # {abstract} void entityAdded(const std::shared_ptr<Entity> entity)
+    # {abstract} void entityRemoved(const std::shared_ptr<Entity> entity)
     # {abstract} void cellChanged(Position position)
 
     const std::vector<CellType> &cells
@@ -373,8 +373,8 @@ enum EventType {
 	EQUIP_DONE = 0b101'0000'1
 	MISS = 0b110'0000'0
 	MISS_DONE = 0b110'0000'1
-    PICK_UP = 0b111'0000'0
-    PICK_UP_DONE = 0b111'0000'1
+    ADDED_TO_FLOOR = 0b111'0000'0
+    ADDED_TO_FLOOR_DONE = 0b111'0000'1
 
 	CONSUMED = 0b1'0000'0000'0
 	CONSUMED_DONE = 0b1'0000'0000'1
@@ -383,10 +383,10 @@ enum EventType {
 }
 
 class Position {
-    + int row
-    + int col
+    + int y
+    + int x
     + Position()
-    + Position(int row, int col)
+    + Position(int y, int x)
     + Position(const Position &other)
     + Position(Position &&other)
     + Position &operator=(const Position &other)
@@ -473,7 +473,7 @@ class Game {
 
     + void addEntityClass(int id, Entity *entity)
     + State & getState()
-    + void start()
+    + void run()
 
     - std::map<int, std::shared_ptr<Stage>> stages
     - std::shared_ptr<Stage> currentStage
@@ -603,7 +603,7 @@ Controller o-- Loader
 Listener <|-- Allergy
 Listener <|-- LifeDrain
 Listener <|-- ConsumedHealthMod
-Listener <|-- Resistance
+Listener <|-- VenerabilityModifier
 Listener <|-- Regen
 Listener <|-- Loot
 Listener <|-- Venerability

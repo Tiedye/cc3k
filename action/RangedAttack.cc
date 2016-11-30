@@ -1,6 +1,6 @@
 #include "RangedAttack.h"
 
-int RangedAttack::getRange(std::shared_ptr<Character> &source) const {
+int RangedAttack::getRange(Character &source) const {
     return range;
 }
 
@@ -9,6 +9,6 @@ RangedAttack::RangedAttack(const int atkNumerator, const int atkDenominator, con
                                                                                       spellNumerator, spellDenominator),
                                                                           range(range) {}
 
-int RangedAttack::getMinRange(std::shared_ptr<Character> &source) const {
+int RangedAttack::getMinRange(Character &source) const {
     return 1;
 }

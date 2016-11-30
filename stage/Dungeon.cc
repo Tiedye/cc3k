@@ -1,38 +1,76 @@
 #include "Dungeon.h"
 
+#include <queue>
+#include <cmath>
+#include <algorithm>
+
+#include "../Game.h"
+
 using namespace std;
 
 std::list<std::shared_ptr<Entity>> Dungeon::getEntitiesAt(Position position) {
-    return cellEntities[position.col+position.row*width];
+    return cellEntities[position.x+position.y*width];
 }
 
-void Dungeon::start(Game &game) {
-    return;
+std::list<std::shared_ptr<Entity>> Dungeon::getEntitiesAt(Position position, const shared_ptr<Entity> &exclude) {
+    auto entityList = cellEntities[position.x+position.y*width];
+    auto found = find(entityList.begin(), entityList.end(), exclude);
+    if (found != entityList.end()) entityList.erase(found);
+    return entityList;
 }
 
-CellType Dungeon::getCellType(Position position) {
-    if (position.row < height && position.row >= 0 && position.col < width && position.col >= 0) {
-        return cells[position.col + position.row + width];
+int Dungeon::run(Game &game) {
+    isRunning = true;
+    state->currentDungeon = shared_from_this();
+    state->player->move(spawnPoint);
+    addEntity(state->player);
+    state->dungeonRenderer->setDungeon(shared_from_this());
+    state->dungeonRenderer->engage();
+    while (isRunning){
+        for (auto entity:entities) {
+            entity->doTurn(*this);
+            if(!isRunning) break;
+        }
+    }
+    state->dungeonRenderer->disengage();
+    state->player->removeFromContainers();
+    return next;
+}
+
+CellType Dungeon::getCellType(const Position position) {
+    if (onFeild(position)) {
+        return cells[position.x + position.y + width];
     } else {
-        return WALL;
+        return EMPTY;
     }
 }
 
-Dungeon::Dungeon(State &state, int id, int width, int height) : Stage(state, id), width{width}, height{height} {}
+void Dungeon::setCellType(const Position position, const CellType type) {
+    if (onFeild(position)) {
+        cells[position.x + position.y + width] = type;
+        state->dungeonRenderer->changeCell(position);
+    }
+}
 
-void Dungeon::addEntity(Entity &entity) {
-    entities.push_front(&entity);
-    entity.addListReference(entities, entities.begin());
-    list<shared_ptr<Entity>> &cellList = getCellListAt(entity.getPosition());
-    cellList.push_front(&entity);
-    entity.addListReference(cellList, cellList.begin());
+Dungeon::Dungeon(const shared_ptr<State> &state, int id, int width, int height) : Stage(state, id), width{width}, height{height}, size{width * height}, cells(size), cellEntities(size), rangeTracker(size, -1) {}
+
+void Dungeon::addEntity(shared_ptr<Entity> entity) {
+    entity->addListener(state->dungeonRenderer);
+    entity->trigger(ADDED_TO_FLOOR);
+    entities.push_front(entity);
+    entity->addListReference(entities, entities.begin());
+    list<shared_ptr<Entity>> &cellList = getCellListAt(entity->getPosition());
+    cellList.push_front(entity);
+    entity->addListReference(cellList, cellList.begin());
+    entity->onFloor = true;
+    entity->trigger(ADDED_TO_FLOOR_DONE);
 }
 
 std::list<std::shared_ptr<Entity>> &Dungeon::getCellListAt(Position position) {
-    return cellEntities[position.col+position.row*width];
+    return cellEntities[position.x+position.y*width];
 }
 
-std::shared_ptr<Entity> Dungeon::getEntityAt(Position position) {
+std::shared_ptr<Entity> Dungeon::getEntityAt(const Position position) {
     shared_ptr<Entity> largest;
     for(auto entity:getEntitiesAt(position)) {
         if (largest) {
@@ -42,4 +80,170 @@ std::shared_ptr<Entity> Dungeon::getEntityAt(Position position) {
         }
     }
     return largest;
+}
+
+std::vector<Position> Dungeon::getTargetable(const Position position, Action::Range range, int minRange, int maxRange, bool move) {
+    vector<Position> targets;
+
+    switch (range) {
+        case Action::ANY:
+            for(int x {-maxRange}; x <= maxRange; ++x) {
+                for(int y {-maxRange}; y <= maxRange; ++y) {
+                    int dist {x < y ? x < -y ? y : x : x < -y ? x : y}; // LOGIC!
+                    if (dist >= minRange) {
+                        targets.emplace_back(y+position.y, x+position.x);
+                    } else {
+                        y += (minRange - 1) * 2; // LOGIC!
+                    }
+                }
+            }
+            break;
+        case Action::LOS:
+            // TODO ViewField implementation
+            break;
+        case Action::PATH:
+            queue<Position> toFill;
+            toFill.push(position);
+            while (!toFill.empty()) {
+                Position currentPosition = toFill.front();
+                toFill.pop();
+                if (atRange(currentPosition) == maxRange) {
+                    continue;
+                } else if (atRange(currentPosition) >= minRange) {
+                    targets.push_back(currentPosition);
+                }
+                Position positions[8] {
+                        {currentPosition.x + 1, currentPosition.y + 1},
+                        {currentPosition.x, currentPosition.y + 1},
+                        {currentPosition.x - 1, currentPosition.y + 1},
+                        {currentPosition.x + 1, currentPosition.y},
+                        {currentPosition.x - 1, currentPosition.y},
+                        {currentPosition.x + 1, currentPosition.y - 1},
+                        {currentPosition.x, currentPosition.y - 1},
+                        {currentPosition.x - 1, currentPosition.y - 1}
+                };
+                for(Position &pos:positions) {
+                    if (onFeild(pos) && atRange(pos) != -1 && getCellType(pos) != WALL) {
+                        atRange(pos) = atRange(currentPosition) + 1;
+                        toFill.push(pos);
+                    }
+                }
+            }
+            break;
+    }
+
+    return targets;
+}
+
+
+bool Dungeon::onFeild(const Position position) {
+    return position.y >= 0 && position.y < height && position.x >= 0 && position.x < width;
+}
+
+bool Dungeon::onFeild(int x, int y) {
+    return y >= 0 && y < height && x >= 0 && x < width;
+}
+
+int &Dungeon::atRange(Position &position) {
+    return rangeTracker[position.x + position.y*width];
+}
+
+int &Dungeon::atRange(int x, int y) {
+    return rangeTracker[x + y*width];
+}
+
+const shared_ptr<State> & Dungeon::getState() {
+    return state;
+}
+
+std::vector<std::shared_ptr<Entity>> Dungeon::getTargeted(const shared_ptr<Entity> &from, Position to,
+                                                          const shared_ptr<Action> &action) {
+    vector<shared_ptr<Entity>> targeted;
+    for (Position target:getTargetedArea(from->getPosition(), to, action)){
+        if (action->aoe) {
+            list<shared_ptr<Entity>> atTarget;
+            if (action->targets & Action::SELF) {
+                atTarget = getEntitiesAt(target);
+            } else {
+                atTarget = getEntitiesAt(target, from);
+            }
+            targeted.insert(targeted.end(), atTarget.begin(), atTarget.end());
+        } else {
+            auto atTarget = getEntityAt(target);
+            if (atTarget == from && action->targets & Action::SELF) {
+                targeted.push_back(atTarget);
+            }
+        }
+    }
+    return targeted;
+}
+
+std::vector<Position> Dungeon::getTargetedArea(const Position from, const Position to, const std::shared_ptr<Action> &action) {
+    vector<Position> targeted;
+    switch (action->shape) {
+        case Action::POINT: {
+            targeted.push_back(to);
+            break;
+        }
+        case Action::LINE: {
+            Position delta = to - from;
+            if (delta.x == 0) { // handle vertical case
+                if (delta.y > 0) {
+                    for (int y = from.y; y <= to.y; ++y) {
+                        targeted.emplace_back(y, from.x);
+                    }
+                } else {
+                    for (int y = from.y; y >= to.y; --y) {
+                        targeted.emplace_back(y, from.x);
+                    }
+                }
+            } else { // other cases TODO: test this
+                float slope = delta.y;
+                slope /= delta.x;
+                float soFar{0.5};
+                int xDir{delta.x > 0 ? 1 : -1};
+                int yDir{delta.y > 0 ? 1 : -1};
+                Position current{from};
+                targeted.push_back(current);
+                do {
+                    if (soFar < 1 && soFar > 0) {
+                        soFar += slope;
+                        current.shiftX(xDir);
+                    } else if (soFar < 2 && soFar > -1) {
+                        soFar += slope - 1;
+                        current.shiftX(xDir);
+                        current.shiftY(yDir);
+                    } else {
+                        soFar -= 1;
+                        current.shiftY(yDir);
+                    }
+                    targeted.push_back(current);
+                } while (current != to);
+            }
+            break;
+        }
+        case Action::SQUARE: {
+            int range{action->aoeSize};
+            for (int x{-range}; x <= range; ++x) {
+                for (int y{-range}; y <= range; ++y) {
+                    targeted.emplace_back(y + to.y, x + to.x);
+                }
+            }
+            break;
+        }
+    }
+    return targeted;
+}
+
+void Dungeon::finish(int next) {
+    isRunning = false;
+    Dungeon::next = next;
+}
+
+const string &Dungeon::getName() const {
+    return name;
+}
+
+void Dungeon::setName(const string &name) {
+    Dungeon::name = name;
 }

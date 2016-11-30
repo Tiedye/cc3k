@@ -1,24 +1,30 @@
 #include "Loader.h"
 #include "../Race.h"
 
-#include <iostream>
 #include <fstream>
-#include <string>
 #include <sstream>
 
 #include "../entity/Character.h"
 #include "../entity/Consumable.h"
 #include "../entity/Equippable.h"
 
+#include "../FeatureSet.h"
+#include "../State.h"
+
+#include "../effects/effects.h"
+
+#include "../action/MeleeAttack.h"
+#include "../action/RangedAttack.h"
+#include "../action/EatAction.h"
+#include "../action/EquipAction.h"
+#include "../action/InteractAction.h"
+#include "../action/UnequipAction.h"
+#include "../action/WalkAction.h"
+#include "../action/WalkAsActionAction.h"
+
 using namespace std;
 
-Loader::Loader() : typeTable{{"player", 1}, {"mob", 2}} {
-
-}
-
-Loader::Loader(std::string gameFile) : Loader() {
-    parseFile(gameFile);
-}
+Loader::Loader(const shared_ptr<State> &state)  : typeTable{{"player", 1}, {"mob", 2}}, state{state} {}
 
 int Loader::getId(std::string name) const {
     return typeTable.at(name);
@@ -47,7 +53,7 @@ void Loader::parseSets(std::string gameFile) {
                 string file;
                 s >> file;
                 parseSets(getPath(gameFile) + "/" + file + ".tdat");
-            } else if (command == "start") {
+            } else if (command == "run") {
                 string object;
                 s >> object;
                 if (object == "set") {
@@ -78,7 +84,7 @@ void Loader::parseRest(std::string gameFile) {    ifstream s;
                 string file;
                 s >> file;
                 parseRest(getPath(gameFile) + "/" + file + ".tdat");
-            } else if (command == "start") {
+            } else if (command == "run") {
                 string object;
                 s >> object;
                 if (object == "race"){
@@ -207,50 +213,116 @@ void Loader::parseSet(istream &s) {
 shared_ptr<Listener> Loader::loadEffect(istream &s) {
     string effect;
     s >> effect;
-    string drain;
     if (effect == "startHp") {
-        s >> drain;
+        int hp;
+        s >> hp;
+        return make_shared<StartHp>(hp);
     } else if (effect == "lifeDrain") {
-        s >> drain;
+        int hp;
+        s >> hp;
+        return make_shared<LifeDrain>(hp);
     } else if (effect == "allergy") {
-        while (s >> drain, drain != "done") {}
-    } else if (effect == "consumeMod") {
-        s >> drain;
+        int amount;
+        s >> amount;
+        string type;
+        vector<int> to;
+        while (s >> type, type != "done") {
+            to.push_back(parseId(type));
+        }
+        return make_shared<Allergy>(amount, to);
+    } else if (effect == "healthGainEnhancer") {
+        int numerator, denominator;
+        s >> numerator >> denominator;
+        string from;
+        s >> from;
+        return make_shared<HealthGainEnhancer>(numerator, denominator, parseId(from));
+    } else if (effect == "damageTakenEnhancer") {
+        int numerator, denominator;
+        s >> numerator >> denominator;
+        string from;
+        s >> from;
+        return make_shared<DamageTakenEnhancer>(numerator, denominator, parseId(from));
     } else if (effect == "resistance") {
-        while (s >> drain, drain != "done") {}
+        int numerator, denominator;
+        s >> numerator >> denominator;
+        string type;
+        vector<int> to;
+        while (s >> type, type != "done") {
+            to.push_back(parseId(type));
+        }
+        return make_shared<VenerabilityModifier>(denominator, numerator, to);
     } else if (effect == "regen") {
-        s >> drain;
+        int amount;
+        s >> amount;
+        return make_shared<Regen>(amount);
     } else if (effect == "loot") {
-        s >> drain;
+        int amount;
+        s >> amount;
+        return make_shared<Loot>(amount);
     } else if (effect == "venerability") {
-        while (s >> drain, drain != "done") {}
+        int numerator, denominator;
+        s >> numerator >> denominator;
+        string type;
+        vector<int> to;
+        while (s >> type, type != "done") {
+            to.push_back(parseId(type));
+        }
+        return make_shared<VenerabilityModifier>(numerator, denominator, to);
     } else if (effect == "depleteOnConsume") {
-        s >> drain;
+        int amount;
+        s >> amount;
+        return make_shared<DamageOnConsume>(amount);
     } else if (effect == "restoreOnConsume") {
-        s >> drain;
+        int amount;
+        s >> amount;
+        return make_shared<HealOnConsume>(amount);
     } else if (effect == "dropItems") {
-        while (s >> drain, drain != "done") {}
+        auto dropItems = make_shared<DropItems>(state);
+        string token;
+        vector<int> itemSet;
+        int weight {0};
+        while (s >> token, token != "done") {
+            if (token == "[") {
+                s >> weight;
+            } else if (token == "]") {
+                dropItems->addItem(weight, itemSet);
+                itemSet.clear();
+            }
+        }
+        return dropItems;
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;
+        return nullptr;
     }
-    return nullptr;
 }
 
 shared_ptr<Action> Loader::loadAction(istream &s) {
     string action;
     s >> action;
-    string drain;
     if (action == "melee") {
-        s >> drain;
-        s >> drain;
+        int atkModifier, spellModifier;
+        s >> atkModifier >> spellModifier;
+        return make_shared<MeleeAttack>(atkModifier, 1, spellModifier, 1);
     } else if (action == "shoot") {
-        s >> drain;
-        s >> drain;
-        s >> drain;
+        int atkModifier, spellModifier, range;
+        s >> atkModifier >> spellModifier >> range;
+        return make_shared<RangedAttack>(atkModifier, 1, spellModifier, 1, range);
+    } else if (action == "walk") {
+        return make_shared<WalkAction>();
+    } else if (action == "walkAsAction") {
+        return make_shared<WalkAsActionAction>();
+    } else if (action == "eat") {
+        return make_shared<EatAction>();
+    } else if (action == "interact") {
+        return make_shared<InteractAction>();
+    } else if (action == "equip") {
+        return make_shared<EquipAction>();
+    } else if (action == "unequip") {
+        return make_shared<UnequipAction>();
     } else {
         cerr << "No such action \"" << action << "\"" << endl;
+        return nullptr;
     }
-    return nullptr;
 }
 
 void Loader::parseRace(istream &s){
@@ -286,11 +358,11 @@ void Loader::parseRace(istream &s){
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
-    races.emplace(race->id, race);
+    state.lock()->library.addRace(race->id, move(race));
 }
 
 void Loader::parseMob(istream &s) {
-    unique_ptr<Character> newMob {make_unique()};
+    unique_ptr<Character> newMob {make_unique<Character>()};
     string name;
     s >> name;
     int id {parseId(name)};
@@ -312,11 +384,11 @@ void Loader::parseMob(istream &s) {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
-    mobs.emplace(id, move(newMob));
+    state.lock()->library.addMob(id, move(newMob));
 }
 
 shared_ptr<Controller> Loader::loadController(istream &s) {
-    Controller * newController {nullptr};
+    shared_ptr<Controller> newController;
     string name;
     while(s >> name, name != "done") {
         if (name == "wander") {
@@ -331,7 +403,7 @@ shared_ptr<Controller> Loader::loadController(istream &s) {
             cerr << "No such controller \"" << name << "\"" << endl;
         }
     }
-    controllers.emplace_back(newController);
+    controllers.push_back(newController);  // TODO, necedssary to track controllers in loader?
     return newController;
 }
 
@@ -360,6 +432,7 @@ void Loader::parseItem(istream &s) {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
+    state.lock()->library.addItem(id, move(newItem));
 }
 
 void Loader::parseConsumable(std::istream &s) {
@@ -411,6 +484,7 @@ void Loader::parseConsumable(std::istream &s) {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
+    state.lock()->library.addConsumable(id, move(newConsumable));
 }
 
 void Loader::parseEquippable(std::istream &s) {
@@ -450,6 +524,7 @@ void Loader::parseEquippable(std::istream &s) {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
+    state.lock()->library.addEquippable(id, move(newEquippable));
 }
 
 int Loader::parseId(std::string name) {
@@ -459,10 +534,6 @@ int Loader::parseId(std::string name) {
         return (int) (typeTable.size() - 1);
     }
     return it->second;
-}
-
-const std::map<int, Race> Loader::getClassOptions() const {
-    return races;
 }
 
 void Loader::loadFile(std::string file) {

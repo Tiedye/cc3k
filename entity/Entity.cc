@@ -1,7 +1,11 @@
 #include "Entity.h"
+
+#include "Item.h"
+
 #include "../controller/Controller.h"
-#include "../Game.h"
-#include "../stage/Dungeon.h"
+
+#include "../event/Listener.h"
+#include "../FeatureSet.h"
 
 using namespace std;
 
@@ -35,21 +39,37 @@ Position Entity::getPosition() {
     return position;
 }
 
-void Entity::setHealth(int amount) {
+void Entity::setHealth(const int amount) {
     health = amount;
 }
 
 void Entity::addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference) {
-    listReferences[&list] = reference;
+    listReferences.insert(make_pair(&list, reference));
+}
+
+void Entity::addListReference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference) {
+    listReferences.insert(make_pair(&reinterpret_cast<std::list<std::shared_ptr<Entity>> &>(list), reinterpret_cast<std::list<std::shared_ptr<Entity>>::iterator &>(reference)));
+    // cause because
 }
 
 void Entity::removeListReference(std::list<std::shared_ptr<Entity>> &list) {
     listReferences.erase(&list);
 }
 
+void Entity::removeListReference(std::list<std::shared_ptr<Item>> &list) {
+    listReferences.erase(&reinterpret_cast<std::list<std::shared_ptr<Entity>> &>(list));
+}
+
 void Entity::removeFromContainers() {
+    if (onFloor) {
+        trigger(REMOVED_FROM_FLOOR);
+    }
     for (auto it = listReferences.begin(); it != listReferences.end(); ++it) {
         it->first->erase(it->second);
+    }
+    if (onFloor) {
+        trigger(REMOVED_FROM_FLOOR_DONE);
+        onFloor = false;
     }
 }
 
@@ -60,64 +80,58 @@ void Entity::create() {
     trigger(CREATED_DONE);
 }
 
-void Entity::occupy(shared_ptr<Entity> &source) {
+void Entity::occupy(const shared_ptr<Entity> &source) {
     trigger(OCCUPIED, source);
     trigger(OCCUPIED_DONE, source);
 }
 
-void Entity::interact(shared_ptr<Entity> source) {
+void Entity::interact(const shared_ptr<Entity> &source) {
     trigger(INTERACTED, source);
     trigger(INTERACTED_DONE, source);
 }
 
-void Entity::damage(shared_ptr<Entity> source, int amount) {
+void Entity::damage(const int amount, const shared_ptr<Entity> &source) {
     // trigger attacked event here
-    trigger(ATTACKED, amount, source);
-    int damageDone = damage(amount);
+    EventInfo::Data data;
+    data.integer1 = amount;
+    trigger(ATTACKED, data, source);
+    int damageDone = damage(data.integer1);
     // trigger attacked_done event here
     trigger(ATTACKED_DONE, damageDone, source);
 }
 
-int Entity::damage(int damage) {
+int Entity::damage(const int damage) {
     int preDamage {health};
     health -= damage * 100 / (100 + defenseStrength.value);
     checkDead();
     return preDamage - health;
 }
 
-void Entity::heal(shared_ptr<Entity> source, int amount) {
-    // trigger healed
-    trigger(HEALED, amount, source);
-    heal(amount);
-    // trigger healed_done
-    trigger(HEALED_DONE, amount, source);
+void Entity::heal(const int amount, const shared_ptr<Entity> &source) {
+    EventInfo::Data data;
+    data.integer1 = amount;
+    trigger(HEALED, data, source);
+    heal(data.integer1);
+    trigger(HEALED_DONE, data.integer1, source);
 }
 
-void Entity::heal(int amount) {
+void Entity::heal(const int amount) {
     health += amount;
 }
 
-void Entity::move(shared_ptr<Entity> &source, int distance, Direction direction) {
-    // Trigger moved event here
-    trigger(MOVED, source);
-    move(distance, direction);
-    // Trigger moved_done event here
-    trigger(MOVED_DONE, source);
-}
-
-void Entity::move(int distance, Direction direction) {
-    distance = knockbackResist.value >= distance ? 0 : distance - knockbackResist.value;
+void Entity::move(const int distance, const Direction direction, const shared_ptr<Entity> &source) {
+    int calculatedDistance = knockbackResist.value >= distance ? 0 : distance - knockbackResist.value;
     Position delta;
     switch (direction) {
         case NW:
         case N:
         case NE:
-            position.row = -distance;
+            position.y = -calculatedDistance;
             break;
         case SW:
         case S:
         case SE:
-            position.row = distance;
+            position.y = calculatedDistance;
             break;
         default:
             break;
@@ -126,12 +140,46 @@ void Entity::move(int distance, Direction direction) {
         case NW:
         case W:
         case SW:
-            position.col = -distance;
+            position.x = -calculatedDistance;
             break;
         case NE:
         case E:
         case SE:
-            position.col = distance;
+            position.x = calculatedDistance;
+            break;
+        default:
+            break;
+    }
+    move(position + delta, source);
+}
+
+void Entity::move(const int distance, const Direction direction) {
+    int calculatedDistance = knockbackResist.value >= distance ? 0 : distance - knockbackResist.value;
+    Position delta;
+    switch (direction) {
+        case NW:
+        case N:
+        case NE:
+            position.y = -calculatedDistance;
+            break;
+        case SW:
+        case S:
+        case SE:
+            position.y = calculatedDistance;
+            break;
+        default:
+            break;
+    }
+    switch (direction) {
+        case NW:
+        case W:
+        case SW:
+            position.x = -calculatedDistance;
+            break;
+        case NE:
+        case E:
+        case SE:
+            position.x = calculatedDistance;
             break;
         default:
             break;
@@ -139,26 +187,28 @@ void Entity::move(int distance, Direction direction) {
     move(position + delta);
 }
 
-void Entity::move(shared_ptr<Entity> &source, Position destination) {
-    trigger(MOVED, destination, source);
+void Entity::move(const Position destination, const shared_ptr<Entity> &source) {
+    EventInfo::Data data;
+    data.position = destination;
+    trigger(MOVED, data, source);
     Position origin {position};
-    move(destination);
+    move(data.position);
     trigger(MOVED_DONE, origin, source);
 }
 
-void Entity::move(Position destination) {
+void Entity::move(const Position destination) {
     position = destination;
 }
 
-void Entity::addListener(shared_ptr<Listener> listener) {
+void Entity::addListener(const shared_ptr<Listener> &listener) {
     for(EventType type:listener->listeningFor()) {
-        listeners[type].insert(&listener);
+        listeners[type].insert(listener);
     }
 }
 
-void Entity::removeListener(shared_ptr<Listener> listener) {
+void Entity::removeListener(const shared_ptr<Listener> &listener) {
     for(EventType type:listener->listeningFor()) {
-        listeners[type].erase(&listener);
+        listeners[type].erase(listener);
     }
 }
 
@@ -251,8 +301,11 @@ bool Entity::isA(int type) {
 }
 
 void Entity::doTurn(Dungeon &dungeon) {
+    auto self = shared_from_this();
+    trigger(TURN_END, self);
     checkTempFeatures();
     ++turnCount;
+    trigger(TURN_END_DONE, self);
 }
 
 void Entity::checkTempFeatures() {
@@ -263,7 +316,7 @@ void Entity::checkTempFeatures() {
     }
 }
 
-void Entity::addTemporaryFeatureSet(shared_ptr<Entity> source, const shared_ptr<FeatureSet> featureSet,
+void Entity::addTemporaryFeatureSet(const shared_ptr<Entity> &source, const shared_ptr<FeatureSet> &featureSet,
                                     EffectType effectType,
                                     int numTurns) {
     EventInfo::Data data;
@@ -285,30 +338,31 @@ void Entity::addTemporaryFeatureSet(shared_ptr<Entity> source, const shared_ptr<
 }
 
 shared_ptr<Entity> Entity::clone() {
-    return nullptr;
+    return make_shared<Entity>(*this);
 }
 
-void Entity::addAction(shared_ptr<Action> action) {
+void Entity::addAction(const shared_ptr<Action> &action) {
     actions.insert(action);
 }
 
-void Entity::removeAction(shared_ptr<Action> action) {
+void Entity::removeAction(const shared_ptr<Action> &action) {
     actions.erase(action);
 }
 
-void Entity::kill(shared_ptr<Entity> &source) {
+void Entity::kill(const shared_ptr<Entity> &source) {
     destroy();
 }
 
 void Entity::destroy() {
     // Trigger destroy
     trigger(DESTROYED);
+    dead = true;
     removeFromContainers();
     // Trigger destroy_done
     trigger(DESTROYED_DONE);
 }
 
-Entity::Target::Target(std::shared_ptr<Entity> &entity) : entity{entity} {}
+Entity::Target::Target(const shared_ptr<Entity> &entity) : entity{entity} {}
 
 shared_ptr<Entity> Entity::Target::asEntity() {
     return entity;
@@ -322,7 +376,7 @@ void Entity::trigger(EventType eventType) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, shared_ptr<Entity> secondary) {
+void Entity::trigger(EventType eventType, const shared_ptr<Entity> &secondary) {
     EventInfo info;
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
@@ -331,7 +385,7 @@ void Entity::trigger(EventType eventType, shared_ptr<Entity> secondary) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(EventType eventType, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
@@ -351,7 +405,7 @@ void Entity::trigger(EventType eventType, Position position) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, Position position, shared_ptr<Entity> secondary) {
+void Entity::trigger(EventType eventType, Position position, const shared_ptr<Entity> &secondary) {
     EventInfo info;
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
@@ -361,7 +415,7 @@ void Entity::trigger(EventType eventType, Position position, shared_ptr<Entity> 
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, Position position, vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(EventType eventType, Position position, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
@@ -382,7 +436,7 @@ void Entity::trigger(EventType eventType, int integer) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, int integer, shared_ptr<Entity> secondary) {
+void Entity::trigger(EventType eventType, int integer, const shared_ptr<Entity> &secondary) {
     EventInfo info;
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
@@ -392,7 +446,7 @@ void Entity::trigger(EventType eventType, int integer, shared_ptr<Entity> second
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, int integer, vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(EventType eventType, int integer, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
@@ -413,7 +467,7 @@ void Entity::trigger(EventType eventType, float num) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, float num, shared_ptr<Entity> secondary) {
+void Entity::trigger(EventType eventType, float num, const shared_ptr<Entity> &secondary) {
     EventInfo info;
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
@@ -423,7 +477,7 @@ void Entity::trigger(EventType eventType, float num, shared_ptr<Entity> secondar
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, float num, vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(EventType eventType, float num, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
@@ -444,7 +498,7 @@ void Entity::trigger(EventType eventType, double num) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, double num, shared_ptr<Entity> secondary) {
+void Entity::trigger(EventType eventType, double num, const shared_ptr<Entity> &secondary) {
     EventInfo info;
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
@@ -454,7 +508,7 @@ void Entity::trigger(EventType eventType, double num, shared_ptr<Entity> seconda
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, double num, vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(EventType eventType, double num, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
@@ -475,7 +529,7 @@ void Entity::trigger(EventType eventType, EventInfo::Data &reference) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, EventInfo::Data &reference, shared_ptr<Entity> secondary) {
+void Entity::trigger(EventType eventType, EventInfo::Data &reference, const shared_ptr<Entity> &secondary) {
     EventInfo info;
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
@@ -485,7 +539,7 @@ void Entity::trigger(EventType eventType, EventInfo::Data &reference, shared_ptr
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, EventInfo::Data &reference, vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(EventType eventType, EventInfo::Data &reference, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
@@ -498,7 +552,7 @@ void Entity::trigger(EventType eventType, EventInfo::Data &reference, vector<sha
     }
 }
 
-Stat & Entity::getCorrespondingStat(StatModifier &modifier) {
+Stat & Entity::getCorrespondingStat(const StatModifier &modifier) {
     switch (modifier.stat) {
         case SIZE:
             return size;
@@ -513,15 +567,15 @@ Stat & Entity::getCorrespondingStat(StatModifier &modifier) {
         case DODGE:
             return dodge;
         default:
-            return {};
+            return maxHealth; // because its got to return something...
     }
 }
 
-void Entity::give(std::shared_ptr<Item> item) {
+void Entity::give(const shared_ptr<Item> &item) {
     // overridden
 }
 
-void Entity::equip(std::shared_ptr<Character> onto) {
+void Entity::equip(const shared_ptr<Character> &onto) {
     // overridden
 }
 
@@ -529,7 +583,38 @@ void Entity::unequip() {
     // overridden
 }
 
-void Entity::consume(std::shared_ptr<Character> by) {
+void Entity::consume(const shared_ptr<Character> &by) {
     // overridden
+}
+
+const std::string &Entity::getName() {
+    return name;
+}
+
+Entity::Entity(const Entity &other) :
+        representation{other.representation},
+        name{other.name},
+        position{other.position},
+        health{other.health},
+        size{other.size},
+        maxHealth{other.maxHealth},
+        initiative{other.initiative},
+        defenseStrength{other.defenseStrength},
+        knockbackResist{other.knockbackResist},
+        dodge{other.dodge},
+        actions{other.actions},
+        turnCount{other.turnCount},
+        listeners{other.listeners},
+        tempFeatureSets{other.tempFeatureSets},
+        types{other.types}{
+
+}
+
+Entity::Entity() {
+
+}
+
+bool Entity::isDead() {
+    return dead;
 }
 

@@ -53,7 +53,9 @@ std::shared_ptr<Dungeon> SimpleLoader::parseDungeon(const std::map<char, int> &m
                     dungeon->initializeCell({y, x}, HALL);
                     break;
                 case '\\': {
+                    dungeon->initializeCell({y, x}, FLOOR);
                     auto stair = make_shared<Entity>();
+                    stair->representation = '\\';
                     stair->move({y, x});
                     auto stairHandler = make_shared<Stair>(id + 1, dungeon);
                     stair->addListener(stairHandler);

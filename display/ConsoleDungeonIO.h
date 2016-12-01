@@ -38,8 +38,8 @@ private:
     MODE mode {COMMAND};
 
     const short BASIC_COLOR = 1;
-    void setWalkableCell(bool highlight = false);
-    void setStandardCell(bool highlight = false);
+    void setWalkableCell(WINDOW *win, bool highlight);
+    void setStandardCell(WINDOW *win, bool highlight);
 
 
     WINDOW *dungeonWindow;
@@ -91,6 +91,8 @@ private:
     void drawCell(const Position position);
     void drawEntity(const std::shared_ptr<Entity> &entity);
     void postMessage(std::string s);
+
+    void updateDisplay();
 };
 
 

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include "../entity/Entity.h"
+
 class Listener;
 class Action;
 class State;

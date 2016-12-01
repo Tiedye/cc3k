@@ -16,6 +16,7 @@ end
 start mob human
     set humanSet
     controller wander localAttack done
+    representation H
 end
 start set dwarfSet
     inherit mob
@@ -28,6 +29,7 @@ end
 start mob dwarf
     set dwarfSet
     controller wander localAttack done
+    representation W
 end
 start set elfSet
     inherit mob
@@ -40,6 +42,7 @@ end
 start mob elf
     set elfSet
     controller wander localAttack done
+    representation E
 end
 start set orcSet
     inherit mob
@@ -52,6 +55,7 @@ end
 start mob orc
     set orcSet
     controller wander localAttack done
+    representation O
 end
 start set merchantSet
     inherit mob
@@ -61,9 +65,10 @@ start set merchantSet
     effect dropItems [ 1 merchantHoard ] done
     action melee 1 0
 end
-run mob merchant
+start mob merchant
     set merchantSet
     controller wander merchant done
+    representation M
 end
 start set dragonSet
     inherit mob
@@ -75,6 +80,7 @@ end
 start mob dragon
     set dragonSet
     controller dragon done
+    representation D
 end
 start set halflingSet
     inherit mob
@@ -88,4 +94,5 @@ end
 start mob halfling
     set halflingSet
     controller wander localAttack done
+    representation L
 end

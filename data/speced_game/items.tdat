@@ -1,23 +1,30 @@
-start item smallGold
+start set size1
     stat base size 1 0
+end
+start item smallGold
     value 1
+    set size1
+    representation G
 end
 start item normalGold
-    stat base size 1 0
+    set size1
     value 2
+    representation G
 end
 start item merchantHoard
-    stat base size 1 0
+    set size1
     value 4
+    representation G
 end
 start item dragonHoard
-    stat base size 1 0
+    set size1
     value 6
+    representation G
 end
 start equippable sword
     value 8
     equipped hand swordSet
 end
-run set swordSet
+start set swordSet
     stat mult atk 2
 end

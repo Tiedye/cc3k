@@ -27,6 +27,7 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
 
             noecho();
 
+
         }
     }
 
@@ -43,10 +44,14 @@ void ConsoleDungeonIO::engage() {
     init_pair(BASIC_COLOR, COLOR_BLACK, COLOR_WHITE);
 
     dungeonWindow = newwin(dungeon->height, dungeon->width, 0, 0);
+    box(dungeonWindow, 0,0);
     messageWindow = newwin(5, dungeon->width/2-1, dungeon->height, dungeon->width/2+1);
+    box(messageWindow, 0,0);
     playerWindow = newwin(5, dungeon->width/2, dungeon->height, 0);
+    box(playerWindow, 0,0);
     inputWindow = newwin(1, dungeon->width, dungeon->height+5, 0);
-    inventoryWindow = newwin(dungeon->width - 6, dungeon->height - 6, 3, 3);
+    box(inputWindow, 0,0);
+    //inventoryWindow = newwin(dungeon->width - 6, dungeon->height - 6, 3, 3);
 
     scrollok(messageWindow, true);
     waddstr(messageWindow, "\n\n\n\n");
@@ -55,13 +60,16 @@ void ConsoleDungeonIO::engage() {
     messagePanel = new_panel(messageWindow);
     inputPanel = new_panel(inputWindow);
     playerPanel = new_panel(playerWindow);
-    inventoryPanel = new_panel(inventoryWindow);
-
-    update_panels();
+    //inventoryPanel = new_panel(inventoryWindow);
 
     hide_panel(inventoryPanel);
 
+    update_panels();
     doupdate();
+
+    for(int y = 0; y < dungeon->height; ++y) for (int x = 0; x < dungeon->width; ++x) {
+            drawCell({y,x});
+        }
 }
 
 void ConsoleDungeonIO::disengage() {
@@ -129,7 +137,7 @@ void ConsoleDungeonIO::drawCell(const Position position) {
             bool wallLeft{dungeon->getCellType({position.y, position.x - 1}) == WALL};
             bool wallRight{dungeon->getCellType({position.y, position.x + 1}) == WALL};
             setStandardCell();
-            int wallIndex{wallAbove & wallBelow << 1 & wallLeft << 2 & wallRight << 3};
+            int wallIndex{wallAbove | wallBelow << 1 | wallLeft << 2 | wallRight << 3};
             mvwaddch(dungeonWindow, position.y, position.x, wallOut[wallIndex]);
             break;
         }
@@ -150,6 +158,8 @@ void ConsoleDungeonIO::drawCell(const Position position) {
         }
         case CLOSED_DOOR:break;
     }
+    update_panels();
+    doupdate();
     auto entity = dungeon->getEntityAt(position);
     if (entity) {
         drawEntity(entity);
@@ -170,14 +180,16 @@ void ConsoleDungeonIO::drawEntity(const std::shared_ptr<Entity> &entity) {
         case CLOSED_DOOR:break;
     }
     mvwaddch(dungeonWindow, entity->getPosition().y, entity->getPosition().x, entity->representation);
+    update_panels();
+    doupdate();
 }
 
 void ConsoleDungeonIO::setWalkableCell(bool highlight) {
-    attrset(A_BOLD|(highlight ? 0:A_STANDOUT)|COLOR_PAIR(BASIC_COLOR));
+    attrset(A_BOLD|(highlight ? 0: A_STANDOUT)|COLOR_PAIR(BASIC_COLOR));
 }
 
 void ConsoleDungeonIO::setStandardCell(bool highlight) {
-    attrset((highlight ? 0:A_STANDOUT)|COLOR_PAIR(BASIC_COLOR));
+    attrset((highlight ? 0: A_STANDOUT)|COLOR_PAIR(BASIC_COLOR));
 }
 
 void ConsoleDungeonIO::postMessage(std::string s) {

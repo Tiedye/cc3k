@@ -41,19 +41,15 @@ void Loader::parseFile(string gameFile) {
 };
 
 void Loader::parseSets(std::string gameFile) {
-    ifstream s;
-    s.exceptions(ifstream::failbit | ifstream::badbit);
-    try {
-        s.open(gameFile);
-
-        while (!s.eof()) {
-            string command;
-            s >> command;
+    ifstream s {gameFile};
+    if (s) {
+        string command;
+        while (s >> command) {
             if (command == "include") {
                 string file;
                 s >> file;
                 parseSets(getPath(gameFile) + "/" + file + ".tdat");
-            } else if (command == "run") {
+            } else if (command == "start") {
                 string object;
                 s >> object;
                 if (object == "set") {
@@ -66,36 +62,33 @@ void Loader::parseSets(std::string gameFile) {
                 }
             }
         }
-    } catch (const ifstream::failure &e) {
+    } else {
         // TODO, error on no file
     }
     s.close();
 }
 
-void Loader::parseRest(std::string gameFile) {    ifstream s;
-    s.exceptions(ifstream::failbit | ifstream::badbit);
-    try {
-        s.open(gameFile);
-
-        while (!s.eof()) {
-            string command;
-            s >> command;
+void Loader::parseRest(std::string gameFile) {
+    ifstream s {gameFile};
+    if (s) {
+        string command;
+        while (s >> command) {
             if (command == "include") {
                 string file;
                 s >> file;
                 parseRest(getPath(gameFile) + "/" + file + ".tdat");
-            } else if (command == "run") {
+            } else if (command == "start") {
                 string object;
                 s >> object;
-                if (object == "race"){
+                if (object == "race") {
                     parseRace(s);
-                } else if (object == "item"){
+                } else if (object == "item") {
                     parseItem(s);
-                } else if (object == "mob"){
+                } else if (object == "mob") {
                     parseMob(s);
-                } else if (object == "consumable"){
+                } else if (object == "consumable") {
                     parseConsumable(s);
-                } else if (object == "equippable"){
+                } else if (object == "equippable") {
                     parseEquippable(s);
                 } else {
                     if (object != "set") {
@@ -110,8 +103,8 @@ void Loader::parseRest(std::string gameFile) {    ifstream s;
                 cerr << "Unrecognized command \"" << command << "\"" << endl;
             }
         }
-    } catch (const ifstream::failure &e) {
-        // TODO, error on no file
+    } else {
+        // TODO err on cant open file
     }
     s.close();
 }
@@ -355,10 +348,11 @@ void Loader::parseRace(istream &s){
         } else if (command == "shortcut") {
             s >> race->shortcut;
         } else {
-            cerr << "Unknown Command \"" << command << "\"" << endl;
+            cerr << "Unknown Command \"" << command << "\" when parsing Race" << endl;
         }
     }
-    state.lock()->library.addRace(race->id, move(race));
+    int id {race->id};
+    state.lock()->library.addRace(id, move(race));
 }
 
 void Loader::parseMob(istream &s) {
@@ -380,8 +374,12 @@ void Loader::parseMob(istream &s) {
             }
         } else if (command == "controller") {
             newMob->controller = loadController(s);
+        } else if (command == "representation") {
+            char c;
+            s >> c;
+            newMob->representation = c;
         } else {
-            cerr << "Unknown Command \"" << command << "\"" << endl;
+            cerr << "Unknown Command \"" << command << "\" when parsing Mob" << endl;
         }
     }
     state.lock()->library.addMob(id, move(newMob));
@@ -428,8 +426,12 @@ void Loader::parseItem(istream &s) {
             int value;
             s >> value;
             newItem->value = value;
+        } else if (command == "representation") {
+            char c;
+            s >> c;
+            newItem->representation = c;
         } else {
-            cerr << "Unknown Command \"" << command << "\"" << endl;
+            cerr << "Unknown Command \"" << command << "\" when parsing Item" << endl;
         }
     }
     state.lock()->library.addItem(id, move(newItem));
@@ -480,8 +482,12 @@ void Loader::parseConsumable(std::istream &s) {
             } else {
                 cerr << "Unknown effectType \"" << effectType << "\"" << endl;
             }
+        } else if (command == "representation") {
+            char c;
+            s >> c;
+            newConsumable->representation = c;
         } else {
-            cerr << "Unknown Command \"" << command << "\"" << endl;
+            cerr << "Unknown Command \"" << command << "\" when parsing Consumable" << endl;
         }
     }
     state.lock()->library.addConsumable(id, move(newConsumable));
@@ -520,6 +526,10 @@ void Loader::parseEquippable(std::istream &s) {
             } else {
                 cerr << "Could not find set \"" << set << "\"" << endl;
             }
+        } else if (command == "representation") {
+            char c;
+            s >> c;
+            newEquippable->representation = c;
         } else {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }

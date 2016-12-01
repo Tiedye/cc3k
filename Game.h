@@ -25,7 +25,7 @@ private:
     static int ids;
     std::map<int, std::shared_ptr<Stage>> stages;
     std::map<int, std::vector<std::map<int, std::shared_ptr<Stage>>::iterator>> groups;
-    std::shared_ptr<Stage> currentStage;
+    int initialStage;
     std::shared_ptr<State> state;
 };
 

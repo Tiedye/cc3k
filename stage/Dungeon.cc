@@ -23,7 +23,7 @@ int Dungeon::run(Game &game) {
     isRunning = true;
     state->currentDungeon = shared_from_this();
     state->player->move(spawnPoint);
-    addEntity(state->player);
+    initializeEntity(state->player);
     state->dungeonRenderer->setDungeon(shared_from_this());
     state->dungeonRenderer->engage();
     while (isRunning){
@@ -39,7 +39,7 @@ int Dungeon::run(Game &game) {
 
 CellType Dungeon::getCellType(const Position position) {
     if (onFeild(position)) {
-        return cells[position.x + position.y + width];
+        return cells[position.x + position.y * width];
     } else {
         return EMPTY;
     }
@@ -47,8 +47,14 @@ CellType Dungeon::getCellType(const Position position) {
 
 void Dungeon::setCellType(const Position position, const CellType type) {
     if (onFeild(position)) {
-        cells[position.x + position.y + width] = type;
+        cells[position.x + position.y * width] = type;
         state->dungeonRenderer->changeCell(position);
+    }
+}
+
+void Dungeon::initializeCell(const Position position, const CellType type) {
+    if (onFeild(position)) {
+        cells[position.x + position.y * width] = type;
     }
 }
 
@@ -65,6 +71,17 @@ void Dungeon::addEntity(shared_ptr<Entity> entity) {
     entity->onFloor = true;
     entity->trigger(ADDED_TO_FLOOR_DONE);
 }
+
+void Dungeon::initializeEntity(std::shared_ptr<Entity> entity) {
+    entity->addListener(state->dungeonRenderer);
+    entities.push_front(entity);
+    entity->addListReference(entities, entities.begin());
+    list<shared_ptr<Entity>> &cellList = getCellListAt(entity->getPosition());
+    cellList.push_front(entity);
+    entity->addListReference(cellList, cellList.begin());
+    entity->onFloor = true;
+}
+
 
 std::list<std::shared_ptr<Entity>> &Dungeon::getCellListAt(Position position) {
     return cellEntities[position.x+position.y*width];

@@ -35,7 +35,7 @@ public:
         std::shared_ptr<Entity> entity;
 	};
 
-    Entity();
+    Entity(std::string name = "");
     Entity(const Entity&other);
 
 	virtual void doTurn(Dungeon &dungeon);

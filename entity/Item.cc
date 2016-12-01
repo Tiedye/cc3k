@@ -18,7 +18,7 @@ std::unique_ptr<EventTarget> Item::getAsTarget() {
     return make_unique<Target>(shared_from_base<Item>());
 }
 
-Item::Item() {
+Item::Item() : Entity("") {
     addListener(Item::pickupOnInteract);
 }
 
@@ -43,6 +43,10 @@ int Item::getValue() {
     return value;
 }
 
-Item::Item(const Item &other):Entity(other), value{other.value} {
+Item::Item(const Item &other): Entity(other), value{other.value} {
+
+}
+
+Item::Item(string name) : Entity(name) {
 
 }

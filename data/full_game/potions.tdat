@@ -26,7 +26,7 @@ start consumable woundDefPotion
     consumed 50 defPenalty
     effectType negative
 end
-run set atkBoost
+start set atkBoost
     stat add atk 5
 end
 start set defBoost

@@ -209,7 +209,7 @@ Character::Character(const Character &other) :
         accuracy{other.accuracy},
         slots{other.slots},
         gold{other.gold},
-        controller{other.controller}{
+        controller{other.controller} {
     for(auto item:other.inventory) {
         inventory.push_front(item);
         item->addListReference(inventory, inventory.begin());
@@ -217,7 +217,7 @@ Character::Character(const Character &other) :
 
 }
 
-Character::Character() : gold{0} {
+Character::Character() : Entity("") {
 
 }
 
@@ -236,4 +236,8 @@ bool Character::removeGold(const int value) {
 
 int Character::currentGold() {
     return gold;
+}
+
+Character::Character(string name) : Entity(name) {
+
 }

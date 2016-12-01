@@ -4,7 +4,11 @@
 
 using namespace std;
 
-Consumable::Consumable() {}
+Consumable::Consumable() : Item("") {}
+
+Consumable::Consumable(std::string name) : Item(name) {
+
+}
 
 void Consumable::consume(const shared_ptr<Character> &by) {
     auto self = shared_from_base<Consumable>();

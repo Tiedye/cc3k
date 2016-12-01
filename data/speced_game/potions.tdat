@@ -3,28 +3,34 @@ start set restoreHealthPotionSet
 end
 start consumable restoreHealthPotion
     set restoreHealthPotionSet
+    representation P
 end
 start consumable boostAtkPotion
     consumed 50 atkBoost
     effectType positive
+    representation P
 end
 start consumable boostDefPotion
     consumed 50 defBoost
     effectType positive
+    representation P
 end
 start set poisonHealthPotionSet
     effect depleteOnConsume 10
 end
 start consumable poisonHealthPotion
     set poisonHealthPotionSet
+    representation P
 end
 start consumable woundAtkPotion
     consumed 50 atkPenalty
     effectType negative
+    representation P
 end
 start consumable woundDefPotion
     consumed 50 defPenalty
     effectType negative
+    representation P
 end
 start set atkBoost
     stat add atk 5
@@ -32,7 +38,7 @@ end
 start set defBoost
     stat add def 5
 end
-run set atkPenalty
+start set atkPenalty
     stat sub atk 5
 end
 start set defPenalty

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(cc3k)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})

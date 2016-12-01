@@ -1,8 +1,11 @@
 #include "Menu.h"
+#include "../Game.h"
 
-Menu::Menu(const std::shared_ptr<State> &state, int id) : Stage{state, id} {}
+using namespace std;
 
 int Menu::run(Game &game) {
-    state->player
-    return 0;
+    state->player->addFeatureSet(*state->library.getRaceSet(state->library.getRaces().begin()->first));
+    return next;
 }
+
+Menu::Menu(const shared_ptr<State> &state, const int id, const int next) : Stage(state, id), next(next) {}

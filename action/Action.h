@@ -58,6 +58,8 @@ public:
     virtual void onUse(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target,
                        Position castPoint); // called on actions of type: CONSUME, EQUIP, INTERACT, ATTACK, AID(!SELF), EFFECT(!SELF)
 
+    virtual ~Action() = default;
+
 
 protected:
     Action(const Type actionType, const Step type = PASSACTION, const int targets = SELF, const Range range = ANY,

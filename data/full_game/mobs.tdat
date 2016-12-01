@@ -49,7 +49,7 @@ start set orcSet
     effect dropItems [ 1 normalGold ] [ 1 smallGold ] done
     action melee 1 0
 end
-run mob orc
+start mob orc
     set orcSet
     controller wander localAttack done
 end

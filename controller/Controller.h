@@ -23,6 +23,8 @@ struct Controller {
         std::shared_ptr<Entity> targetEntity;
     };
 
+    virtual ~Controller() = default;
+
     virtual const ActionAndTarget getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions,
                                             const std::shared_ptr<State> &state) = 0;
 };

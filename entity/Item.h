@@ -10,6 +10,8 @@ public:
 
     Item();
 
+    Item(std::string name);
+
     class Target : public EventTarget {
     public:
         Target(const std::shared_ptr<Item> &item);
@@ -27,7 +29,7 @@ public:
     int getValue();
 
 private:
-    int value;
+    int value {0};
 
     class PickupOnInteract : public Listener {
     public:

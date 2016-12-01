@@ -20,6 +20,8 @@ public:
 
     Consumable();
 
+    Consumable(std::string name);
+
     void consume(const std::shared_ptr<Character> &by) override;
 
     std::shared_ptr<Entity> clone() override;

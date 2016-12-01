@@ -606,11 +606,11 @@ Entity::Entity(const Entity &other) :
         turnCount{other.turnCount},
         listeners{other.listeners},
         tempFeatureSets{other.tempFeatureSets},
-        types{other.types}{
+        types{other.types} {
 
 }
 
-Entity::Entity() {
+Entity::Entity(std::string name) : name{name} {
 
 }
 

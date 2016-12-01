@@ -16,6 +16,7 @@ public:
     Dungeon(const std::shared_ptr<State> &state, int id, int width, int height);
 
     void addEntity(std::shared_ptr<Entity> entity);
+    void initializeEntity(std::shared_ptr<Entity> entity);
 
     std::list<std::shared_ptr<Entity>> getEntitiesAt(Position position);
     std::list<std::shared_ptr<Entity>> getEntitiesAt(Position position, const std::shared_ptr<Entity> &exclude);
@@ -23,6 +24,8 @@ public:
 
     CellType getCellType(const Position position);
     void setCellType(const Position position, const CellType type);
+
+    void initializeCell(const Position position, const CellType type);
 
     const std::shared_ptr<State> & getState();
 

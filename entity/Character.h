@@ -16,6 +16,8 @@ public:
 		std::shared_ptr<Character> character;
 	};
 
+    Character(std::string name);
+
     Character();
 
 	Character(const Character&other);
@@ -49,7 +51,7 @@ protected:
     std::list<std::shared_ptr<Item>> inventory;
     std::map<int, std::shared_ptr<Equippable>> slots;
 
-    int gold;
+    int gold {0};
 
 private:
     void equip(const std::shared_ptr<Equippable> &equippable);

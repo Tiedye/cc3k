@@ -1,7 +1,7 @@
 #include "Game.h"
 
 void Game::setInitialStage(int stage) {
-    currentStage = stages.at(stage);
+    initialStage = stage;
 }
 
 void Game::addStage(int group, const std::shared_ptr<Stage> &stage) {
@@ -29,7 +29,7 @@ void Game::removeStates(int group) {
 //}
 
 void Game::start() {
-
+    for(int id {initialStage}; id >= 0; id = stages[id]->run(*this)){}
 }
 
 Game::Game(const std::shared_ptr<State> &state) : state(state) {}

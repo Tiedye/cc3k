@@ -19,6 +19,8 @@ public:
 
     Equippable();
 
+    Equippable(std::string name);
+
     void equip(const std::shared_ptr<Character> &onto) override;
     void unequip() override;
 

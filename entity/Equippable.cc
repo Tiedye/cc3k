@@ -4,7 +4,11 @@
 
 using namespace std;
 
-Equippable::Equippable() {}
+Equippable::Equippable() : Item("") {}
+
+Equippable::Equippable(std::string name) : Item(name) {
+
+}
 
 Equippable::Target::Target(const shared_ptr<Equippable> &equippable) : equippable(equippable) {}
 

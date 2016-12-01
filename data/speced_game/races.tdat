@@ -30,17 +30,17 @@ start race drow
 end
 start set vampireSet
     inherit player
-    stat base hp 100000000 0
+    stat base hp 32767 0
     stat base atk 25 0
     stat base def 25 0
-    effect StartHp 50
+    effect startHp 50
     effect lifeDrain 5
     effect allergy 10 dwarf done
 end
 start race vampire
     set vampireSet
 end
-run set trollSet
+start set trollSet
     inherit player
     stat base hp 120 0
     stat base atk 25 0

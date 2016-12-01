@@ -22,8 +22,6 @@ class FeatureSet;
 class StatModifier;
 class Action;
 class Dungeon;
-class Controller;
-class Dungeon;
 
 class Entity : public std::enable_shared_from_this<Entity> {
 public:

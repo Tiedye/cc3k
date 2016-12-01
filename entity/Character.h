@@ -4,6 +4,7 @@
 #include <map>
 
 #include "Entity.h"
+class Controller;
 
 class Character: public Entity {
 public:
@@ -39,6 +40,8 @@ public:
 
     virtual std::shared_ptr<Entity> clone() override;
 
+    std::shared_ptr<Controller> controller;
+
 protected:
     Stat & getCorrespondingStat(const StatModifier &modifier) override;
 
@@ -59,6 +62,4 @@ private:
 
     friend class Equippable;
 	friend class Loader;
-
-    std::shared_ptr<Controller> controller;
 };

@@ -202,14 +202,14 @@ void Character::unequip(const shared_ptr<Equippable> &equippable) {
 
 Character::Character(const Character &other) :
         Entity(other),
+        controller{other.controller},
         attackStrength{other.attackStrength},
         spellStrength{other.spellStrength},
         speed{other.speed},
         tenacity{other.tenacity},
         accuracy{other.accuracy},
         slots{other.slots},
-        gold{other.gold},
-        controller{other.controller} {
+        gold{other.gold} {
     for(auto item:other.inventory) {
         inventory.push_front(item);
         item->addListReference(inventory, inventory.begin());

@@ -106,7 +106,8 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
         case Action::ANY:
             for(int x {-maxRange}; x <= maxRange; ++x) {
                 for(int y {-maxRange}; y <= maxRange; ++y) {
-                    int dist {x < y ? x < -y ? y : x : x < -y ? x : y}; // LOGIC!
+                    int dist {x < y ? x < -y ? x : y : x < -y ? y : x}; // LOGIC!
+                    if (dist < 0) dist = -dist;
                     if (dist >= minRange) {
                         targets.emplace_back(y+position.y, x+position.x);
                     } else {

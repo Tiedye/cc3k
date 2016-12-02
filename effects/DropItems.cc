@@ -29,7 +29,7 @@ const vector<EventType> DropItems::eventTypes {DESTROYED_DONE};
 
 void DropItems::addItem(int weight, std::vector<int> &item) {
     weightsAndItems.emplace(weight, item);
-    totalWeight += 0;
+    totalWeight += weight;
 }
 
 DropItems::DropItems(const weak_ptr<State> &state) : state(state) {}

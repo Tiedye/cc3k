@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "../Game.h"
+#include "../display/ConsoleDungeonIO.h"
 
 
 #include <iostream>
@@ -233,7 +234,7 @@ std::vector<std::shared_ptr<Entity>> Dungeon::getTargeted(const shared_ptr<Entit
             targeted.insert(targeted.end(), atTarget.begin(), atTarget.end());
         } else {
             auto atTarget = getEntityAt(target);
-            if (atTarget == from && action->targets & Action::SELF) {
+            if (atTarget && (atTarget != from || action->targets & Action::SELF)) {
                 targeted.push_back(atTarget);
             }
         }

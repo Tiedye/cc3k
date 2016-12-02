@@ -355,6 +355,26 @@ void Loader::parseRace(istream &s){
     state.lock()->library.addRace(id, move(race));
 }
 
+shared_ptr<Controller> Loader::loadController(istream &s) {
+    shared_ptr<Controller> newController;
+    string name;
+    while(s >> name, name != "done") {
+        if (name == "wander") {
+
+        } else if (name == "localAttack") {
+
+        } else if (name == "merchant") {
+
+        } else if (name == "dragon") {
+
+        } else {
+            cerr << "No such controller \"" << name << "\"" << endl;
+        }
+    }
+    controllers.push_back(newController);  // TODO, necedssary to track controllers in loader?
+    return newController;
+}
+
 void Loader::parseMob(istream &s) {
     unique_ptr<Character> newMob {make_unique<Character>()};
     string name;
@@ -378,31 +398,20 @@ void Loader::parseMob(istream &s) {
             char c;
             s >> c;
             newMob->representation = c;
+        } else if (command == "name") {
+            ostringstream fullName;
+            string token;
+            s >> token;
+            fullName << token;
+            while(s >> token, token != "done") {
+                fullName << " " << token;
+            }
+            newMob->name = fullName.str();
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing Mob" << endl;
         }
     }
     state.lock()->library.addMob(id, move(newMob));
-}
-
-shared_ptr<Controller> Loader::loadController(istream &s) {
-    shared_ptr<Controller> newController;
-    string name;
-    while(s >> name, name != "done") {
-        if (name == "wander") {
-
-        } else if (name == "localAttack") {
-
-        } else if (name == "merchant") {
-
-        } else if (name == "dragon") {
-
-        } else {
-            cerr << "No such controller \"" << name << "\"" << endl;
-        }
-    }
-    controllers.push_back(newController);  // TODO, necedssary to track controllers in loader?
-    return newController;
 }
 
 void Loader::parseItem(istream &s) {
@@ -430,6 +439,15 @@ void Loader::parseItem(istream &s) {
             char c;
             s >> c;
             newItem->representation = c;
+        } else if (command == "name") {
+            ostringstream fullName;
+            string token;
+            s >> token;
+            fullName << token;
+            while(s >> token, token != "done") {
+                fullName << " " << token;
+            }
+            newItem->name = fullName.str();
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing Item" << endl;
         }
@@ -486,6 +504,15 @@ void Loader::parseConsumable(std::istream &s) {
             char c;
             s >> c;
             newConsumable->representation = c;
+        } else if (command == "name") {
+            ostringstream fullName;
+            string token;
+            s >> token;
+            fullName << token;
+            while(s >> token, token != "done") {
+                fullName << " " << token;
+            }
+            newConsumable->name = fullName.str();
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing Consumable" << endl;
         }
@@ -530,6 +557,15 @@ void Loader::parseEquippable(std::istream &s) {
             char c;
             s >> c;
             newEquippable->representation = c;
+        } else if (command == "name") {
+            ostringstream fullName;
+            string token;
+            s >> token;
+            fullName << token;
+            while(s >> token, token != "done") {
+                fullName << " " << token;
+            }
+            newEquippable->name = fullName.str();
         } else {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }

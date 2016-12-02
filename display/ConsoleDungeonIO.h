@@ -4,11 +4,26 @@
 #include "DungeonRenderer.h"
 #include "../controller/Controller.h"
 
+#include <sstream>
+
 typedef struct _win_st WINDOW;
 typedef struct panel PANEL;
 
 class ConsoleDungeonIO: public DungeonRenderer, public Controller {
 public:
+
+    // TODO for debug
+    class outBuff : public std::stringbuf {
+    public:
+        outBuff(ConsoleDungeonIO *consoleDungeonIO);
+
+        ConsoleDungeonIO *consoleDungeonIO;
+
+    protected:
+        int sync() override;
+
+    };
+
     ConsoleDungeonIO();
 
     const ActionAndTarget getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions, const std::shared_ptr<State> &state) override;
@@ -31,6 +46,8 @@ protected:
     void cellChanged(const Position position) override;
 
 private:
+    friend class outBuff;
+
     enum MODE {
         COMMAND,
         INTERACTIVE
@@ -95,5 +112,5 @@ private:
     void updateDisplay();
 };
 
-
-
+extern ConsoleDungeonIO::outBuff cdbuff;
+extern std::ostream cdout;

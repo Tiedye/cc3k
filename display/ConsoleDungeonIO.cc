@@ -5,6 +5,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 #include "../stage/Dungeon.h"
 
@@ -37,12 +38,11 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
             wgetnstr(inputWindow, raw_input, 80);
             wclear(inputWindow);
             string wholeCommand {raw_input};
-            postMessage(wholeCommand);
-            updateDisplay();
             curs_set(0);
             noecho();
 
             istringstream commandStream {wholeCommand};
+            //auto& commandStream = cin;
             string cmd;
             commandStream >> cmd;
             if (cmd == "mv") {
@@ -85,14 +85,11 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
                 }
             }
 
-            ostringstream msg;
             if (gotAction) {
-                msg << actionAndTarget.action->actionType << " " << actionAndTarget.target;
+                cdout << actionAndTarget.action->actionType << " " << actionAndTarget.target << endl;
             } else {
-                msg << "No cmd: " << wholeCommand;
+                cdout << "No cmd: " << wholeCommand << endl;
             }
-            postMessage(msg.str());
-            updateDisplay();
 
 
 
@@ -110,6 +107,8 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
 
 void ConsoleDungeonIO::engage() {
     initscr();
+    cdbuff.consoleDungeonIO = this;
+    cdout << "Set buff" << endl;
     start_color();
     cbreak();
     noecho();
@@ -129,7 +128,7 @@ void ConsoleDungeonIO::engage() {
     //inventoryWindow = newwin(dungeon->width - 6, dungeon->height - 6, 3, 3);
 
     scrollok(messageWindow, true);
-    waddstr(messageWindow, "\n\n\n\n");
+    waddstr(messageWindow, "\n\n\n\n\n");
 
     dungeonPanel = new_panel(dungeonWindow);
     messagePanel = new_panel(messageWindow);
@@ -146,6 +145,7 @@ void ConsoleDungeonIO::engage() {
 }
 
 void ConsoleDungeonIO::disengage() {
+    cdbuff.consoleDungeonIO = nullptr;
     endwin();
 }
 
@@ -268,10 +268,23 @@ void ConsoleDungeonIO::setStandardCell(WINDOW *win, bool highlight) {
 }
 
 void ConsoleDungeonIO::postMessage(std::string s) {
-    waddch(messageWindow, '\n');
     waddstr(messageWindow, s.data());
 }
 void ConsoleDungeonIO::updateDisplay() {
     update_panels();
     doupdate();
 }
+
+ConsoleDungeonIO::outBuff::outBuff(ConsoleDungeonIO *consoleDungeonIO) : consoleDungeonIO(consoleDungeonIO) {}
+
+int ConsoleDungeonIO::outBuff::sync() {
+    if (consoleDungeonIO) {
+        consoleDungeonIO->postMessage(str());
+        consoleDungeonIO->updateDisplay();
+        str("");
+    }
+    return basic_streambuf::sync();
+}
+
+ConsoleDungeonIO::outBuff cdbuff {nullptr};
+std::ostream cdout {&cdbuff};

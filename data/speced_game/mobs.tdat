@@ -14,6 +14,7 @@ start set humanSet
     action melee 1 0
 end
 start mob human
+    name a Human done
     set humanSet
     controller wander localAttack done
     representation H
@@ -27,6 +28,7 @@ start set dwarfSet
     action melee 1 0
 end
 start mob dwarf
+    name a Dwarf done
     set dwarfSet
     controller wander localAttack done
     representation W
@@ -40,6 +42,7 @@ start set elfSet
     action melee 2 0
 end
 start mob elf
+    name an Elf done
     set elfSet
     controller wander localAttack done
     representation E
@@ -53,6 +56,7 @@ start set orcSet
     action melee 1 0
 end
 start mob orc
+    name an Orc done
     set orcSet
     controller wander localAttack done
     representation O
@@ -66,6 +70,7 @@ start set merchantSet
     action melee 1 0
 end
 start mob merchant
+    name a Merchant done
     set merchantSet
     controller wander merchant done
     representation M
@@ -78,6 +83,7 @@ start set dragonSet
     action shoot 1 0 2
 end
 start mob dragon
+    name a Dragon done
     set dragonSet
     controller dragon done
     representation D
@@ -92,6 +98,7 @@ start set halflingSet
     action melee 1 0
 end
 start mob halfling
+    name a Halfling done
     set halflingSet
     controller wander localAttack done
     representation L

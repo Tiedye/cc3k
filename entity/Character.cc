@@ -8,6 +8,7 @@
 #include "../controller/Controller.h"
 #include "../stage/Dungeon.h"
 #include "../util/StatModifier.h"
+#include "../display/ConsoleDungeonIO.h"
 
 using namespace std;
 
@@ -75,6 +76,7 @@ void Character::doTurn(Dungeon &dungeon) {
                 actionAndRange.action = action;
             }
             while (!actionsAndRanges.empty()) {
+
                 Controller::ActionAndTarget actionAndTarget = controller->getAction(self, actionsAndRanges, dungeon.getState());
 
                 if (actionAndTarget.action->type != Action::Step::PASSACTION) { // cant do more than one of an action type per turn
@@ -115,6 +117,7 @@ void Character::doTurn(Dungeon &dungeon) {
                             break;
                         case Action::ATTACK: {
 
+
                             int amount{action->getAmount(*this)};
                             EventInfo::Data data;
                             data.integer1 = amount;
@@ -122,7 +125,7 @@ void Character::doTurn(Dungeon &dungeon) {
 
                             trigger(ATTACK, data, target);
 
-                            bool miss = (rand() % 100) < getAccuracy();
+                            bool miss = (rand() % 100) >= getAccuracy();
                             bool dodge = (rand() % 100) < target->getDodge();
                             if (!data.integer2 || miss || dodge) {
                                 trigger(MISS, target);

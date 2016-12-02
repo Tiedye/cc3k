@@ -6,6 +6,8 @@
 
 #include "../Game.h"
 
+
+#include <iostream>
 using namespace std;
 
 std::list<std::shared_ptr<Entity>> Dungeon::getEntitiesAt(Position position) {
@@ -119,35 +121,74 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
         case Action::LOS:
             // TODO ViewField implementation
             break;
-        case Action::PATH:
+        case Action::PATH: {
+            resetRange();
             queue<Position> toFill;
             toFill.push(position);
+            atRange(position) = 0;
             while (!toFill.empty()) {
                 Position currentPosition = toFill.front();
                 toFill.pop();
-                if (atRange(currentPosition) == maxRange) {
-                    continue;
-                } else if (atRange(currentPosition) >= minRange) {
+                if (atRange(currentPosition) >= minRange) {
                     targets.push_back(currentPosition);
                 }
-                Position positions[8] {
-                        {currentPosition.x + 1, currentPosition.y + 1},
-                        {currentPosition.x, currentPosition.y + 1},
-                        {currentPosition.x - 1, currentPosition.y + 1},
-                        {currentPosition.x + 1, currentPosition.y},
-                        {currentPosition.x - 1, currentPosition.y},
-                        {currentPosition.x + 1, currentPosition.y - 1},
-                        {currentPosition.x, currentPosition.y - 1},
-                        {currentPosition.x - 1, currentPosition.y - 1}
+                if (atRange(currentPosition) == maxRange) {
+                    continue;
+                }
+                Position positions[8]{
+                        {currentPosition.y + 1, currentPosition.x + 1},
+                        {currentPosition.y + 1, currentPosition.x},
+                        {currentPosition.y + 1, currentPosition.x - 1},
+                        {currentPosition.y,     currentPosition.x + 1},
+                        {currentPosition.y,     currentPosition.x - 1},
+                        {currentPosition.y - 1, currentPosition.x + 1},
+                        {currentPosition.y - 1, currentPosition.x},
+                        {currentPosition.y - 1, currentPosition.x - 1}
                 };
-                for(Position &pos:positions) {
-                    if (onFeild(pos) && atRange(pos) != -1 && getCellType(pos) != WALL) {
+                for (Position &pos:positions) {
+                    if (onFeild(pos) && atRange(pos) == -1 && (getCellType(pos) != WALL || getCellType(pos) != EMPTY)) {
                         atRange(pos) = atRange(currentPosition) + 1;
                         toFill.push(pos);
                     }
                 }
             }
             break;
+        }
+        case Action::STRICT_PATH: {
+            resetRange();
+            queue<Position> toFill;
+            toFill.push(position);
+            atRange(position) = 0;
+            while (!toFill.empty()) {
+                Position currentPosition = toFill.front();
+                toFill.pop();
+                if (atRange(currentPosition) >= minRange) {
+                    targets.push_back(currentPosition);
+                }
+                if (atRange(currentPosition) == maxRange) {
+                    continue;
+                }
+                Position positions[8]{
+                        {currentPosition.y + 1, currentPosition.x + 1},
+                        {currentPosition.y + 1, currentPosition.x},
+                        {currentPosition.y + 1, currentPosition.x - 1},
+                        {currentPosition.y,     currentPosition.x + 1},
+                        {currentPosition.y,     currentPosition.x - 1},
+                        {currentPosition.y - 1, currentPosition.x + 1},
+                        {currentPosition.y - 1, currentPosition.x},
+                        {currentPosition.y - 1, currentPosition.x - 1}
+                };
+                for (Position &pos:positions) {
+                    auto entityAt = getEntityAt(pos);
+                    if (onFeild(pos) && atRange(pos) == -1 && (getCellType(pos) != WALL || getCellType(pos) != EMPTY) &&
+                        (!entityAt || entityAt->getSize() == MINISCULE)) {
+                        atRange(pos) = atRange(currentPosition) + 1;
+                        toFill.push(pos);
+                    }
+                }
+            }
+            break;
+        }
     }
 
     return targets;
@@ -162,12 +203,16 @@ bool Dungeon::onFeild(int x, int y) {
     return y >= 0 && y < height && x >= 0 && x < width;
 }
 
-int &Dungeon::atRange(Position &position) {
+int &Dungeon::atRange(const Position position) {
     return rangeTracker[position.x + position.y*width];
 }
 
 int &Dungeon::atRange(int x, int y) {
     return rangeTracker[x + y*width];
+}
+
+void Dungeon::resetRange() {
+    fill(rangeTracker.begin(), rangeTracker.end(), -1);
 }
 
 const shared_ptr<State> & Dungeon::getState() {

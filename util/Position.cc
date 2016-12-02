@@ -25,3 +25,8 @@ void Position::shiftX(int amount) {
 void Position::shiftY(int amount) {
     y += amount;
 }
+
+std::ostream &operator<<(std::ostream &os, const Position &position)  {
+    os << "{y: " << position.y << " x: " << position.x << "}";
+    return os;
+}

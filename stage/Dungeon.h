@@ -65,9 +65,11 @@ private:
 
     bool onFeild(int x, int y);
 
-    int &atRange(Position &position);
+    int &atRange(const Position position);
 
     int &atRange(int x, int y);
+
+    void resetRange();
 
     friend class SimpleLoader;
 };

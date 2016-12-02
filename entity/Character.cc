@@ -152,10 +152,11 @@ void Character::doTurn(Dungeon &dungeon) {
 
                 if (actionType == Action::MOVE) {
                     EventInfo::Data data;
+                    auto oldPos = position;
                     data.position = targetPosition;
                     trigger(MOVE, data);
                     move(data.position);
-                    trigger(MOVE_DONE, data.position);
+                    trigger(MOVE_DONE, oldPos);
                     action->onUse(self, targetPosition);
                     for (auto& occupied:dungeon.getEntitiesAt(targetPosition)) {
                         occupied->occupy(self);

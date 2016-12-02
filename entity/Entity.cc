@@ -267,6 +267,7 @@ void Entity::addModifier(const StatModifier &modifier, int modNumerator, int mod
         default:
             return;
     }
+    stat.update();
 }
 
 void Entity::removeModifier(const StatModifier &modifier, int modNumerator, int modDenominator) {
@@ -294,6 +295,7 @@ void Entity::removeModifier(const StatModifier &modifier, int modNumerator, int 
         default:
             return;
     }
+    stat.update();
 }
 
 bool Entity::isA(int type) {

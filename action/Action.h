@@ -19,7 +19,7 @@ public:
         POINT, LINE, SQUARE
     };
     enum Range {
-        ANY, LOS, PATH
+        ANY, LOS, PATH, STRICT_PATH
     };
     enum Step {
         MOVEACTION, ACTION, BONUSACTION, PASSACTION

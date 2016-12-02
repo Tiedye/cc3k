@@ -4,6 +4,7 @@
 #include <panel.h>
 
 #include <sstream>
+#include <algorithm>
 
 #include "../stage/Dungeon.h"
 
@@ -16,11 +17,83 @@ ConsoleDungeonIO::ConsoleDungeonIO() {
 const Controller::ActionAndTarget
 ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
     // toggle between two control paths, command mode, and interactive mode
+    Controller::ActionAndTarget actionAndTarget;
     bool gotAction {false};
     while (!gotAction) {
         if (mode == COMMAND) {
 
+//            ostringstream msg;
+//            msg << character->getPosition() << endl;
+//            for (auto p:actions[1].range) {
+//                msg << p << ", ";
+//            }
+//            postMessage(msg.str());
+//            updateDisplay();
+
             echo();
+            curs_set(1);
+            char raw_input[80];
+            wmove(inputWindow, 0, 0);
+            wgetnstr(inputWindow, raw_input, 80);
+            wclear(inputWindow);
+            string wholeCommand {raw_input};
+            postMessage(wholeCommand);
+            updateDisplay();
+            curs_set(0);
+            noecho();
+
+            istringstream commandStream {wholeCommand};
+            string cmd;
+            commandStream >> cmd;
+            if (cmd == "mv") {
+                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar){ return ar.action->actionType == Action::MOVE;});
+                string dir;
+                if (commandStream >> dir) {
+                    Position dest;
+                    if (dir == "n") {dest = character->getPosition() + Position(-1, 0);}
+                    else if (dir == "s") {dest = character->getPosition() + Position(1, 0);}
+                    else if (dir == "w") {dest = character->getPosition() + Position(0, -1);}
+                    else if (dir == "e") {dest = character->getPosition() + Position(0, 1);}
+                    else if (dir == "nw") {dest = character->getPosition() + Position(-1, -1);}
+                    else if (dir == "sw") {dest = character->getPosition() + Position(1, -1);}
+                    else if (dir == "se") {dest = character->getPosition() + Position(1, 1);}
+                    else if (dir == "ne") {dest = character->getPosition() + Position(-1, 1);}
+                    if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
+                        actionAndTarget.action = selection->action;
+                        actionAndTarget.target = dest;
+                        gotAction = true;
+                    }
+                }
+            } else if (cmd == "a") {
+                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar){ return ar.action->actionType == Action::ATTACK;});
+                string dir;
+                if (commandStream >> dir) {
+                    Position dest;
+                    if (dir == "n") {dest = character->getPosition() + Position(-1, 0);}
+                    else if (dir == "s") {dest = character->getPosition() + Position(1, 0);}
+                    else if (dir == "w") {dest = character->getPosition() + Position(0, -1);}
+                    else if (dir == "e") {dest = character->getPosition() + Position(0, 1);}
+                    else if (dir == "nw") {dest = character->getPosition() + Position(-1, -1);}
+                    else if (dir == "sw") {dest = character->getPosition() + Position(1, -1);}
+                    else if (dir == "se") {dest = character->getPosition() + Position(1, 1);}
+                    else if (dir == "ne") {dest = character->getPosition() + Position(-1, 1);}
+                    if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
+                        actionAndTarget.action = selection->action;
+                        actionAndTarget.target = dest;
+                        gotAction = true;
+                    }
+                }
+            }
+
+            ostringstream msg;
+            if (gotAction) {
+                msg << actionAndTarget.action->actionType << " " << actionAndTarget.target;
+            } else {
+                msg << "No cmd: " << wholeCommand;
+            }
+            postMessage(msg.str());
+            updateDisplay();
+
 
 
         } else if (mode == INTERACTIVE) {
@@ -32,7 +105,7 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
     }
 
     // TODO all user input during dungeon here
-    return ActionAndTarget();
+    return actionAndTarget;
 }
 
 void ConsoleDungeonIO::engage() {
@@ -42,14 +115,16 @@ void ConsoleDungeonIO::engage() {
     noecho();
     keypad(stdscr, TRUE);
     init_pair(BASIC_COLOR, COLOR_BLACK, COLOR_WHITE);
+    curs_set(0);
 
+    mvvline(dungeon->height, dungeon->width/2, ACS_VLINE, 5);
     dungeonWindow = newwin(dungeon->height, dungeon->width, 0, 0);
     //box(dungeonWindow, 0,0);
-    messageWindow = newwin(5, dungeon->width/2-1, dungeon->height+1, dungeon->width/2+1);
+    messageWindow = newwin(5, dungeon->width/2-1, dungeon->height, dungeon->width/2+1);
     //box(messageWindow, 0,0);
-    playerWindow = newwin(5, dungeon->width/2, dungeon->height+1, 0);
+    playerWindow = newwin(5, dungeon->width/2, dungeon->height, 0);
     //box(playerWindow, 0,0);
-    inputWindow = newwin(1, dungeon->width, dungeon->height+6, 0);
+    inputWindow = newwin(1, dungeon->width, dungeon->height+5, 0);
     //box(inputWindow, 0,0);
     //inventoryWindow = newwin(dungeon->width - 6, dungeon->height - 6, 3, 3);
 

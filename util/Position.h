@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include <ostream>
+
 struct Position {
     int y;
     int x;
@@ -18,6 +20,8 @@ struct Position {
 
     void shiftX(int amount);
     void shiftY(int amount);
+
+    friend std::ostream &operator<<(std::ostream &os, const Position &position);
 };
 
-
+std::ostream &operator<<(std::ostream &os, const Position &position);

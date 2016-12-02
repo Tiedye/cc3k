@@ -2,7 +2,7 @@
 
 #include "../entity/Character.h"
 
-WalkAction::WalkAction() :Action(MOVE, MOVEACTION) {
+WalkAction::WalkAction() :Action(MOVE, MOVEACTION, SELF, STRICT_PATH) {
 
 }
 

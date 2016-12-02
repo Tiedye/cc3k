@@ -1,5 +1,9 @@
 #include "Game.h"
 
+#include <iostream>
+
+using namespace std;
+
 void Game::setInitialStage(int stage) {
     initialStage = stage;
 }

@@ -2,7 +2,7 @@
 
 #include "../entity/Character.h"
 
-WalkAsActionAction::WalkAsActionAction():Action(MOVE, ACTION) {
+WalkAsActionAction::WalkAsActionAction():Action(MOVE, ACTION, SELF, STRICT_PATH) {
 
 }
 
@@ -11,5 +11,5 @@ int WalkAsActionAction::getRange(Character &source) const {
 }
 
 int WalkAsActionAction::getMinRange(Character &source) const {
-    return 0;
+    return 1;
 }

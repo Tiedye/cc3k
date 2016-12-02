@@ -11,8 +11,8 @@ struct Stat {
     std::multiset<std::pair<int, int>> bases;  // priority, value
     int base {0};
     int shift {0};
-    int multiplier {0};
-    int divider {0};
+    int multiplier {1};
+    int divider {1};
     void update();
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Stage.h"
+#include "Dungeon.h"
 
 #include <vector>
 #include <string>

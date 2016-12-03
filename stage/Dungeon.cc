@@ -30,8 +30,13 @@ int Dungeon::run(Game &game) {
     state->dungeonRenderer->setDungeon(shared_from_this());
     state->dungeonRenderer->engage();
     while (isRunning){
-        for (auto entity:entities) {
+        int currentInit {0};
+        for (auto entityIter = entities.begin(); entityIter != entities.end(); ++entityIter) {
+            auto entity = *entityIter;
+            entity->startTracking();
+            currentInit = entity->getInitiative();
             entity->doTurn(*this);
+            if (entity->iteratorInvalid()) entityIter = entities.begin();
             if(!isRunning) break;
         }
     }
@@ -63,11 +68,15 @@ void Dungeon::initializeCell(const Position position, const CellType type) {
 
 Dungeon::Dungeon(const shared_ptr<State> &state, int id, int width, int height) : Stage(state, id), width{width}, height{height}, size{width * height}, cells(size), cellEntities(size), rangeTracker(size, -1) {}
 
+bool compareInitiative(const shared_ptr<Entity> &a, const shared_ptr<Entity> &b) {
+    return a->getInitiative() > b->getInitiative();
+}
+
 void Dungeon::addEntity(shared_ptr<Entity> entity) {
     entity->addListener(state->dungeonRenderer);
     entity->trigger(ADDED_TO_FLOOR);
-    entities.push_front(entity);
-    entity->addListReference(entities, entities.begin());
+    auto pos = entities.insert(upper_bound(entities.begin(), entities.end(), entity, compareInitiative), entity);
+    entity->addListReference(entities, pos);
     list<shared_ptr<Entity>> &cellList = getCellListAt(entity->getPosition());
     cellList.push_front(entity);
     entity->addListReference(cellList, cellList.begin());
@@ -310,4 +319,22 @@ const string &Dungeon::getName() const {
 
 void Dungeon::setName(const string &name) {
     Dungeon::name = name;
+}
+
+
+void Dungeon::notify(EventInfo &info) {
+    auto entity = info.primary->asEntity();
+    auto &oldCellList = getCellListAt(info.eventPosition);
+    auto result = find(oldCellList.begin(), oldCellList.end(), entity);
+    if(result != oldCellList.end()) {
+        oldCellList.erase(result);
+        entity->removeListReference(oldCellList);
+        auto &newCellList = getCellListAt(entity->getPosition());
+        newCellList.push_front(entity);
+        entity->addListReference(newCellList, newCellList.begin());
+    }
+}
+
+const std::vector<EventType> Dungeon::listeningFor() const {
+    return {MOVE_DONE};
 }

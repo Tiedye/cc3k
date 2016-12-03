@@ -43,34 +43,49 @@ void Entity::setHealth(const int amount) {
     health = amount;
 }
 
-void Entity::addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference) {
-    listReferences.insert(make_pair(&list, reference));
+void Entity::startTracking() {
+    trackIteratorValidity = true;
 }
 
-void Entity::addListReference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference) {
-    listReferences.insert(make_pair(&reinterpret_cast<std::list<std::shared_ptr<Entity>> &>(list), reinterpret_cast<std::list<std::shared_ptr<Entity>>::iterator &>(reference)));
-    // cause because
+bool Entity::iteratorInvalid() {
+    if (trackIteratorValidity) {
+        trackIteratorValidity = false;
+        return false;
+    } else {
+        return true;
+    }
+}
+
+void Entity::addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference) {
+    listReferences.insert(make_pair(&list, reference));
 }
 
 void Entity::removeListReference(std::list<std::shared_ptr<Entity>> &list) {
     listReferences.erase(&list);
 }
 
-void Entity::removeListReference(std::list<std::shared_ptr<Item>> &list) {
-    listReferences.erase(&reinterpret_cast<std::list<std::shared_ptr<Entity>> &>(list));
-}
-
 void Entity::removeFromContainers() {
+    trackIteratorValidity = false;
     if (onFloor) {
         trigger(REMOVED_FROM_FLOOR);
     }
     for (auto it = listReferences.begin(); it != listReferences.end(); ++it) {
         it->first->erase(it->second);
     }
+    listReferences.clear();
     if (onFloor) {
         trigger(REMOVED_FROM_FLOOR_DONE);
         onFloor = false;
     }
+}
+
+void Entity::addListReference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference) {
+    addListReference(reinterpret_cast<std::list<std::shared_ptr<Entity>> &>(list), reinterpret_cast<std::list<std::shared_ptr<Entity>>::iterator &>(reference));
+    // cause because
+}
+
+void Entity::removeListReference(std::list<std::shared_ptr<Item>> &list) {
+    removeListReference(reinterpret_cast<std::list<std::shared_ptr<Entity>> &>(list));
 }
 
 void Entity::create() {
@@ -620,3 +635,11 @@ bool Entity::isDead() {
     return dead;
 }
 
+void Entity::makeA(int type) {
+    types.insert(type);
+}
+
+Entity::ListReferenceOp::ListReferenceOp(const Entity::ListReferenceOp::Op op, std::list<std::shared_ptr<Entity>> *list,
+                                         const std::list<std::shared_ptr<Entity>>::iterator reference): op(op), list(list), reference(reference) {
+
+}

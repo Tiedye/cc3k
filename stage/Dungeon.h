@@ -11,7 +11,7 @@ class Entity;
 #include "../action/Action.h"
 #include "SimpleLoader.h"
 
-class Dungeon : public Stage, public std::enable_shared_from_this<Dungeon> {
+class Dungeon : public Stage, public Listener, public std::enable_shared_from_this<Dungeon> {
 public:
     Dungeon(const std::shared_ptr<State> &state, int id, int width, int height);
 
@@ -44,6 +44,10 @@ public:
     const int height;
 
     Position spawnPoint {0, 0};
+
+    void notify(EventInfo &info) override;
+
+    const std::vector<EventType> listeningFor() const override;
 
 private:
     std::string name;

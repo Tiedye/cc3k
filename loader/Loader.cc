@@ -280,9 +280,13 @@ shared_ptr<Listener> Loader::loadEffect(istream &s) {
             } else if (token == "]") {
                 dropItems->addItem(weight, itemSet);
                 itemSet.clear();
+            } else {
+                itemSet.emplace_back(parseId(token));
             }
         }
         return dropItems;
+    } else if (effect == "autoPickup") {
+        return make_shared<TypeAutoPickup>(parseId("player"));
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;
         return nullptr;

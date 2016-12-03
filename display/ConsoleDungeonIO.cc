@@ -9,6 +9,8 @@
 
 #include "../stage/Dungeon.h"
 
+//#define NODISP
+
 using namespace std;
 
 ConsoleDungeonIO::ConsoleDungeonIO() {
@@ -41,8 +43,11 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
             curs_set(0);
             noecho();
 
+#ifdef NODISP
+            auto& commandStream = cin;
+#else
             istringstream commandStream {wholeCommand};
-            //auto& commandStream = cin;
+#endif
             string cmd;
             commandStream >> cmd;
             if (cmd == "mv") {
@@ -106,7 +111,9 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
 }
 
 void ConsoleDungeonIO::engage() {
+#ifndef NODISP
     initscr();
+#endif
     cdbuff.consoleDungeonIO = this;
     cdout << "Set buff" << endl;
     start_color();

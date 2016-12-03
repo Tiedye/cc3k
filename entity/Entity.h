@@ -60,6 +60,7 @@ public:
                                 int numTurns);
 
     bool isA(int type);
+	void makeA(int type);
 
     // acting upon this entity
 	void create();
@@ -88,10 +89,14 @@ public:
     void setHealth(const int amount);
     bool isDead();
 
+//	void lockIterators();
+	void startTracking();
 	void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
 	void addListReference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference);
 	void removeListReference(std::list<std::shared_ptr<Entity>> &list);
 	void removeListReference(std::list<std::shared_ptr<Item>> &list);
+//    void unlockIterators();
+	bool iteratorInvalid();
 
 	Position getPosition();
 	int getSize();
@@ -156,6 +161,22 @@ protected:
     std::set<std::shared_ptr<Action>> actions;
 
 private:
+//    bool iteratorsLocked {false};
+//    struct ListReferenceOp {
+//        enum Op {
+//            ADD,
+//            REMOVE,
+//            CLEAR
+//        };
+//        Op op;
+//        std::list<std::shared_ptr<Entity>> *list;
+//        std::list<std::shared_ptr<Entity>>::iterator reference;
+//        ListReferenceOp(const Op op, std::list<std::shared_ptr<Entity>> *list = nullptr, const std::list<std::shared_ptr<Entity>>::iterator reference = {});
+//    };
+//    std::vector<ListReferenceOp> queuedOps;
+
+	bool trackIteratorValidity {false};
+
     int turnCount {0};
 
     void checkTempFeatures();

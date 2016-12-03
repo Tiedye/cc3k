@@ -10,4 +10,5 @@
 #include "Loot.h"
 #include "Regen.h"
 #include "StartHp.h"
+#include "TypeAutoPickup.h"
 #include "VenerabilityModifier.h"

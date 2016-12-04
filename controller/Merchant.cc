@@ -36,7 +36,7 @@ const HostileCharacter::ActionAndTarget HostileCharacter::getAction(const std::s
 	for (std::vector<ActionAndRange>::const_iterator a = actions.begin(); a != actions.end(); ++a)
 	{
 		std::shared_ptr<Action> action = (*a).action;
-		if (action->actionType == Action::ATTACK)
+		if (action->actionType == Action::MOVE)
 		{
 			at.action = action;
 			for (std::vector<Position>::const_iterator r = (*a).range.begin(); r != (*a).range.end(); ++r)

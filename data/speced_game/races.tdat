@@ -25,6 +25,7 @@ start set drowSet
     stat base def 15 0
     effect healthGainEnhancer 3 2 potion
     effect damageTakenEnhancer 3 2 potion
+    effect enhanceTempEffects 3 2 potion done
     effect resistance 2 1 elf done
 end
 start race drow

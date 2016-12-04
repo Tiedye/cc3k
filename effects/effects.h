@@ -4,6 +4,7 @@
 #include "DamageOnConsume.h"
 #include "DamageTakenEnhancer.h"
 #include "DropItems.h"
+#include "EnhanceTemporaryEffects.h"
 #include "HealOnConsume.h"
 #include "HealthGainEnhancer.h"
 #include "LifeDrain.h"

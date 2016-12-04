@@ -4,10 +4,8 @@
 #include "../entity/Entity.h"
 
 void LifeDrain::notify(EventInfo &info) {
-    if (!info.secondaries.empty()) {
-        std::shared_ptr<Entity> self {info.primary->asEntity()};
-        self->heal(amount, self);
-    }
+    std::shared_ptr<Entity> self {info.primary->asEntity()};
+    self->heal(amount, self);
 }
 
 const std::vector<EventType> LifeDrain::eventTypes {ATTACK_DONE};

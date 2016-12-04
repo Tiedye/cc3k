@@ -50,26 +50,7 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
 #endif
             string cmd;
             commandStream >> cmd;
-            if (cmd == "mv") {
-                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar){ return ar.action->actionType == Action::MOVE;});
-                string dir;
-                if (commandStream >> dir) {
-                    Position dest;
-                    if (dir == "n") {dest = character->getPosition() + Position(-1, 0);}
-                    else if (dir == "s") {dest = character->getPosition() + Position(1, 0);}
-                    else if (dir == "w") {dest = character->getPosition() + Position(0, -1);}
-                    else if (dir == "e") {dest = character->getPosition() + Position(0, 1);}
-                    else if (dir == "nw") {dest = character->getPosition() + Position(-1, -1);}
-                    else if (dir == "sw") {dest = character->getPosition() + Position(1, -1);}
-                    else if (dir == "se") {dest = character->getPosition() + Position(1, 1);}
-                    else if (dir == "ne") {dest = character->getPosition() + Position(-1, 1);}
-                    if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
-                        actionAndTarget.action = selection->action;
-                        actionAndTarget.target = dest;
-                        gotAction = true;
-                    }
-                }
-            } else if (cmd == "a") {
+            if (cmd == "a") {
                 auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar){ return ar.action->actionType == Action::ATTACK;});
                 string dir;
                 if (commandStream >> dir) {
@@ -87,6 +68,22 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
                         actionAndTarget.target = dest;
                         gotAction = true;
                     }
+                }
+            } else {
+                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar){ return ar.action->actionType == Action::MOVE;});
+                Position dest;
+                if (cmd == "n") {dest = character->getPosition() + Position(-1, 0);}
+                else if (cmd == "s") {dest = character->getPosition() + Position(1, 0);}
+                else if (cmd == "w") {dest = character->getPosition() + Position(0, -1);}
+                else if (cmd == "e") {dest = character->getPosition() + Position(0, 1);}
+                else if (cmd == "nw") {dest = character->getPosition() + Position(-1, -1);}
+                else if (cmd == "sw") {dest = character->getPosition() + Position(1, -1);}
+                else if (cmd == "se") {dest = character->getPosition() + Position(1, 1);}
+                else if (cmd == "ne") {dest = character->getPosition() + Position(-1, 1);}
+                if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
+                    actionAndTarget.action = selection->action;
+                    actionAndTarget.target = dest;
+                    gotAction = true;
                 }
             }
 
@@ -111,6 +108,7 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
 }
 
 void ConsoleDungeonIO::engage() {
+    setlocale(LC_ALL, "");
 #ifndef NODISP
     initscr();
 #endif

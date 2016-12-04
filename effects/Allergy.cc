@@ -7,13 +7,11 @@ using namespace std;
 
 void Allergy::notify(EventInfo &info) {
     std::shared_ptr<Entity> self {info.primary->asEntity()};
-    for (unique_ptr<EventTarget> &target:info.secondaries) {
-        std::shared_ptr<Entity> other {target->asEntity()};
-        for (int allergy: to){
-            if (other->isA(allergy)) {
-                self->damage(amount, other);
-                return;
-            }
+    std::shared_ptr<Entity> other {info.secondary->asEntity()};
+    for (int allergy: to){
+        if (other->isA(allergy)) {
+            self->damage(amount, other);
+            return;
         }
     }
 }

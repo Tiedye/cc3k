@@ -13,22 +13,25 @@ unique_ptr<EventTarget> Entity::getAsTarget() {
     return make_unique<Target>(shared_from_this());
 }
 
-int Entity::getSize() {
+int Entity::getSize() const {
     return size.value;
 }
-int Entity::getMaxHealth() {
+int Entity::getMaxHealth() const {
     return maxHealth.value;
 }
-int Entity::getInitiative() {
+int Entity::getInitiative() const {
     return initiative.value;
 }
-int Entity::getDefenceStrength() {
+int Entity::getDefenceStrength() const {
     return defenseStrength.value;
 }
-int Entity::getKnockbackResist() {
+int Entity::getKnockbackResist() const {
     return knockbackResist.value;
 }
-int Entity::getDodge() {
+int Entity::getTenacity() const {
+    return tenacity.value;
+}
+int Entity::getDodge() const {
     return dodge.value;
 }
 
@@ -317,12 +320,17 @@ bool Entity::isA(int type) {
     return (bool) types.count(type);
 }
 
-void Entity::doTurn(Dungeon &dungeon) {
+void Entity::doTurn(Dungeon &dungeon, const int turnId) {
+    lastTurn = turnId;
     auto self = shared_from_this();
     trigger(TURN_END, self);
     checkTempFeatures();
     ++turnCount;
     trigger(TURN_END_DONE, self);
+}
+
+int Entity::lastTurnId() const {
+    return lastTurn;
 }
 
 void Entity::checkTempFeatures() {
@@ -337,10 +345,13 @@ void Entity::addTemporaryFeatureSet(const shared_ptr<Entity> &source, const shar
                                     EffectType effectType,
                                     int numTurns) {
     EventInfo::Data data;
-    data.integer1 = 1;
-    data.integer2 = 1;
+    data.short1 = 1;
+    data.short2 = 1;
+    data.short3 = effectType;
 
-    trigger(TEMP_SET_ADD, data);
+    trigger(TEMP_SET_ADD, data, source);
+
+    effectType = (EffectType)data.short3;
 
     TempFeatureSet tempFeatureSet;
     tempFeatureSet.effectType = effectType;
@@ -349,9 +360,13 @@ void Entity::addTemporaryFeatureSet(const shared_ptr<Entity> &source, const shar
     tempFeatureSet.set = featureSet;
     tempFeatureSet.source = source;
 
+    if (effectType == EffectType::NEGATIVE) {
+        numTurns = numTurns * (100 - getTenacity()) / 100;
+    }
+
     tempFeatureSets.emplace(turnCount+numTurns, tempFeatureSet);
 
-    addFeatureSet(*featureSet, 0, 0);
+    addFeatureSet(*featureSet, tempFeatureSet.modNumerator, tempFeatureSet.modDenominator);
 }
 
 shared_ptr<Entity> Entity::clone() {
@@ -618,6 +633,7 @@ Entity::Entity(const Entity &other) :
         initiative{other.initiative},
         defenseStrength{other.defenseStrength},
         knockbackResist{other.knockbackResist},
+        tenacity{other.tenacity},
         dodge{other.dodge},
         actions{other.actions},
         turnCount{other.turnCount},
@@ -637,9 +653,4 @@ bool Entity::isDead() {
 
 void Entity::makeA(int type) {
     types.insert(type);
-}
-
-Entity::ListReferenceOp::ListReferenceOp(const Entity::ListReferenceOp::Op op, std::list<std::shared_ptr<Entity>> *list,
-                                         const std::list<std::shared_ptr<Entity>>::iterator reference): op(op), list(list), reference(reference) {
-
 }

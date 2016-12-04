@@ -36,7 +36,8 @@ public:
     Entity(std::string name = "");
     Entity(const Entity&other);
 
-	virtual void doTurn(Dungeon &dungeon);
+	virtual void doTurn(Dungeon &dungeon, const int turnId);
+    int lastTurnId() const;
 
     void removeFromContainers();
 	virtual ~Entity() = default;
@@ -89,22 +90,21 @@ public:
     void setHealth(const int amount);
     bool isDead();
 
-//	void lockIterators();
 	void startTracking();
 	void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
 	void addListReference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference);
 	void removeListReference(std::list<std::shared_ptr<Entity>> &list);
 	void removeListReference(std::list<std::shared_ptr<Item>> &list);
-//    void unlockIterators();
 	bool iteratorInvalid();
 
 	Position getPosition();
-	int getSize();
-	int getMaxHealth();
-	int getInitiative();
-	int getDefenceStrength();
-    int getKnockbackResist();
-    int getDodge();
+	int getSize() const;
+	int getMaxHealth() const;
+	int getInitiative() const;
+	int getDefenceStrength() const;
+    int getKnockbackResist() const;
+    int getTenacity() const;
+    int getDodge() const;
 
     const std::string & getName();
 
@@ -152,6 +152,7 @@ protected:
 	Stat initiative; // base value 0
 	Stat defenseStrength; // base value 0
 	Stat knockbackResist; // base value 0
+    Stat tenacity; // base value 0
     Stat dodge; // base value 0
     //Stat tempModNumerator {1};
     //Stat tempModDenominator {1};
@@ -176,6 +177,7 @@ private:
 //    std::vector<ListReferenceOp> queuedOps;
 
 	bool trackIteratorValidity {false};
+    int lastTurn {-1};
 
     int turnCount {0};
 

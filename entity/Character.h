@@ -23,20 +23,21 @@ public:
 
 	Character(const Character&other);
 
-    void doTurn(Dungeon &dungeon) override;
+    void doTurn(Dungeon &dungeon, const int turnId) override;
 
     std::unique_ptr<EventTarget> getAsTarget() override;
 
-    void give(const std::shared_ptr<Item> &item) override ;
+    void give(const std::shared_ptr<Item> &item) override;
+	void equip(const std::shared_ptr<Equippable> &equippable);
+	void unequip(const std::shared_ptr<Equippable> &equippable);
     void addGold(const int value);
     bool removeGold(const int value);
-    int currentGold();
+    int currentGold() const;
 
-    int getAttackStrength();
-	int getSpellStrength();
-	int getSpeed();
-	int getTenacity();
-	int getAccuracy();
+    int getAttackStrength() const;
+	int getSpellStrength() const;
+	int getSpeed() const;
+	int getAccuracy() const;
 
     virtual std::shared_ptr<Entity> clone() override;
 
@@ -48,7 +49,6 @@ protected:
     Stat attackStrength; // base value 0
     Stat spellStrength; // base value 0
     Stat speed; // base value 0
-    Stat tenacity; // base value 0
     Stat accuracy; // base value 0
 
     std::list<std::shared_ptr<Item>> inventory;
@@ -57,9 +57,6 @@ protected:
     int gold {0};
 
 private:
-    void equip(const std::shared_ptr<Equippable> &equippable);
-    void unequip(const std::shared_ptr<Equippable> &equippable);
 
-    friend class Equippable;
 	friend class Loader;
 };

@@ -18,6 +18,12 @@ struct EventInfo {
                 int integer1;
                 int integer2;
             };
+			struct {
+				short short1;
+				short short2;
+				short short3;
+				short short4;
+			};
             double doubleFloat;
             struct {
                 float float1;

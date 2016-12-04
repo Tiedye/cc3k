@@ -26,23 +26,19 @@ std::unique_ptr<EventTarget> Character::getAsTarget() {
 	return make_unique<Target>( shared_from_base<Character>() );
 }
 
-int Character::getAttackStrength() {
+int Character::getAttackStrength() const {
 	return attackStrength.value;
 }
 
-int Character::getSpellStrength() {
+int Character::getSpellStrength() const {
 	return spellStrength.value;
 }
 
-int Character::getSpeed() {
+int Character::getSpeed() const {
 	return speed.value;
 }
 
-int Character::getTenacity() {
-	return tenacity.value;
-}
-
-int Character::getAccuracy() {
+int Character::getAccuracy() const {
     return accuracy.value;
 }
 
@@ -57,7 +53,7 @@ shared_ptr<Entity> Character::clone() {
 	return make_shared<Character>(*this);
 }
 
-void Character::doTurn(Dungeon &dungeon) {
+void Character::doTurn(Dungeon &dungeon, const int turnId) {
     const shared_ptr<Character> self = shared_from_base<Character>();
     EventInfo::Data shouldSkip;
     shouldSkip.integer1 = 0;
@@ -169,7 +165,7 @@ void Character::doTurn(Dungeon &dungeon) {
             }
         }
     }
-    Entity::doTurn(dungeon); // manage things like turn events and temp effects
+    Entity::doTurn(dungeon, turnId); // manage things like turn events and temp effects
 }
 
 Stat & Character::getCorrespondingStat(const StatModifier &modifier) {
@@ -210,7 +206,6 @@ Character::Character(const Character &other) :
         attackStrength{other.attackStrength},
         spellStrength{other.spellStrength},
         speed{other.speed},
-        tenacity{other.tenacity},
         accuracy{other.accuracy},
         slots{other.slots},
         gold{other.gold} {
@@ -238,7 +233,7 @@ bool Character::removeGold(const int value) {
     }
 }
 
-int Character::currentGold() {
+int Character::currentGold() const {
     return gold;
 }
 

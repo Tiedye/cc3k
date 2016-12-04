@@ -29,16 +29,31 @@ int Dungeon::run(Game &game) {
     initializeEntity(state->player);
     state->dungeonRenderer->setDungeon(shared_from_this());
     state->dungeonRenderer->engage();
+    int turnId {0};
     while (isRunning){
         int currentInit {0};
-        for (auto entityIter = entities.begin(); entityIter != entities.end(); ++entityIter) {
+        for (auto entityIter = entities.begin(); entityIter != entities.end();) {
             auto entity = *entityIter;
+
             entity->startTracking();
             currentInit = entity->getInitiative();
-            entity->doTurn(*this);
-            if (entity->iteratorInvalid()) entityIter = entities.begin();
+
+            entity->doTurn(*this, 0);
+
+            // handle if iterator invalidated
+            if (entity->iteratorInvalid()) {
+                entityIter = find_if(entities.begin(), entities.end(),
+                                     [turnId, currentInit](const shared_ptr<Entity> searching) {
+                                         return searching->lastTurnId() != turnId &&
+                                                searching->getInitiative() >= currentInit;
+                                     });
+            } else {
+                ++entityIter;
+            }
+
             if(!isRunning) break;
         }
+        ++turnId;
     }
     state->dungeonRenderer->disengage();
     state->player->removeFromContainers();

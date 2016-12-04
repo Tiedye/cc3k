@@ -287,6 +287,15 @@ shared_ptr<Listener> Loader::loadEffect(istream &s) {
         return dropItems;
     } else if (effect == "autoPickup") {
         return make_shared<TypeAutoPickup>(parseId("player"));
+    } else if (effect == "enhanceTempEffects") {
+        short modNumerator, modDenominator;
+        s >> modNumerator >> modDenominator;
+        string type;
+        vector<int> from;
+        while (s >> type, type != "done") {
+            from.push_back(parseId(type));
+        }
+        return make_shared<EnhanceTemporaryEffects>(from, modNumerator, modDenominator);
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;
         return nullptr;

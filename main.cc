@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
     state->loader = loader;
     state->dungeonRenderer = dungeonIO;
     state->player = make_shared<Character>("Player");
+    state->player->makeA(state->loader->getId("player"));
     state->player->controller = dungeonIO;
     state->player->representation = '@';
     loader->loadFile(gameFile);

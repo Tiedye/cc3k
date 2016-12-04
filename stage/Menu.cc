@@ -4,7 +4,7 @@
 using namespace std;
 
 int Menu::run(Game &game) {
-    state->player->addFeatureSet(*state->library.getRaceSet(state->library.getRaces().begin()->first));
+    state->player->addFeatureSet(*(*state->library.getRaces().begin())->featureSet);
     return next;
 }
 

@@ -1,9 +1,12 @@
 #pragma once
 
-#include "Controller.h"
+#include "ControllerDecorator.h"
 
-struct HostileCharacter : public Controller
-{
-	const ActionAndTarget getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions,
-		const std::shared_ptr<State> &state);
+class Merchant : public ControllerDecorator {
+public:
+    Merchant(const std::shared_ptr<Controller> &decorated, const std::shared_ptr<State> &state);
+    const ActionAndTarget getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions, const std::shared_ptr<State> &state) override;
+
+private:
+    int merchantsHostileDataId;
 };

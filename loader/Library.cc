@@ -6,7 +6,7 @@ using namespace std;
 
 void Library::addRace(int id, std::unique_ptr<Race> race) {
     types.emplace(id, RACE);
-    races.emplace(id, move(race));
+    races.push_back(move(race));
 }
 
 void Library::addMob(int id, std::unique_ptr<Character> mob) {
@@ -29,10 +29,6 @@ void Library::addEquippable(int id, std::unique_ptr<Equippable> equippable) {
     equippables.emplace(id, move(equippable));
 }
 
-std::shared_ptr<FeatureSet> &Library::getRaceSet(int id) {
-    return races[id]->featureSet;
-}
-
 std::shared_ptr<Character> Library::getAMob(int id) {
     return static_pointer_cast<Character>(mobs[id]->clone());
 }
@@ -49,7 +45,7 @@ std::shared_ptr<Equippable> Library::getAnEquippable(int id) {
     return static_pointer_cast<Equippable>(equippables[id]->clone());
 }
 
-const std::map<int, std::unique_ptr<Race>>& Library::getRaces() {
+const std::vector<std::unique_ptr<Race>>& Library::getRaces() {
     return races;
 }
 

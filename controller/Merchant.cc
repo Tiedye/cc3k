@@ -1,52 +1,41 @@
-#include "Controller.h"
-#include "../action/Action.h"
-#include "hostile.h"
-#include <cstdlib>
-#include <time.h>
+#include "Merchant.h"
+
 #include <list>
+#include <algorithm>
+
+#include "../action/Action.h"
+#include "../stage/Dungeon.h"
+#include "../loader/Loader.h"
 #include "../State.h"
 
-const HostileCharacter::ActionAndTarget HostileCharacter::getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions,
-	const std::shared_ptr<State> &state)
-{
-	for (std::vector<ActionAndRange>::const_iterator a = actions.begin(); a != actions.end(); ++a)
-	{
-		std::shared_ptr<Action> action = (*a).action;
-		if (action->actionType == Action::ATTACK && state->merchantAttacked())
-		{
-			for (std::vector<Position>::const_iterator r = (*a).range.begin(); r != (*a).range.end(); ++r)
-			{
-				std::list<std::shared_ptr<Entity>> entities = state->currentDungeon->getEntitiesAt(*r);
-				for (std::list<std::shared_ptr<Entity>>::iterator entity = entities.begin(); entity != entities.end(); entity++)
-				{
-					if ((*entity)->isA(state->loader->getId("player")))
-					{
-						ActionAndTarget at;
-						at.action = action;
-						at.target = *r;
-						at.targetEntity = *entity;
-						return at;
-					}
-				}
-			}
-		}
-	}
-	std::vector<Position> ranges;
-	ActionAndTarget at;
-	for (std::vector<ActionAndRange>::const_iterator a = actions.begin(); a != actions.end(); ++a)
-	{
-		std::shared_ptr<Action> action = (*a).action;
-		if (action->actionType == Action::MOVE)
-		{
-			at.action = action;
-			for (std::vector<Position>::const_iterator r = (*a).range.begin(); r != (*a).range.end(); ++r)
-			{
-				ranges.push_back(*r);
-			}
-		}
-	}
-	srand(time(NULL));
-	int i = rand() % ranges.size();
-	at.target = ranges[i];
-	return at;
+using namespace std;
+
+const Controller::ActionAndTarget
+Merchant::getAction(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
+    if (state->aiGetInteger(merchantsHostileDataId)) {
+        for (auto &actionAndRange:actions) {
+            if (actionAndRange.action->actionType == Action::ATTACK) {
+                for (auto p:actionAndRange.range) {
+                    for (auto &entity:state->currentDungeon->getEntitiesAt(p)) {
+                        if (entity->isA(state->loader->getId("player"))) {
+                            ActionAndTarget at;
+                            at.action = actionAndRange.action;
+                            at.targetEntity = entity;
+                            return at;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return decorated->getAction(character, actions, state);
+}
+
+Merchant::Merchant(const shared_ptr<Controller> &decorated, const shared_ptr<State> &state) : ControllerDecorator(decorated) {
+    if (HasAIData::aiReservedId("merchants_hostile")) {
+        merchantsHostileDataId = HasAIData::aiGetId("merchants_hostile");
+    } else {
+        merchantsHostileDataId = HasAIData::aiReserveId("merchants_hostile");
+        state->aiGetInteger(merchantsHostileDataId) = false;
+    }
 }

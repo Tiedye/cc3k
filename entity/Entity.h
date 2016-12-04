@@ -16,6 +16,7 @@
 
 #include "../event/EventTarget.h"
 #include "../event/EventInfo.h"
+#include "../controller/HasAIData.h"
 
 class Listener;
 class FeatureSet;
@@ -23,7 +24,7 @@ class StatModifier;
 class Action;
 class Dungeon;
 
-class Entity : public std::enable_shared_from_this<Entity> {
+class Entity : public std::enable_shared_from_this<Entity>, public HasAIData {
 public:
 	class Target : public EventTarget {
 	public:

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <map>
+#include <vector>
 #include "../Race.h"
 #include "../entity/Entity.h"
 #include "../entity/Character.h"
@@ -28,8 +29,7 @@ public:
     void addConsumable(int id, std::unique_ptr<Consumable> consumable);
     void addEquippable(int id, std::unique_ptr<Equippable> equippable);
 
-    const std::map<int, std::unique_ptr<Race>>& getRaces();
-    std::shared_ptr<FeatureSet> &getRaceSet(int id);
+    const std::vector<std::unique_ptr<Race>>& getRaces();
 
     std::shared_ptr<Character> getAMob(int id);
     std::shared_ptr<Item> getAnItem(int id);
@@ -41,7 +41,7 @@ public:
 private:
     std::map<int, ItemType> types;
 
-    std::map<int, std::unique_ptr<Race>> races;
+    std::vector<std::unique_ptr<Race>> races;
 
     std::map<int, std::unique_ptr<Character>> mobs;
     std::map<int, std::unique_ptr<Item>> items;

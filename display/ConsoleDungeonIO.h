@@ -6,6 +6,7 @@
 
 #include <sstream>
 
+
 typedef struct _win_st WINDOW;
 typedef struct panel PANEL;
 

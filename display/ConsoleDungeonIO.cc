@@ -113,7 +113,6 @@ void ConsoleDungeonIO::engage() {
     initscr();
 #endif
     cdbuff.consoleDungeonIO = this;
-    cdout << "Set buff" << endl;
     start_color();
     cbreak();
     noecho();
@@ -284,8 +283,12 @@ ConsoleDungeonIO::outBuff::outBuff(ConsoleDungeonIO *consoleDungeonIO) : console
 
 int ConsoleDungeonIO::outBuff::sync() {
     if (consoleDungeonIO) {
+#ifdef NODISP
+        cout << str();
+#else
         consoleDungeonIO->postMessage(str());
         consoleDungeonIO->updateDisplay();
+#endif
         str("");
     }
     return basic_streambuf::sync();

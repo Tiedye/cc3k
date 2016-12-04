@@ -171,7 +171,7 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                         {currentPosition.y - 1, currentPosition.x - 1}
                 };
                 for (Position &pos:positions) {
-                    if (onFeild(pos) && atRange(pos) == -1 && (getCellType(pos) != WALL || getCellType(pos) != EMPTY)) {
+                    if (onFeild(pos) && atRange(pos) == -1 && (getCellType(pos) != WALL && getCellType(pos) != EMPTY)) {
                         atRange(pos) = atRange(currentPosition) + 1;
                         toFill.push(pos);
                     }
@@ -205,7 +205,7 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                 };
                 for (Position &pos:positions) {
                     auto entityAt = getEntityAt(pos);
-                    if (onFeild(pos) && atRange(pos) == -1 && (getCellType(pos) != WALL || getCellType(pos) != EMPTY) &&
+                    if (onFeild(pos) && atRange(pos) == -1 && (getCellType(pos) != WALL && getCellType(pos) != EMPTY) &&
                         (!entityAt || entityAt->getSize() == MINISCULE)) {
                         atRange(pos) = atRange(currentPosition) + 1;
                         toFill.push(pos);

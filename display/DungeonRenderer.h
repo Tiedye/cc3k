@@ -9,6 +9,7 @@
 
 class DungeonRenderer : public Listener, public std::enable_shared_from_this<DungeonRenderer> {
 public:
+    DungeonRenderer();
 
     void changeCell(Position position); // neccessary to display grid updates
 

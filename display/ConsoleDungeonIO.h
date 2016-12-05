@@ -109,6 +109,7 @@ private:
     void drawCell(const Position position);
     void drawEntity(const std::shared_ptr<Entity> &entity);
     void postMessage(std::string s);
+    void updateHUD(const std::shared_ptr<Character> &character);
 
     void updateDisplay();
 };

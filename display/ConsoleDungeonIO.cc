@@ -19,6 +19,8 @@ ConsoleDungeonIO::ConsoleDungeonIO() {
 
 const Controller::ActionAndTarget
 ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
+    updateHUD(character);
+    updateDisplay();
     // toggle between two control paths, command mode, and interactive mode
     Controller::ActionAndTarget actionAndTarget;
     bool gotAction {false};
@@ -152,6 +154,7 @@ void ConsoleDungeonIO::disengage() {
 }
 
 void ConsoleDungeonIO::entityMoved(const std::shared_ptr<Entity> &entity, const Position oldPos) {
+    cdout << oldPos << " - " << entity->getPosition() << endl;
     drawCell(oldPos);
     drawEntity(entity);
     updateDisplay();
@@ -279,6 +282,15 @@ void ConsoleDungeonIO::postMessage(std::string s) {
 void ConsoleDungeonIO::updateDisplay() {
     update_panels();
     doupdate();
+}
+
+void ConsoleDungeonIO::updateHUD(const std::shared_ptr<Character> &character) {
+    ostringstream out;
+    out << "HP:   " << character->getHealth() << endl;
+    out << "Atk:  " << character->getAttackStrength() << endl;
+    out << "Def:  " << character->getDefenceStrength() << endl;
+    out << "Gold: " << character->currentGold() << endl;
+    mvwaddstr(playerWindow,0,0,out.str().data());
 }
 
 ConsoleDungeonIO::outBuff::outBuff(ConsoleDungeonIO *consoleDungeonIO) : consoleDungeonIO(consoleDungeonIO) {}

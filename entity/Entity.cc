@@ -654,3 +654,7 @@ bool Entity::isDead() {
 void Entity::makeA(int type) {
     types.insert(type);
 }
+
+bool Entity::ListenerSort::operator()(const std::shared_ptr<Listener> &a, const std::shared_ptr<Listener> &b) const {
+    return a->priority == b->priority ? a < b: a->priority < b->priority;
+}

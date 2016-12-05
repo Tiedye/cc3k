@@ -36,3 +36,5 @@ const std::vector<EventType> DungeonRenderer::listeningFor() const {
 void DungeonRenderer::setDungeon(const std::shared_ptr<Dungeon> &dungeon) {
     DungeonRenderer::dungeon = dungeon;
 }
+
+DungeonRenderer::DungeonRenderer() : Listener(10000) {}

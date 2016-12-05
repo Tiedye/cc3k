@@ -191,9 +191,13 @@ private:
         int modDenominator;
     };
 
+    struct ListenerSort {
+        bool operator()(const std::shared_ptr<Listener> &a, const std::shared_ptr<Listener> &b) const;
+    };
+
     std::map<std::list<std::shared_ptr<Entity>>*, std::list<std::shared_ptr<Entity>>::iterator> listReferences;
 
-	std::map<EventType, std::set<std::shared_ptr<Listener>>> listeners;
+	std::map<EventType, std::set<std::shared_ptr<Listener>, ListenerSort>> listeners;
 
     std::map<int, TempFeatureSet> tempFeatureSets;
 

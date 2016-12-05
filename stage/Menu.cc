@@ -23,7 +23,7 @@ int Menu::run(Game &game) {
 				}
 			}
 		} else if (cmd == "Rand" || cmd == "Random"){
-			state->player->addFeatureSet((state->library.getRaces().begin()+(rand() % state->library.getRaces().size()))->featureSet);
+			state->player->addFeatureSet(*state->library.getRaces()[uniform_int_distribution<>(0, state->library.getRaces().size()-1)(state->gen)]->featureSet);
 			state->player->create();
 			return next;
 		} else {

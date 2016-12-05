@@ -32,8 +32,9 @@ public:
     int run(Game &game) override;
     void finish(int next);
 
-    std::vector<Position>
-    getTargetable(const Character &source, const std::shared_ptr<Action> &action);
+    std::vector<Position> path(const Position from, const Position to, const std::shared_ptr<Action> &action);
+
+    std::vector<Position> getTargetable(const Character &source, const std::shared_ptr<Action> &action);
     std::vector<Position> getTargetedArea(const Position from, const Position to, const std::shared_ptr<Action> &action);
     std::vector<std::shared_ptr<Entity>> getTargeted(const std::shared_ptr<Entity> &from, Position to, const std::shared_ptr<Action> &action);
 

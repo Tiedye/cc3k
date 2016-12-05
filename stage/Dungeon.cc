@@ -334,6 +334,64 @@ std::vector<Position> Dungeon::getTargetedArea(const Position from, const Positi
     return targeted;
 }
 
+std::vector<Position> Dungeon::path(const Position from, const Position to, const std::shared_ptr<Action> &action) {
+    resetRange();
+    queue<Position> toFill;
+    toFill.push(from);
+    atRange(from) = 0;
+    while (!toFill.empty()) {
+        Position currentPosition = toFill.front();
+        toFill.pop();
+        if (currentPosition == to) {
+            break;
+        }
+        Position positions[8]{
+                {currentPosition.y + 1, currentPosition.x + 1},
+                {currentPosition.y + 1, currentPosition.x},
+                {currentPosition.y + 1, currentPosition.x - 1},
+                {currentPosition.y,     currentPosition.x + 1},
+                {currentPosition.y,     currentPosition.x - 1},
+                {currentPosition.y - 1, currentPosition.x + 1},
+                {currentPosition.y - 1, currentPosition.x},
+                {currentPosition.y - 1, currentPosition.x - 1}
+        };
+        for (Position &pos:positions) {
+            auto entityAt = getEntityAt(pos);
+            if (onFeild(pos) && atRange(pos) == -1 && (getCellType(pos) != WALL && getCellType(pos) != EMPTY) &&
+                (!entityAt || entityAt->getSize() == MINISCULE)) {
+                atRange(pos) = atRange(currentPosition) + 1;
+                toFill.push(pos);
+            }
+        }
+    }
+    if (atRange(to)) {
+        vector<Position> path(atRange(to)+1);
+        Position currentPosition = to;
+        for (int d = atRange(to); d >= 0; --d) {
+            path[d] = to;
+            Position positions[8]{
+                    {currentPosition.y + 1, currentPosition.x + 1},
+                    {currentPosition.y + 1, currentPosition.x},
+                    {currentPosition.y + 1, currentPosition.x - 1},
+                    {currentPosition.y,     currentPosition.x + 1},
+                    {currentPosition.y,     currentPosition.x - 1},
+                    {currentPosition.y - 1, currentPosition.x + 1},
+                    {currentPosition.y - 1, currentPosition.x},
+                    {currentPosition.y - 1, currentPosition.x - 1}
+            };
+            for (Position &pos:positions) {
+                if (atRange(pos) == d-1) {
+                    currentPosition = pos;
+                    break;
+                }
+            }
+        }
+        return path;
+    } else {
+        return {};
+    }
+}
+
 void Dungeon::finish(int next) {
     isRunning = false;
     Dungeon::next = next;

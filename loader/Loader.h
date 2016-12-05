@@ -20,6 +20,8 @@ public:
     int getId(std::string name) const;
 
 private:
+    int nextId = 10000;
+
     void parseFile(std::string gameFile);
     void parseSets(std::string gameFile);
     void parseRest(std::string gameFile);

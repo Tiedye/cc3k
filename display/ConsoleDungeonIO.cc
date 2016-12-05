@@ -87,9 +87,7 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
                 }
             }
 
-            if (gotAction) {
-                cdout << actionAndTarget.action->actionType << " " << actionAndTarget.target << endl;
-            } else {
+            if (!gotAction) {
                 cdout << "No cmd: " << wholeCommand << endl;
             }
 
@@ -120,13 +118,13 @@ void ConsoleDungeonIO::engage() {
     init_pair(BASIC_COLOR, COLOR_BLACK, COLOR_WHITE);
     curs_set(0);
 
-    mvvline(dungeon->height, dungeon->width/2, ACS_VLINE, 5);
+    mvvline(dungeon->height, dungeon->width/4, ACS_VLINE, 5);
     dungeonWindow = newwin(dungeon->height, dungeon->width, 0, 0);
     //box(dungeonWindow, 0,0);
-    messageWindow = newwin(5, dungeon->width/2-1, dungeon->height, dungeon->width/2+1);
-    //box(messageWindow, 0,0);
-    playerWindow = newwin(5, dungeon->width/2, dungeon->height, 0);
+    playerWindow = newwin(5, dungeon->width*1/4, dungeon->height, 0);
     //box(playerWindow, 0,0);
+    messageWindow = newwin(5, dungeon->width*3/4, dungeon->height, dungeon->width/4+1);
+    //box(messageWindow, 0,0);
     inputWindow = newwin(1, dungeon->width, dungeon->height+5, 0);
     //box(inputWindow, 0,0);
     //inventoryWindow = newwin(dungeon->width - 6, dungeon->height - 6, 3, 3);

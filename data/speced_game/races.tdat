@@ -6,7 +6,7 @@ start set player
     stat base acc 100 0
     stat base speed 1 0
     action melee 1 0
-    action walkAsAction
+    action walkAsAction floor door hall done
     action eat
 end
 start set shadeSet

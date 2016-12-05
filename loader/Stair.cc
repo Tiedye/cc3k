@@ -4,7 +4,7 @@
 
 
 void Stair::notify(EventInfo &info) {
-    dungeon->finish(nextStage);
+    if (info.secondary->asEntity()->isA(playerId)) dungeon->finish(nextStage);
 }
 
 const std::vector<EventType> Stair::listeningFor() const {
@@ -13,4 +13,4 @@ const std::vector<EventType> Stair::listeningFor() const {
 
 const std::vector<EventType> Stair::eventTypes {OCCUPIED_DONE};
 
-Stair::Stair(const int nextStage, const std::shared_ptr<Dungeon> &dungeon) : nextStage(nextStage), dungeon(dungeon) {}
+Stair::Stair(const int nextStage, const std::shared_ptr<Dungeon> &dungeon, const int playerId) : nextStage(nextStage), dungeon(dungeon), playerId{playerId} {}

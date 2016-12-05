@@ -5,7 +5,7 @@ class Dungeon;
 
 class Stair : public Listener {
 public:
-    Stair(const int nextStage, const std::shared_ptr<Dungeon> &dungeon);
+    Stair(const int nextStage, const std::shared_ptr<Dungeon> &dungeon, const int playerId);
 
     void notify(EventInfo &info) override;
 
@@ -15,6 +15,7 @@ private:
     static const std::vector<EventType> eventTypes;
     const int nextStage;
     const std::shared_ptr<Dungeon> dungeon;
+    const int playerId;
 };
 
 

@@ -3,7 +3,7 @@ start set mob
     stat base init 5 0
     stat base acc 50 0
     stat base speed 1 0
-    action walkAsAction
+    action walkAsAction floor done
 end
 start set humanSet
     inherit mob

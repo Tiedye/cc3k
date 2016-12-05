@@ -17,6 +17,8 @@ start set shadeSet
 end
 start race shade
     set shadeSet
+	shortcut S
+	desc Once human, the shade is now a creature corrupded by the dark. It is both fueled and consumed by this evil. end_desc
 end
 start set drowSet
     inherit player
@@ -30,6 +32,8 @@ start set drowSet
 end
 start race drow
     set drowSet
+	shortcut D
+	desc A dark skinned elf. Drows are not as nobel as there fair skinned cousins, but are much better attuned to magic, especially alchamy. end_desc
 end
 start set vampireSet
     inherit player
@@ -42,6 +46,8 @@ start set vampireSet
 end
 start race vampire
     set vampireSet
+	shortcut V
+	desc A vile creature of the night, absorbing the life from his victims. While frail when first awoken, they make up for it with there insatiable thirst. end_desc
 end
 start set trollSet
     inherit player
@@ -51,7 +57,9 @@ start set trollSet
     effect regen 5
 end
 start race troll
+	shortcut T
     set trollSet
+	desc Not the sharpest tool, but certainly the most duriable. They can even heal there wounds over time. end_desc
 end
 start set goblinSet
     inherit player
@@ -63,4 +71,6 @@ start set goblinSet
 end
 start race goblin
     set goblinSet
+	shortcut G
+	desc Sly, quick, and greedy, goblins arn't neccesarly out to kill all there enemies, just to releive them from the weight of their coins end_desc
 end

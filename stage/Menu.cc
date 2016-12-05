@@ -22,6 +22,10 @@ int Menu::run(Game &game) {
 					break;
 				}
 			}
+		} else if (cmd == "Rand" || cmd == "Random"){
+			state->player->addFeatureSet((state->library.getRaces().begin()+(rand() % state->library.getRaces().size()))->featureSet);
+			state->player->create();
+			return next;
 		} else {
 			for(auto& pair:state->library.getRaces()) {
 				if(pair->name == cmd  || pair->shortcut == cmd){

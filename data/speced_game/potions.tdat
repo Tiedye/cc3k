@@ -2,15 +2,18 @@ start set restoreHealthPotionSet
     effect restoreOnConsume 10
 end
 start consumable restoreHealthPotion
+    name a Restore Health Potion done
     set restoreHealthPotionSet
     representation P
 end
 start consumable boostAtkPotion
+    name a Boost Attack Potion done
     consumed 50 atkBoost
     effectType positive
     representation P
 end
 start consumable boostDefPotion
+    name a Boost Defense Potion done
     consumed 50 defBoost
     effectType positive
     representation P
@@ -19,15 +22,18 @@ start set poisonHealthPotionSet
     effect depleteOnConsume 10
 end
 start consumable poisonHealthPotion
+    name a Poison Health Potion done
     set poisonHealthPotionSet
     representation P
 end
 start consumable woundAtkPotion
+    name a Wound Attack Potion done
     consumed 50 atkPenalty
     effectType negative
     representation P
 end
 start consumable woundDefPotion
+    name a Wound Defense Potion done
     consumed 50 defPenalty
     effectType negative
     representation P

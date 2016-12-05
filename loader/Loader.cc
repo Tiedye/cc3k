@@ -367,7 +367,7 @@ void Loader::parseRace(istream &s){
             ostringstream desc;
             while (s >> word, word != "end_desc") {
                 if (word == "nl") desc << endl;
-                else desc << word;
+                else desc << word << " ";
             }
             race->description = desc.str();
         } else if (command == "shortcut") {

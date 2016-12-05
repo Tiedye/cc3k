@@ -123,7 +123,7 @@ void ConsoleDungeonIO::engage() {
     //box(dungeonWindow, 0,0);
     playerWindow = newwin(5, dungeon->width*1/4, dungeon->height, 0);
     //box(playerWindow, 0,0);
-    messageWindow = newwin(5, dungeon->width*3/4, dungeon->height, dungeon->width/4+1);
+    messageWindow = newwin(6, dungeon->width*3/4, dungeon->height, dungeon->width/4+1);
     //box(messageWindow, 0,0);
     inputWindow = newwin(1, dungeon->width, dungeon->height+5, 0);
     //box(inputWindow, 0,0);
@@ -240,8 +240,12 @@ void ConsoleDungeonIO::drawCell(const Position position) {
         case CLOSED_DOOR:break;
     }
     auto entity = dungeon->getEntityAt(position);
+    cdout << "Try ent - ";
     if (entity) {
+        cdout << entity->getName()<<endl;
         drawEntity(entity);
+    } else {
+        cdout << "none" <<endl;
     }
 }
 

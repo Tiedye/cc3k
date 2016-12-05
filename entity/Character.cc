@@ -63,8 +63,6 @@ void Character::doTurn(Dungeon &dungeon, const int turnId) {
         trigger(TURN_START_DONE, self);
         if (controller) {
             vector<Controller::ActionAndRange> actionsAndRanges;
-            actionsAndRanges.emplace_back();
-            actionsAndRanges.back().action = make_shared<PassAction>();
             for(auto action:actions) {
                 // gets the possible targets of all actions,
                 //  if an action targets inventory, it can be returned in the actionAndTarget struct see tag:INV
@@ -76,7 +74,10 @@ void Character::doTurn(Dungeon &dungeon, const int turnId) {
             }
             while (!actionsAndRanges.empty()) {
 
+                actionsAndRanges.emplace_back();
+                actionsAndRanges.back().action = make_shared<PassAction>();
                 Controller::ActionAndTarget actionAndTarget = controller->getAction(self, actionsAndRanges, dungeon.getState());
+                actionsAndRanges.pop_back();
 
                 if (actionAndTarget.action->type != Action::Step::PASSACTION) { // cant do more than one of an action type per turn
                     actionsAndRanges.erase(remove_if(actionsAndRanges.begin(), actionsAndRanges.end(), [&actionAndTarget](const Controller::ActionAndRange &obj){ return obj.action->type == actionAndTarget.action->type; }), actionsAndRanges.end());
@@ -126,6 +127,7 @@ void Character::doTurn(Dungeon &dungeon, const int turnId) {
 
                             bool miss = (rand() % 100) >= getAccuracy();
                             bool dodge = (rand() % 100) < target->getDodge();
+                            cdout << target->getHealth() << endl;
                             if (!data.integer2 || miss || dodge) {
                                 trigger(MISS, target);
                                 trigger(MISS_DONE, target);

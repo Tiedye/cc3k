@@ -26,6 +26,7 @@ int Menu::run(Game &game) {
 			for(auto& pair:state->library.getRaces()) {
 				if(pair->name == cmd  || pair->shortcut == cmd){
 					state->player->addFeatureSet(*pair->featureSet);
+					state->player->create();
 					return next;
 				}
 			}

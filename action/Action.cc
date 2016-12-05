@@ -20,3 +20,7 @@ int Action::getAmount(Character &source) const {
 int Action::getMinRange(Character &source) const {
     return 0;
 }
+
+bool Action::canTarget(const Position position, const std::shared_ptr<State> &state) {
+    return true;
+}

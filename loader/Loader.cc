@@ -21,10 +21,12 @@
 #include "../action/UnequipAction.h"
 #include "../action/WalkAction.h"
 #include "../action/WalkAsActionAction.h"
+#include "../controller/Wander.h"
+#include "../controller/LocalAttackPlayer.h"
 
 using namespace std;
 
-Loader::Loader(const shared_ptr<State> &state)  : typeTable{{"player", 1}, {"mob", 2}}, state{state} {}
+Loader::Loader(const shared_ptr<State> &state)  : typeTable{{"player", 10}, {"mob", 11}, {"floor", CellType::FLOOR}, {"door", CellType::OPEN_DOOR}, {"hall", CellType::HALL}}, state{state} {}
 
 int Loader::getId(std::string name) const {
     return typeTable.at(name);
@@ -314,9 +316,19 @@ shared_ptr<Action> Loader::loadAction(istream &s) {
         s >> atkModifier >> spellModifier >> range;
         return make_shared<RangedAttack>(atkModifier, 1, spellModifier, 1, range);
     } else if (action == "walk") {
-        return make_shared<WalkAction>();
+        string type;
+        vector<int> walkable;
+        while (s >> type, type != "done") {
+            walkable.push_back(parseId(type));
+        }
+        return make_shared<WalkAction>(walkable);
     } else if (action == "walkAsAction") {
-        return make_shared<WalkAsActionAction>();
+        string type;
+        vector<int> walkable;
+        while (s >> type, type != "done") {
+            walkable.push_back(parseId(type));
+        }
+        return make_shared<WalkAsActionAction>(walkable);
     } else if (action == "eat") {
         return make_shared<EatAction>();
     } else if (action == "interact") {
@@ -373,11 +385,11 @@ shared_ptr<Controller> Loader::loadController(istream &s) {
     string name;
     while(s >> name, name != "done") {
         if (name == "wander") {
-
+            newController = make_shared<Wander>();
         } else if (name == "localAttack") {
-
+            newController = make_shared<LocalAttackPlayer>(newController);
         } else if (name == "merchant") {
-
+            newController = make_shared<LocalAttackPlayer>(newController);
         } else if (name == "dragon") {
 
         } else {
@@ -589,8 +601,9 @@ void Loader::parseEquippable(std::istream &s) {
 int Loader::parseId(std::string name) {
     auto it = typeTable.find(name);
     if (it == typeTable.end()) {
-        typeTable.emplace(name, typeTable.size());
-        return (int) (typeTable.size() - 1);
+        int id = nextId++;
+        typeTable.emplace(name, id);
+        return id;
     }
     return it->second;
 }

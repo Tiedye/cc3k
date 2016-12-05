@@ -57,7 +57,7 @@ std::shared_ptr<Dungeon> SimpleLoader::parseDungeon(const std::map<char, int> &m
                     auto stair = make_shared<Entity>();
                     stair->representation = '\\';
                     stair->move({y, x});
-                    auto stairHandler = make_shared<Stair>(id + 1, dungeon);
+                    auto stairHandler = make_shared<Stair>(id + 1, dungeon, state->loader->getId("player"));
                     stair->addListener(stairHandler);
                     dungeon->initializeEntity(stair);
                     stair->create();

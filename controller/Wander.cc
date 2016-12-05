@@ -4,6 +4,7 @@
 
 #include "../action/Action.h"
 #include "../State.h"
+#include "../display/ConsoleDungeonIO.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ Wander::getAction(const std::shared_ptr<Character> &character, const std::vector
         if (action->actionType == Action::MOVE && !actionAndRange.range.empty()) {
             ActionAndTarget actionAndTarget;
             actionAndTarget.action = action;
-            uniform_int_distribution<> opts(0, actionAndRange.range.size());
+            uniform_int_distribution<> opts(0, actionAndRange.range.size()-1);
             actionAndTarget.target = actionAndRange.range[opts(state->gen)];
             return actionAndTarget;
         }

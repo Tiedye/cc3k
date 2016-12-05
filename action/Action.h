@@ -3,6 +3,7 @@
 
 #include "../event/EventType.h"
 #include "../util/Position.h"
+#include "../State.h"
 
 #include <memory>
 
@@ -57,6 +58,8 @@ public:
                        Position castPoint); // called on actions of type: PASS, MOVE, AID(SELF), EFFECT(SELF)
     virtual void onUse(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target,
                        Position castPoint); // called on actions of type: CONSUME, EQUIP, INTERACT, ATTACK, AID(!SELF), EFFECT(!SELF)
+
+    virtual bool canTarget(const Position position, const std::shared_ptr<State> &state);
 
     virtual ~Action() = default;
 

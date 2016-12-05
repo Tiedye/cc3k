@@ -9,6 +9,7 @@
 #include "../stage/Dungeon.h"
 #include "../util/StatModifier.h"
 #include "../display/ConsoleDungeonIO.h"
+#include "../action/PassAction.h"
 
 using namespace std;
 
@@ -62,6 +63,8 @@ void Character::doTurn(Dungeon &dungeon, const int turnId) {
         trigger(TURN_START_DONE, self);
         if (controller) {
             vector<Controller::ActionAndRange> actionsAndRanges;
+            actionsAndRanges.emplace_back();
+            actionsAndRanges.back().action = make_shared<PassAction>();
             for(auto action:actions) {
                 // gets the possible targets of all actions,
                 //  if an action targets inventory, it can be returned in the actionAndTarget struct see tag:INV

@@ -5,6 +5,7 @@ using namespace std;
 
 int Menu::run(Game &game) {
     state->player->addFeatureSet(*(*state->library.getRaces().begin())->featureSet);
+    state->player->create();
     return next;
 }
 

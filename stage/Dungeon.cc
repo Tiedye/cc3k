@@ -1,7 +1,6 @@
 #include "Dungeon.h"
 
 #include <queue>
-#include <cmath>
 #include <algorithm>
 
 #include "../Game.h"
@@ -9,6 +8,9 @@
 
 
 #include <iostream>
+#include <chrono>
+#include <thread>
+
 using namespace std;
 
 std::list<std::shared_ptr<Entity>> Dungeon::getEntitiesAt(Position position) {
@@ -38,7 +40,7 @@ int Dungeon::run(Game &game) {
             entity->startTracking();
             currentInit = entity->getInitiative();
 
-            entity->doTurn(*this, 0);
+            entity->doTurn(*this, turnId);
 
             // handle if iterator invalidated
             if (entity->iteratorInvalid()) {
@@ -52,6 +54,7 @@ int Dungeon::run(Game &game) {
             }
 
             if(!isRunning) break;
+            //std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
         ++turnId;
     }
@@ -88,6 +91,7 @@ bool compareInitiative(const shared_ptr<Entity> &a, const shared_ptr<Entity> &b)
 }
 
 void Dungeon::addEntity(shared_ptr<Entity> entity) {
+    entity->addListener(shared_from_this());
     entity->addListener(state->dungeonRenderer);
     entity->trigger(ADDED_TO_FLOOR);
     auto pos = entities.insert(upper_bound(entities.begin(), entities.end(), entity, compareInitiative), entity);
@@ -100,6 +104,7 @@ void Dungeon::addEntity(shared_ptr<Entity> entity) {
 }
 
 void Dungeon::initializeEntity(std::shared_ptr<Entity> entity) {
+    entity->addListener(shared_from_this());
     entity->addListener(state->dungeonRenderer);
     entities.push_front(entity);
     entity->addListReference(entities, entities.begin());
@@ -116,6 +121,7 @@ std::list<std::shared_ptr<Entity>> &Dungeon::getCellListAt(Position position) {
 
 std::shared_ptr<Entity> Dungeon::getEntityAt(const Position position) {
     shared_ptr<Entity> largest;
+    if(!onFeild(position)) return largest;
     for(auto entity:getEntitiesAt(position)) {
         if (largest) {
             if (entity->getSize() > largest->getSize()) largest = entity;
@@ -136,7 +142,7 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                     int dist {x < y ? x < -y ? x : y : x < -y ? y : x}; // LOGIC!
                     if (dist < 0) dist = -dist;
                     if (dist >= minRange) {
-                        targets.emplace_back(y+position.y, x+position.x);
+                        if (onFeild(y+position.y, x+position.x)) targets.emplace_back(y+position.y, x+position.x);
                     } else {
                         y += (minRange - 1) * 2; // LOGIC!
                     }
@@ -155,7 +161,7 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                 Position currentPosition = toFill.front();
                 toFill.pop();
                 if (atRange(currentPosition) >= minRange) {
-                    targets.push_back(currentPosition);
+                    if(onFeild(currentPosition)) targets.push_back(currentPosition);
                 }
                 if (atRange(currentPosition) == maxRange) {
                     continue;
@@ -188,7 +194,7 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                 Position currentPosition = toFill.front();
                 toFill.pop();
                 if (atRange(currentPosition) >= minRange) {
-                    targets.push_back(currentPosition);
+                    if (onFeild(currentPosition)) targets.push_back(currentPosition);
                 }
                 if (atRange(currentPosition) == maxRange) {
                     continue;

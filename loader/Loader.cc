@@ -25,6 +25,7 @@
 #include "../controller/LocalAttackPlayer.h"
 #include "../effects/StateSetOnAttacked.h"
 #include "../controller/StateConditional.h"
+#include "../controller/Guard.h"
 
 using namespace std;
 
@@ -417,8 +418,10 @@ shared_ptr<Controller> Loader::loadController(istream &s) {
             auto falseController = loadController(s);
             if (!HasAIData::aiReservedId(stateName)) HasAIData::aiReserveId(stateName);
             newController = make_shared<StateConditional>(HasAIData::aiGetId(stateName), trueController, falseController);
-        } else if (name == "dragon") {
-
+        } else if (name == "guard") {
+            string guarded;
+            s >> guarded;
+            newController = make_shared<Guard>(parseId(guarded));
         } else {
             cerr << "No such controller \"" << name << "\"" << endl;
         }

@@ -3,13 +3,14 @@
 
 #include "Controller.h"
 
-class Dragon : public Controller {
+class Guard : public Controller {
 public:
-    Dragon();
+    Guard(const int guardedType);
     const ActionAndTarget getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions, const std::shared_ptr<State> &state) override;
 private:
-    int hoardLocation;
-    int targetPosition;
+    const int guardedType;
+    const int guardedLocation;
+    const int targetPosition;
 };
 
 

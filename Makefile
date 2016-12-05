@@ -1,15 +1,12 @@
-CXX = g++-5
-CXXFLAGS = -std=c++14 -Wall -MMD
-EXEC = myprogram
-OBJECTS = main.o Entity.o Character.o EventTarget.o
-DEPENDS = ${OBJECTS:.o=.d}
+CXX = g++
+CXXFLAGS = -std=c++14 -Wall
+EXEC = cc3k
+FILES = $(wildcard */*.cc) $(wildcard *.cc)
 
-${EXEC}: ${OBJECTS}
-	${CXX} ${CXXFLAGS} ${OBJECTS} -o ${EXEC}
-
--include ${DEPENDS}
+${EXEC}: $(FILES)
+	${CXX} ${CXXFLAGS} ${FILES} -o ${EXEC} -lncurses -lpanel -lmenu
 
 .PHONY: clean
 
 clean:
-	rm ${OBJECTS} ${EXEC} ${DEPENDS}
+	rm ${FILES} ${EXEC}

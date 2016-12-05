@@ -5,6 +5,7 @@
 #include "stage/EndScreen.h"
 #include "stage/SimpleLoader.h"
 #include "display/ConsoleDungeonIO.h"
+#include "stage/RandomLevelLoader.h"
 
 #include <iostream>
 
@@ -53,6 +54,16 @@ int main(int argc, char *argv[]) {
         auto simpleLoader = make_shared<SimpleLoader>(state, dungeonFiles);
         game.addStage(0, menu);
         game.addStage(0, simpleLoader);
+        game.setInitialStage(menu->id);
+        game.start();
+    } else {
+        int menuId, nextId;
+        menuId = Game::getId();
+        nextId = Game::nextId();
+        auto menu = make_shared<Menu>(state, menuId, nextId);
+        auto randomLoader = make_shared<RandomLevelLoader>(state, dungeonSpec);
+        game.addStage(0, menu);
+        game.addStage(0, randomLoader);
         game.setInitialStage(menu->id);
         game.start();
     }

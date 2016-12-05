@@ -86,7 +86,7 @@ end
 start mob dragon
     name a Dragon done
     set dragonSet
-    controller dragon done
+    controller guard dragonHoard done
     representation D
 end
 start set halflingSet

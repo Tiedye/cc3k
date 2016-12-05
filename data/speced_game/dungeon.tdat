@@ -1,0 +1,41 @@
+start probabilitySet all
+    param cellHeightMean 5
+    param cellHeightShift 1
+    param cellWidthMean 11
+    param cellWidthShift 4
+    
+    param cellCountMean 6
+    param cellCountShift 1
+    
+    param verticalHallLengthMean 10
+    param verticalHallLengthShift 10
+    param horizontalHallLengthMean 30
+    param horizontalHallLengthShift 10
+
+    spawnSet 10 [ 5 normalGold ] [ 1 dragonHoard dragon ] [ 2 smallGold ] done
+    spawnSet 20 [ 4 human ] [ 3 dwarf ] [ 5 halfling ] [ 2 elf ] [ 2 orc ] [ 2 merchant ] done
+end
+start dungeon dungeon1
+    size 24 78
+    set all
+    next dengeon2
+end
+start dungeon dungeon2
+    size 24 78
+    set all
+    next dengeon3
+end
+start dungeon dungeon3
+    size 24 78
+    set all
+    next dengeon4
+end
+start dungeon dungeon4
+    size 24 78
+    set all
+    next dengeon5
+end
+start dungeon dungeon5
+    size 24 78
+    set all
+end

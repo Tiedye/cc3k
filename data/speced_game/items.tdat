@@ -22,7 +22,7 @@ start item merchantHoard
     representation G
 end
 start item dragonHoard
-    name a Dragon Gold Hoard done
+    name a Guard Gold Hoard done
     set gold
     value 6
     representation G

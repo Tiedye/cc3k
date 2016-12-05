@@ -11,27 +11,27 @@ int Menu::run(Game &game) {
 	while(cin >> cmd){
 		if(cmd == "list" || cmd == "List"){
 			for(auto& pair:state->library.getRaces()) {
-				cout << "(" << pair->shortcut <<") "<< pair.second->name <<", ";
+				cout << "(" << pair->shortcut <<") "<< pair->name <<", ";
 			}
 			cout << "(Rand) Random" << endl;
 		} else if (cmd == "stats"|| cmd =="Stats"){
 			cin >> cmd;
 			for(auto& pair:state->library.getRaces()) {
-				if(pair.name == cmd  || pair.shortcut == cmd){
-					cout << pair.description << endl;
+				if(pair->name == cmd  || pair->shortcut == cmd){
+					cout << pair->description << endl;
 					break;
 				}
 			}
 		} else {
 			for(auto& pair:state->library.getRaces()) {
-				if(pair.name == cmd  || pair.shortcut == cmd){
-					state->player->addFeatureSet(*state->library.getRaceSet(state->library.getRaces().begin()->first));
-					break;
+				if(pair->name == cmd  || pair->shortcut == cmd){
+					state->player->addFeatureSet(*pair->featureSet);
+					return next;
 				}
 			}
 		}
 	}
-    return next;
+	return -1;
 }
 
 Menu::Menu(const shared_ptr<State> &state, const int id, const int next) : Stage(state, id), next(next) {}

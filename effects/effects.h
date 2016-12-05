@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AddValueOnHold.h"
 #include "Allergy.h"
 #include "DamageOnConsume.h"
 #include "DamageTakenEnhancer.h"
@@ -7,6 +8,7 @@
 #include "EnhanceTemporaryEffects.h"
 #include "HealOnConsume.h"
 #include "HealthGainEnhancer.h"
+#include "Invulnerable.h"
 #include "LifeDrain.h"
 #include "Loot.h"
 #include "Regen.h"

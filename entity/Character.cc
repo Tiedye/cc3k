@@ -44,10 +44,8 @@ int Character::getAccuracy() const {
 }
 
 void Character::give(const shared_ptr<Item> &item) {
-	trigger(REMOVED_FROM_FLOOR, item);
 	inventory.push_front(item);
 	item->addListReference(inventory, inventory.begin());
-	trigger(REMOVED_FROM_FLOOR_DONE, item);
 }
 
 shared_ptr<Entity> Character::clone() {
@@ -69,7 +67,7 @@ void Character::doTurn(Dungeon &dungeon, const int turnId) {
                 actionsAndRanges.emplace_back();
                 Controller::ActionAndRange &actionAndRange = actionsAndRanges.back();
 
-                actionAndRange.range = dungeon.getTargetable(position, action->range, action->getMinRange(*this), action->getRange(*this), action->actionType == Action::MOVE);
+                actionAndRange.range = dungeon.getTargetable(*this, action);
                 actionAndRange.action = action;
             }
             while (!actionsAndRanges.empty()) {
@@ -116,8 +114,6 @@ void Character::doTurn(Dungeon &dungeon, const int turnId) {
                             target->interact(self);
                             break;
                         case Action::ATTACK: {
-
-
                             int amount{action->getAmount(*this)};
                             EventInfo::Data data;
                             data.integer1 = amount;
@@ -125,16 +121,19 @@ void Character::doTurn(Dungeon &dungeon, const int turnId) {
 
                             trigger(ATTACK, data, target);
 
-                            bool miss = (rand() % 100) >= getAccuracy();
-                            bool dodge = (rand() % 100) < target->getDodge();
-                            cdout << target->getHealth() << endl;
-                            if (!data.integer2 || miss || dodge) {
+                            bool hit = bernoulli_distribution(getAccuracy()/100.0)(dungeon.getState()->gen);
+                            bool dodge = bernoulli_distribution(target->getDodge()/100.0)(dungeon.getState()->gen);
+                            if (!data.integer2 || !hit || dodge) {
                                 trigger(MISS, target);
                                 trigger(MISS_DONE, target);
-                                trigger(ATTACK_DONE, 0, target);
                             } else {
-                                target->damage(data.integer1, self);
-                                trigger(ATTACK_DONE, data.integer1, target);
+                                int damageDone = target->damage(data.integer1, self);
+                                if (damageDone == -1) {
+                                    trigger(MISS, target);
+                                    trigger(MISS_DONE, target);
+                                } else {
+                                    trigger(ATTACK_DONE, damageDone, target);
+                                }
                             }
 
                             break;
@@ -226,7 +225,7 @@ Character::Character() : Entity("") {
 }
 
 void Character::addGold(const int value) {
-    gold += gold;
+    gold += value;
 }
 
 bool Character::removeGold(const int value) {
@@ -244,4 +243,8 @@ int Character::currentGold() const {
 
 Character::Character(string name) : Entity(name) {
 
+}
+
+const std::list<std::shared_ptr<Item>> &Character::getInventory() const {
+    return inventory;
 }

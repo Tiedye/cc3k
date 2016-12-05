@@ -71,7 +71,7 @@ public:
 
     void interact(const std::shared_ptr<Entity> &source);
 
-    void damage(const int amount, const std::shared_ptr<Entity> &source);
+    int damage(const int amount, const std::shared_ptr<Entity> &source);
     int damage(const int damage);
     void heal(const int amount, const std::shared_ptr<Entity> &source);
     void heal(const int amount);
@@ -86,6 +86,9 @@ public:
     virtual void equip(const std::shared_ptr<Character> &onto);
     virtual void unequip();
     virtual void consume(const std::shared_ptr<Character> &by);
+    virtual bool consumable();
+    virtual bool equippable();
+    virtual int equippedSlot();
 
     int getHealth();
     void setHealth(const int amount);
@@ -98,7 +101,7 @@ public:
 	void removeListReference(std::list<std::shared_ptr<Item>> &list);
 	bool iteratorInvalid();
 
-	Position getPosition();
+	Position getPosition() const;
 	int getSize() const;
 	int getMaxHealth() const;
 	int getInitiative() const;
@@ -134,12 +137,13 @@ public:
 	void trigger(EventType eventType, EventInfo::Data &reference, const std::shared_ptr<Entity> &secondary);
 	void trigger(EventType eventType, EventInfo::Data &reference, const std::vector<std::shared_ptr<Entity>> &secondaries);
 
+	template <typename Derived>
+	std::shared_ptr<Derived> shared_from_base()
+	{
+		return std::static_pointer_cast<Derived>(shared_from_this());
+	}
+
 protected:
-    template <typename Derived>
-    std::shared_ptr<Derived> shared_from_base()
-    {
-        return std::static_pointer_cast<Derived>(shared_from_this());
-    }
 
     std::string name;
 

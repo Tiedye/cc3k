@@ -27,6 +27,7 @@ protected:
     virtual void entityMoved(const std::shared_ptr<Entity> &entity, const Position oldPos) = 0;
     virtual void entityAdded(const std::shared_ptr<Entity> &entity) = 0;
     virtual void entityRemoved(const std::shared_ptr<Entity> &entity) = 0;
+    virtual void entityMissed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target) = 0;
     virtual void entityAttacked(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int damage) = 0;
     virtual void entityHealed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int heal) = 0;
     virtual void cellChanged(const Position position) = 0;

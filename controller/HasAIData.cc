@@ -123,7 +123,7 @@ HasAIData::~HasAIData() {
 
 }
 
-HasAIData::Data::Data() : entity{nullptr} {}
+HasAIData::Data::Data() : entity{nullptr}, integerValue{0}, position{0,0} {}
 
 int HasAIData::freeId {0};
 std::map<std::string, int> HasAIData::nameIds;

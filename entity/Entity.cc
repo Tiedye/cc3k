@@ -6,6 +6,7 @@
 
 #include "../event/Listener.h"
 #include "../FeatureSet.h"
+#include "../display/ConsoleDungeonIO.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ int Entity::getDodge() const {
 int Entity::getHealth() {
     return health;
 }
-Position Entity::getPosition() {
+Position Entity::getPosition() const {
     return position;
 }
 
@@ -108,14 +109,20 @@ void Entity::interact(const shared_ptr<Entity> &source) {
     trigger(INTERACTED_DONE, source);
 }
 
-void Entity::damage(const int amount, const shared_ptr<Entity> &source) {
+int Entity::damage(const int amount, const shared_ptr<Entity> &source) {
     // trigger attacked event here
     EventInfo::Data data;
     data.integer1 = amount;
+    data.integer2 = true;
     trigger(ATTACKED, data, source);
-    int damageDone = damage(data.integer1);
-    // trigger attacked_done event here
-    trigger(ATTACKED_DONE, damageDone, source);
+    if (data.integer2) {
+        int damageDone = damage(data.integer1);
+        // trigger attacked_done event here
+        trigger(ATTACKED_DONE, damageDone, source);
+        return damageDone;
+    } else {
+        return -1;
+    }
 }
 
 int Entity::damage(const int damage) {
@@ -355,8 +362,8 @@ void Entity::addTemporaryFeatureSet(const shared_ptr<Entity> &source, const shar
 
     TempFeatureSet tempFeatureSet;
     tempFeatureSet.effectType = effectType;
-    tempFeatureSet.modNumerator = data.integer1;
-    tempFeatureSet.modDenominator = data.integer2;
+    tempFeatureSet.modNumerator = data.short1;
+    tempFeatureSet.modDenominator = data.short2;
     tempFeatureSet.set = featureSet;
     tempFeatureSet.source = source;
 
@@ -617,6 +624,18 @@ void Entity::unequip() {
 
 void Entity::consume(const shared_ptr<Character> &by) {
     // overridden
+}
+
+bool Entity::consumable() {
+    return false;
+}
+
+bool Entity::equippable() {
+    return false;
+}
+
+int Entity::equippedSlot() {
+    return -1;
 }
 
 const std::string &Entity::getName() {

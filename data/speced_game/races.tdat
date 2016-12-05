@@ -1,5 +1,6 @@
 start set player
     stat mult atk 10
+    stat mult def 100
 
     stat base size 1 0
     stat base init 10 0
@@ -8,6 +9,9 @@ start set player
     action melee 1 0
     action walkAsAction floor door hall done
     action eat
+    action interact
+    action equip
+    action unequip
 end
 start set shadeSet
     inherit player

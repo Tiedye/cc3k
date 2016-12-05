@@ -15,3 +15,5 @@ O orc
 M merchant
 D dragon
 L halfling
+
+S sword

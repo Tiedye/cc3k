@@ -27,12 +27,13 @@ public:
 
     void initializeCell(const Position position, const CellType type);
 
-    const std::shared_ptr<State> & getState();
+    const std::shared_ptr<State> getState();
 
     int run(Game &game) override;
     void finish(int next);
 
-    std::vector<Position> getTargetable(const Position position, Action::Range range, int minRange, int maxRange, bool move = false);
+    std::vector<Position>
+    getTargetable(const Character &source, const std::shared_ptr<Action> &action);
     std::vector<Position> getTargetedArea(const Position from, const Position to, const std::shared_ptr<Action> &action);
     std::vector<std::shared_ptr<Entity>> getTargeted(const std::shared_ptr<Entity> &from, Position to, const std::shared_ptr<Action> &action);
 

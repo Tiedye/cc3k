@@ -132,9 +132,13 @@ std::shared_ptr<Entity> Dungeon::getEntityAt(const Position position) {
     return largest;
 }
 
-std::vector<Position> Dungeon::getTargetable(const Position position, Action::Range range, int minRange, int maxRange, bool move) {
+std::vector<Position>
+Dungeon::getTargetable(const Character &source, const std::shared_ptr<Action> &action) {
     vector<Position> targets;
-
+    Action::Range range {action->range};
+    int minRange {action->getMinRange(source)};
+    int maxRange {action->getRange(source)};
+    Position position {source.getPosition()};
     switch (range) {
         case Action::ANY:
             for(int x {-maxRange}; x <= maxRange; ++x) {
@@ -142,7 +146,8 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                     int dist {x < y ? x < -y ? x : y : x < -y ? y : x}; // LOGIC!
                     if (dist < 0) dist = -dist;
                     if (dist >= minRange) {
-                        if (onFeild(y+position.y, x+position.x)) targets.emplace_back(y+position.y, x+position.x);
+                        Position newTarget {y+position.y, x+position.x};
+                        if (onFeild(newTarget) && action->canTarget(newTarget, state)) targets.push_back(newTarget);
                     } else {
                         y += (minRange - 1) * 2; // LOGIC!
                     }
@@ -161,7 +166,7 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                 Position currentPosition = toFill.front();
                 toFill.pop();
                 if (atRange(currentPosition) >= minRange) {
-                    if(onFeild(currentPosition)) targets.push_back(currentPosition);
+                    if (onFeild(currentPosition) && action->canTarget(currentPosition, state)) targets.push_back(currentPosition);
                 }
                 if (atRange(currentPosition) == maxRange) {
                     continue;
@@ -194,7 +199,7 @@ std::vector<Position> Dungeon::getTargetable(const Position position, Action::Ra
                 Position currentPosition = toFill.front();
                 toFill.pop();
                 if (atRange(currentPosition) >= minRange) {
-                    if (onFeild(currentPosition)) targets.push_back(currentPosition);
+                    if (onFeild(currentPosition) && action->canTarget(currentPosition, state)) targets.push_back(currentPosition);
                 }
                 if (atRange(currentPosition) == maxRange) {
                     continue;
@@ -246,7 +251,7 @@ void Dungeon::resetRange() {
     fill(rangeTracker.begin(), rangeTracker.end(), -1);
 }
 
-const shared_ptr<State> & Dungeon::getState() {
+const shared_ptr<State> Dungeon::getState() {
     return state;
 }
 

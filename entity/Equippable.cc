@@ -44,6 +44,14 @@ void Equippable::unequip() {
     }
 }
 
+bool Equippable::equippable() {
+    return true;
+}
+
+int Equippable::equippedSlot() {
+    return equippedTo ? slot : -1;
+}
+
 int Equippable::getSlot() {
     return slot;
 }

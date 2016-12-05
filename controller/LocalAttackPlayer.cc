@@ -16,7 +16,7 @@ const LocalAttackPlayer::ActionAndTarget LocalAttackPlayer::getAction(const std:
     for (auto &actionAndRange:actions) {
         if (actionAndRange.action->actionType == Action::ATTACK) {
             for (auto p:actionAndRange.range) {
-                for (auto &entity:state->currentDungeon->getEntitiesAt(p)) {
+                for (auto &entity:state->getCurrentDungeon()->getEntitiesAt(p)) {
                     if (entity->isA(state->loader->getId("player"))) {
                         ActionAndTarget at;
                         at.action = actionAndRange.action;

@@ -23,6 +23,8 @@
 #include "../action/WalkAsActionAction.h"
 #include "../controller/Wander.h"
 #include "../controller/LocalAttackPlayer.h"
+#include "../effects/StateSetOnAttacked.h"
+#include "../controller/StateConditional.h"
 
 using namespace std;
 
@@ -30,6 +32,10 @@ Loader::Loader(const shared_ptr<State> &state)  : typeTable{{"player", 10}, {"mo
 
 int Loader::getId(std::string name) const {
     return typeTable.at(name);
+}
+
+string Loader::getName(int id) const {
+    return typeBackTable.at(id);
 }
 
 string getPath(string file) {
@@ -298,6 +304,15 @@ shared_ptr<Listener> Loader::loadEffect(istream &s) {
             from.push_back(parseId(type));
         }
         return make_shared<EnhanceTemporaryEffects>(from, modNumerator, modDenominator);
+    } else if (effect == "setStateOnAttacked") {
+        string stateName, by;
+        s >> stateName >> by;
+        if (!HasAIData::aiReservedId(stateName)) HasAIData::aiReserveId(stateName);
+        return make_shared<StateSetOnAttacked>(HasAIData::aiGetId(stateName), parseId(by), state);
+    } else if (effect == "addValueOnHold") {
+        return make_shared<AddValueOnHold>();
+    } else if (effect == "invulnerable") {
+        return make_shared<Invulnerable>();
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;
         return nullptr;
@@ -383,13 +398,25 @@ void Loader::parseRace(istream &s){
 shared_ptr<Controller> Loader::loadController(istream &s) {
     shared_ptr<Controller> newController;
     string name;
-    while(s >> name, name != "done") {
+    while(s >> name, name != "done" && name!= "]") {
         if (name == "wander") {
             newController = make_shared<Wander>();
         } else if (name == "localAttack") {
             newController = make_shared<LocalAttackPlayer>(newController);
-        } else if (name == "merchant") {
-            newController = make_shared<LocalAttackPlayer>(newController);
+        } else if (name == "stateIf") {
+            string stateName, token;
+            s >> stateName >> token;
+            if (token != "[") {
+                cerr << "Invalid controller start block \"" << token << "\", must be \"[\"" << endl;
+            }
+            auto trueController = loadController(s);
+            s >> token;
+            if (token != "[") {
+                cerr << "Invalid controller start block \"" << token << "\", must be \"[\"" << endl;
+            }
+            auto falseController = loadController(s);
+            if (!HasAIData::aiReservedId(stateName)) HasAIData::aiReserveId(stateName);
+            newController = make_shared<StateConditional>(HasAIData::aiGetId(stateName), trueController, falseController);
         } else if (name == "dragon") {
 
         } else {
@@ -603,6 +630,7 @@ int Loader::parseId(std::string name) {
     if (it == typeTable.end()) {
         int id = nextId++;
         typeTable.emplace(name, id);
+        typeBackTable.emplace(id, name);
         return id;
     }
     return it->second;

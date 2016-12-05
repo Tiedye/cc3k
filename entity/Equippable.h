@@ -23,6 +23,8 @@ public:
 
     void equip(const std::shared_ptr<Character> &onto) override;
     void unequip() override;
+    bool equippable() override;
+    int equippedSlot() override;
 
     int getSlot();
 

@@ -18,6 +18,7 @@ public:
     Loader(const std::shared_ptr<State> &state);
     void loadFile(std::string file);
     int getId(std::string name) const;
+    std::string getName(int id) const;
 
 private:
     int nextId = 10000;
@@ -38,6 +39,7 @@ private:
 
     std::map<std::string, std::shared_ptr<FeatureSet>> setTable;
     std::map<std::string, int> typeTable;
+    std::map<int, std::string> typeBackTable;
 
     std::vector<std::shared_ptr<Controller>> controllers; // TODO, necessary?
 

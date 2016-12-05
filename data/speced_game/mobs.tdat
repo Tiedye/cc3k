@@ -67,12 +67,13 @@ start set merchantSet
     stat base atk 70 0
     stat base def 5 0
     effect dropItems [ 1 merchantHoard ] done
+    effect setStateOnAttacked merchants_hostile player
     action melee 1 0
 end
 start mob merchant
     name a Merchant done
     set merchantSet
-    controller wander merchant done
+    controller stateIf merchants_hostile [ wander localAttack ] [ wander ] done
     representation M
 end
 start set dragonSet

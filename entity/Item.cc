@@ -18,13 +18,20 @@ std::unique_ptr<EventTarget> Item::getAsTarget() {
     return make_unique<Target>(shared_from_base<Item>());
 }
 
-Item::Item() : Entity("") {
-    addListener(Item::pickupOnInteract);
+Item::Item() : Item("") {
 }
 
 void Item::PickupOnInteract::notify(EventInfo &info) {
-    info.primary->asEntity()->removeFromContainers();
-    info.secondary->asCharacter()->give(info.primary->asItem());
+    auto self = info.primary->asItem();
+    auto other = info.secondary->asCharacter();
+    EventInfo::Data data;
+    data.integer1 = true;
+    self->trigger(ADD_TO_INVENTORY, data, other);
+    if (data.integer1) {
+        self->removeFromContainers();
+        other->give(info.primary->asItem());
+        self->trigger(ADD_TO_INVENTORY_DONE, other);
+    }
 }
 
 const std::vector<EventType> Item::PickupOnInteract::eventTypes {INTERACTED_DONE};
@@ -48,5 +55,5 @@ Item::Item(const Item &other): Entity(other), value{other.value} {
 }
 
 Item::Item(string name) : Entity(name) {
-
+    addListener(Item::pickupOnInteract);
 }

@@ -3,12 +3,14 @@
 
 #include "DungeonRenderer.h"
 #include "../controller/Controller.h"
+#include "../action/Action.h"
 
 #include <sstream>
 
 
 typedef struct _win_st WINDOW;
 typedef struct panel PANEL;
+typedef struct tagITEM ITEM;
 
 class ConsoleDungeonIO: public DungeonRenderer, public Controller {
 public:
@@ -42,6 +44,8 @@ protected:
 
     void entityAttacked(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int damage) override;
 
+    void entityMissed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target) override;
+
     void entityHealed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int heal) override;
 
     void cellChanged(const Position position) override;
@@ -56,6 +60,7 @@ private:
     MODE mode {COMMAND};
 
     const short BASIC_COLOR = 1;
+    const short HIGHLIGHT_COLOR = 2;
     void setWalkableCell(WINDOW *win, bool highlight);
     void setStandardCell(WINDOW *win, bool highlight);
 
@@ -107,9 +112,33 @@ private:
 
 
     void drawCell(const Position position);
+    void drawCell(const Position position, const bool highlight);
     void drawEntity(const std::shared_ptr<Entity> &entity);
+    void drawEntity(const std::shared_ptr<Entity> &entity, const bool highlight);
     void postMessage(std::string s);
     void updateHUD(const std::shared_ptr<Character> &character);
+
+    void printMode(Action::Type actionType);
+    void* getOption(std::vector<ITEM*> items);
+    void showInfo(WINDOW* win, Item *item);
+    std::shared_ptr<Item> selectInventory(const std::shared_ptr<Character> &character);
+
+    struct SortPositionByX {
+        bool operator()(const Position &lhs, const Position &rhs) const;
+    };
+
+    std::vector<std::set<Position, SortPositionByX>> rows;
+    std::vector<std::set<Position>> cols;
+    Position currentSelection;
+    Position delta {0,0};
+
+    void engageSelection(const std::vector<Position> &range, const Position origin);
+    void disengageSelection();
+    void selectionUp();
+    void selectionDown();
+    void selectionLeft();
+    void selectionRight();
+    Position getSelection(const Position origin);
 
     void updateDisplay();
 };

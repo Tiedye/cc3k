@@ -15,6 +15,9 @@ void DungeonRenderer::notify(EventInfo &info) {
         case ATTACK_DONE:
             entityAttacked(info.primary->asCharacter(), info.secondary->asEntity(), info.eventInteger);
             break;
+        case MISS_DONE:
+            entityMissed(info.primary->asCharacter(), info.secondary->asEntity());
+            break;
         case HEAL_DONE:
             entityHealed(info.primary->asCharacter(), info.secondary->asEntity(), info.eventInteger);
             break;
@@ -27,7 +30,7 @@ void DungeonRenderer::changeCell(Position position) {
     cellChanged(position);
 }
 
-const std::vector<EventType> DungeonRenderer::eventTypes {MOVE_DONE, MOVED_DONE, ADDED_TO_FLOOR_DONE, REMOVED_FROM_FLOOR_DONE, ATTACK_DONE, HEAL_DONE};
+const std::vector<EventType> DungeonRenderer::eventTypes {MOVE_DONE, MOVED_DONE, ADDED_TO_FLOOR_DONE, REMOVED_FROM_FLOOR_DONE, ATTACK_DONE, MISS_DONE, HEAL_DONE};
 
 const std::vector<EventType> DungeonRenderer::listeningFor() const {
     return eventTypes;

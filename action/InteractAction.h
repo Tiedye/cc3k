@@ -6,7 +6,7 @@ class InteractAction: public Action {
 public:
     InteractAction();
 
-    int getRange(Character &source) const override;
+    int getRange(const Character &source) const override;
 };
 
 

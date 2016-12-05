@@ -14,7 +14,7 @@ class Character;
 class Action {
 public:
     enum Targets {
-        SELF = 1, EXTERNAL = 0b10, INVENTORY = 0b100
+        NONE = 0, SELF = 1, EXTERNAL = 0b10, INVENTORY = 0b100
     };
     enum Shape {
         POINT, LINE, SQUARE
@@ -41,6 +41,8 @@ public:
 
     const Type actionType;
 
+    const std::string name;
+
     const int targets;
     const Range range;
 
@@ -48,9 +50,9 @@ public:
     const bool aoe;
     const int aoeSize;
 
-    virtual int getRange(Character &source) const;
+    virtual int getRange(const Character &source) const;
 
-    virtual int getMinRange(Character &source) const;
+    virtual int getMinRange(const Character &source) const;
 
     // used to get values associated with ATTACK and AID actions, can also be used before that for informational purposes
     virtual int getAmount(Character &source) const;
@@ -65,7 +67,7 @@ public:
 
 
 protected:
-    Action(const Type actionType, const Step type = PASSACTION, const int targets = SELF, const Range range = ANY,
+    Action(const Type actionType, const std::string name, const Step type = PASSACTION, const int targets = SELF, const Range range = ANY,
            const Shape shape = POINT, const bool aoe = false, const int aoeSize = 0);
 };
 

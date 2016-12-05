@@ -1,29 +1,37 @@
-start set size1
-    stat base size 1 0
+start set gold
+    effect autoPickup
+    effect addValueOnHold
+    effect invulnerable
 end
 start item smallGold
+    name a Small Gold Pile done
+    set gold
     value 1
-    set size1
     representation G
 end
 start item normalGold
-    set size1
+    name a Gold Pile done
+    set gold
     value 2
     representation G
 end
 start item merchantHoard
-    set size1
+    name a Merchant Gold Hoard done
+    set gold
     value 4
     representation G
 end
 start item dragonHoard
-    set size1
+    name a Dragon Gold Hoard done
+    set gold
     value 6
     representation G
 end
 start equippable sword
+    name a Sword done
     value 8
     equipped hand swordSet
+    representation S
 end
 start set swordSet
     stat mult atk 2

@@ -7,18 +7,17 @@
 using namespace std;
 
 void DropItems::notify(EventInfo &info) {
-    int choice {rand() % totalWeight};
+    int choice {uniform_int_distribution<>(0, totalWeight-1)(state.lock()->gen)};
     for (auto& wi:weightsAndItems){
         if (choice < wi.first) {
-            cdout << wi.first << endl;
             Position position {info.primary->asEntity()->getPosition()};
             auto stateLocked = state.lock();
             for (auto& item:wi.second) {
                 shared_ptr<Item> newItem {stateLocked->library.getAnItem(item)};
                 newItem->move(position);
-                cdout << position << endl;
-                stateLocked->currentDungeon->addEntity(newItem);
+                stateLocked->getCurrentDungeon()->addEntity(newItem);
             }
+            break;
         } else {
             choice -= wi.first;
         }

@@ -1,7 +1,7 @@
 #include "EatAction.h"
 
-int EatAction::getRange(Character &source) const {
+int EatAction::getRange(const Character &source) const {
     return 1;
 }
 
-EatAction::EatAction() : Action(Type::CONSUME, ACTION, EXTERNAL|INVENTORY) {}
+EatAction::EatAction() : Action(Type::CONSUME, "Eat", ACTION, EXTERNAL | INVENTORY, ANY, SQUARE, 0, 0) {}

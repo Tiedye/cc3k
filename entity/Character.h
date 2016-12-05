@@ -34,7 +34,9 @@ public:
     bool removeGold(const int value);
     int currentGold() const;
 
-    int getAttackStrength() const;
+	const std::list<std::shared_ptr<Item>> &getInventory() const;
+
+	int getAttackStrength() const;
 	int getSpellStrength() const;
 	int getSpeed() const;
 	int getAccuracy() const;

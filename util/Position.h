@@ -13,6 +13,7 @@ struct Position {
     Position &operator=(const Position &other) = default;
     Position &operator=(Position &&other) = default;
 
+    friend bool operator<(const Position &lhs, const Position &rhs);
     Position operator+(const Position &other) const;
     Position operator-(const Position &other) const;
     bool operator==(const Position &other) const;

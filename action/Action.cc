@@ -1,11 +1,10 @@
 #include "Action.h"
 
-Action::Action(const Type actionType, const Step type, const int targets, const Range range, const Action::Shape shape,
-               const bool aoe,
-               const int aoeSize) : type{type}, actionType(actionType), targets(targets), range(range), shape(shape), aoe(aoe),
-                                    aoeSize(aoeSize) {}
+Action::Action(const Type actionType, const std::string name, const Step type, const int targets, const Range range, const Shape shape, const bool aoe, const int aoeSize)
+        : type{type}, actionType(actionType), name{name}, targets(targets), range(range), shape(shape), aoe(aoe),
+          aoeSize(aoeSize) {}
 
-int Action::getRange(Character &source) const {
+int Action::getRange(const Character &source) const {
     return 0;
 }
 
@@ -17,7 +16,7 @@ int Action::getAmount(Character &source) const {
     return 0;
 }
 
-int Action::getMinRange(Character &source) const {
+int Action::getMinRange(const Character &source) const {
     return 0;
 }
 

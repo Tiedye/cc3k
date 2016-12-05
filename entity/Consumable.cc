@@ -15,8 +15,13 @@ void Consumable::consume(const shared_ptr<Character> &by) {
     trigger(CONSUMED, by);
     by->trigger(CONSUME, self);
     if (set) by->addTemporaryFeatureSet(shared_from_base<Consumable>(), set, effectType, numTurns);
+    destroy();
     by->trigger(CONSUME_DONE, self);
     trigger(CONSUMED_DONE, by);
+}
+
+bool Consumable::consumable() {
+    return true;
 }
 
 std::shared_ptr<Consumable> Consumable::Target::asConsumable() {

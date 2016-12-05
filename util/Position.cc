@@ -30,3 +30,11 @@ std::ostream &operator<<(std::ostream &os, const Position &position)  {
     os << "{y: " << position.y << " x: " << position.x << "}";
     return os;
 }
+
+bool operator<(const Position &lhs, const Position &rhs) {
+    if (lhs.y < rhs.y)
+        return true;
+    if (rhs.y < lhs.y)
+        return false;
+    return lhs.x < rhs.x;
+}

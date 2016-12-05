@@ -3,20 +3,20 @@
 #include "../entity/Character.h"
 #include "../stage/Dungeon.h"
 
-WalkAsActionAction::WalkAsActionAction(const std::vector<int> &walkable):Action(MOVE, ACTION, SELF, STRICT_PATH), walkable(walkable) {
+WalkAsActionAction::WalkAsActionAction(const std::vector<int> &walkable): Action(MOVE, "Walk", ACTION, EXTERNAL, STRICT_PATH, SQUARE, 0, 0), walkable(walkable) {
 
 }
 
-int WalkAsActionAction::getRange(Character &source) const {
+int WalkAsActionAction::getRange(const Character &source) const {
     return source.getSpeed();
 }
 
-int WalkAsActionAction::getMinRange(Character &source) const {
+int WalkAsActionAction::getMinRange(const Character &source) const {
     return 1;
 }
 
 bool WalkAsActionAction::canTarget(const Position position, const std::shared_ptr<State> &state) {
-    CellType cellType {state->currentDungeon->getCellType(position)};
+    CellType cellType {state->getCurrentDungeon()->getCellType(position)};
     for(auto type:walkable) {
         if (cellType == type) return true;
     }

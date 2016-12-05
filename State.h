@@ -14,8 +14,10 @@ struct State: public HasAIData {
     Library library;
     std::shared_ptr<Character> player;
     std::shared_ptr<Loader> loader;
-    std::shared_ptr<Dungeon> currentDungeon;
+    std::weak_ptr<Dungeon> currentDungeon;
     std::shared_ptr<DungeonRenderer> dungeonRenderer;
+
+    std::shared_ptr<Dungeon> getCurrentDungeon();
 
     std::mt19937 gen;
 };

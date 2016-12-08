@@ -24,9 +24,9 @@ map<char, int> SimpleLoader::parseMapping(istream& s) {
     return mapping;
 };
 
-std::shared_ptr<Dungeon> SimpleLoader::parseDungeon(const std::map<char, int> &mapping, std::istream &s, int id) {
+std::shared_ptr<Dungeon> SimpleLoader::parseDungeon(const std::map<char, int> &mapping, std::istream &s) {
     s >> noskipws;
-    auto dungeon = make_shared<Dungeon>(state, id, 79, 25);
+    auto dungeon = make_shared<Dungeon>(state, Game::getId(), 79, 25);
     char c;
     for (int y = 0; y < 25; ++y) {
         for(int x = 0; x < 79; ++x) {
@@ -57,10 +57,11 @@ std::shared_ptr<Dungeon> SimpleLoader::parseDungeon(const std::map<char, int> &m
                     auto stair = make_shared<Entity>();
                     stair->representation = '\\';
                     stair->move({y, x});
-                    auto stairHandler = make_shared<Stair>(id + 1, dungeon, state->loader->getId("player"));
+                    auto stairHandler = make_shared<Stair>(Game::nextId(), dungeon, state->loader->getId("player"));
                     stair->addListener(stairHandler);
                     dungeon->initializeEntity(stair);
                     stair->create();
+                    dungeon->defaultNext = Game::nextId();
                     break;
                 }
                 default: {
@@ -109,6 +110,7 @@ std::shared_ptr<Dungeon> SimpleLoader::parseDungeon(const std::map<char, int> &m
 }
 
 int SimpleLoader::run(Game &game) {
+    game.removeStates(1);
     ifstream s;
     int nextId = 0;
     s.open(files[0]); // TODO, check and err on file open failure
@@ -118,7 +120,7 @@ int SimpleLoader::run(Game &game) {
     nextId = Game::nextId();
     int count = 0;
     while(s.peek(), !s.eof()) {
-        auto dungeon = parseDungeon(mapping, s, Game::getId());
+        auto dungeon = parseDungeon(mapping, s);
         ostringstream name;
         name << "Floor " << ++count;
         dungeon->setName(name.str());

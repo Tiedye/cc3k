@@ -35,6 +35,7 @@ public:
     int currentGold() const;
 
 	const std::list<std::shared_ptr<Item>> &getInventory() const;
+    void clearInventory();
 
 	int getAttackStrength() const;
 	int getSpellStrength() const;

@@ -1,6 +1,6 @@
 start set player
-    stat mult atk 10
-    stat mult def 100
+    stat add def 20
+    stat add atk 10
 
     stat base size 1 0
     stat base init 10 0
@@ -12,6 +12,7 @@ start set player
     action interact
     action equip
     action unequip
+    effect stealScore
 end
 start set shadeSet
     inherit player

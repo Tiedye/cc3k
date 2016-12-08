@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Entity.h"
 
 #include "Item.h"
@@ -94,6 +95,7 @@ void Entity::removeListReference(std::list<std::shared_ptr<Item>> &list) {
 
 void Entity::create() {
     trigger(CREATED);
+    dead = false;
     health = maxHealth.value;
     tempFeatureSets.clear();
     trigger(CREATED_DONE);
@@ -132,16 +134,20 @@ int Entity::damage(const int damage) {
     return preDamage - health;
 }
 
-void Entity::heal(const int amount, const shared_ptr<Entity> &source) {
+int Entity::heal(const int amount, const shared_ptr<Entity> &source) {
     EventInfo::Data data;
     data.integer1 = amount;
     trigger(HEALED, data, source);
-    heal(data.integer1);
-    trigger(HEALED_DONE, data.integer1, source);
+    int healingDone {heal(data.integer1)};
+    trigger(HEALED_DONE, healingDone, source);
+    return healingDone;
 }
 
-void Entity::heal(const int amount) {
+int Entity::heal(const int amount) {
+    int initialHeath {health};
     health += amount;
+    if (health > getMaxHealth()) health = getMaxHealth();
+    return health - initialHeath;
 }
 
 void Entity::move(const int distance, const Direction direction, const shared_ptr<Entity> &source) {
@@ -376,6 +382,13 @@ void Entity::addTemporaryFeatureSet(const shared_ptr<Entity> &source, const shar
     addFeatureSet(*featureSet, tempFeatureSet.modNumerator, tempFeatureSet.modDenominator);
 }
 
+void Entity::clearTemporaryFeatureSets() {
+    for(auto& tempFeatureSet:tempFeatureSets) {
+        removeFeatureSet(*tempFeatureSet.second.set, tempFeatureSet.second.modNumerator, tempFeatureSet.second.modDenominator);
+    }
+    tempFeatureSets.clear();
+}
+
 shared_ptr<Entity> Entity::clone() {
     return make_shared<Entity>(*this);
 }
@@ -407,7 +420,7 @@ shared_ptr<Entity> Entity::Target::asEntity() {
     return entity;
 }
 
-void Entity::trigger(EventType eventType) {
+void Entity::trigger(const EventType eventType) {
     EventInfo info;
     info.primary = getAsTarget();
     info.eventType = eventType;
@@ -415,7 +428,7 @@ void Entity::trigger(EventType eventType) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, const shared_ptr<Entity> &secondary) {
+void Entity::trigger(const EventType eventType, const shared_ptr<Entity> &secondary) {
     EventInfo info;
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
@@ -424,7 +437,7 @@ void Entity::trigger(EventType eventType, const shared_ptr<Entity> &secondary) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, const vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(const EventType eventType, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
@@ -435,157 +448,142 @@ void Entity::trigger(EventType eventType, const vector<shared_ptr<Entity>> &seco
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, Position position) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const Position position) {
+    EventInfo info(position);
     info.primary = getAsTarget();
     info.eventType = eventType;
-    info.eventPosition = position;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, Position position, const shared_ptr<Entity> &secondary) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const Position position, const shared_ptr<Entity> &secondary) {
+    EventInfo info(position);
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
     info.eventType = eventType;
-    info.eventPosition = position;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, Position position, const vector<shared_ptr<Entity>> &secondaries) {
+void Entity::trigger(const EventType eventType, const Position position, const vector<shared_ptr<Entity>> &secondaries) {
     EventInfo info;
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
         info.secondaries.push_back(secondary->getAsTarget());
     }
     info.eventType = eventType;
-    info.eventPosition = position;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, int integer) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const int integer) {
+    EventInfo info{integer,0};
     info.primary = getAsTarget();
     info.eventType = eventType;
-    info.eventInteger = integer;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, int integer, const shared_ptr<Entity> &secondary) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const int integer, const shared_ptr<Entity> &secondary) {
+    EventInfo info{integer,0};
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
     info.eventType = eventType;
-    info.eventInteger = integer;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, int integer, const vector<shared_ptr<Entity>> &secondaries) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const int integer, const vector<shared_ptr<Entity>> &secondaries) {
+    EventInfo info{integer,0};
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
         info.secondaries.push_back(secondary->getAsTarget());
     }
     info.eventType = eventType;
-    info.eventInteger = integer;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, float num) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const float num) {
+    EventInfo info{num};
     info.primary = getAsTarget();
     info.eventType = eventType;
-    info.eventFloat = num;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, float num, const shared_ptr<Entity> &secondary) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const float num, const shared_ptr<Entity> &secondary) {
+    EventInfo info{num};
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
     info.eventType = eventType;
-    info.eventFloat = num;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, float num, const vector<shared_ptr<Entity>> &secondaries) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const float num, const vector<shared_ptr<Entity>> &secondaries) {
+    EventInfo info{num};
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
         info.secondaries.push_back(secondary->getAsTarget());
     }
     info.eventType = eventType;
-    info.eventFloat = num;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, double num) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const double num) {
+    EventInfo info{num};
     info.primary = getAsTarget();
     info.eventType = eventType;
-    info.eventDouble = num;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, double num, const shared_ptr<Entity> &secondary) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const double num, const shared_ptr<Entity> &secondary) {
+    EventInfo info{num};
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
     info.eventType = eventType;
-    info.eventDouble = num;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, double num, const vector<shared_ptr<Entity>> &secondaries) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, const double num, const vector<shared_ptr<Entity>> &secondaries) {
+    EventInfo info{num};
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
         info.secondaries.push_back(secondary->getAsTarget());
     }
     info.eventType = eventType;
-    info.eventDouble = num;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, EventInfo::Data &reference) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, EventInfo::Data &reference) {
+    EventInfo info{&reference};
     info.primary = getAsTarget();
     info.eventType = eventType;
-    info.eventDataPointer = &reference;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, EventInfo::Data &reference, const shared_ptr<Entity> &secondary) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, EventInfo::Data &reference, const shared_ptr<Entity> &secondary) {
+    EventInfo info{&reference};
     info.primary = getAsTarget();
     info.secondary = secondary->getAsTarget();
     info.eventType = eventType;
-    info.eventDataPointer = &reference;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
 }
-void Entity::trigger(EventType eventType, EventInfo::Data &reference, const vector<shared_ptr<Entity>> &secondaries) {
-    EventInfo info;
+void Entity::trigger(const EventType eventType, EventInfo::Data &reference, const vector<shared_ptr<Entity>> &secondaries) {
+    EventInfo info{&reference};
     info.primary = getAsTarget();
     for (auto secondary: secondaries) {
         info.secondaries.push_back(secondary->getAsTarget());
     }
     info.eventType = eventType;
-    info.eventDataPointer = &reference;
     for (auto listener: listeners[eventType]) {
         listener->notify(info);
     }
@@ -658,7 +656,8 @@ Entity::Entity(const Entity &other) :
         turnCount{other.turnCount},
         listeners{other.listeners},
         tempFeatureSets{other.tempFeatureSets},
-        types{other.types} {
+        types{other.types},
+        score{other.score}{
 
 }
 
@@ -672,6 +671,18 @@ bool Entity::isDead() {
 
 void Entity::makeA(int type) {
     types.insert(type);
+}
+
+void Entity::addScore(const int value) {
+    score += value;
+}
+
+int Entity::currentScore() const {
+    return score;
+}
+
+void Entity::setScore(const int value) {
+    score = value;
 }
 
 bool Entity::ListenerSort::operator()(const std::shared_ptr<Listener> &a, const std::shared_ptr<Listener> &b) const {

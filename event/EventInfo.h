@@ -7,8 +7,6 @@
 class EventTarget;
 
 struct EventInfo {
-    EventInfo();
-    //EventInfo(EventInfo &&other);
     struct Data{
         Data();
 
@@ -18,12 +16,12 @@ struct EventInfo {
                 int integer1;
                 int integer2;
             };
-			struct {
-				short short1;
-				short short2;
-				short short3;
-				short short4;
-			};
+            struct {
+                short short1;
+                short short2;
+                short short3;
+                short short4;
+            };
             double doubleFloat;
             struct {
                 float float1;
@@ -31,17 +29,25 @@ struct EventInfo {
             };
         };
     };
+
+    EventInfo(const Position eventPosition);
+    EventInfo(int eventInteger, int eventInteger2);
+    EventInfo(double eventDouble);
+    EventInfo(float eventFloat);
+    EventInfo(EventInfo::Data *eventDataPointer);
+    EventInfo();
+    //EventInfo(EventInfo &&other);
     union {
-        Position eventPosition;
+        const Position eventPosition;
 		struct {
-			int eventInteger;
-			int eventInteger2;
+			const int eventInteger;
+			const int eventInteger2;
 		};
-		double eventDouble;
-		float eventFloat;
-		Data *eventDataPointer;
+		const double eventDouble;
+		const float eventFloat;
+		Data * const eventDataPointer;
     };
-	EventType eventType;
+	EventType eventType {EventType::GENERIC};
 	std::unique_ptr<EventTarget> primary;
     std::unique_ptr<EventTarget> secondary;
 	std::vector<std::unique_ptr<EventTarget>> secondaries;

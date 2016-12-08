@@ -39,8 +39,8 @@ void Equippable::unequip() {
         trigger(UNEQUIPPED, equippedTo);
         if (set) equippedTo->removeFeatureSet(*set);
         equippedTo->unequip(shared_from_base<Equippable>());
-        equippedTo = nullptr;
         trigger(UNEQUIPPED_DONE, equippedTo);
+        equippedTo = nullptr;
     }
 }
 

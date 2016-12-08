@@ -26,6 +26,7 @@ std::list<std::shared_ptr<Entity>> Dungeon::getEntitiesAt(Position position, con
 
 int Dungeon::run(Game &game) {
     isRunning = true;
+    next = defaultNext;
     state->currentDungeon = shared_from_this();
     state->player->move(spawnPoint);
     initializeEntity(state->player);
@@ -33,6 +34,7 @@ int Dungeon::run(Game &game) {
     state->dungeonRenderer->engage();
     int turnId {0};
     while (isRunning){
+        if (state->player->isDead()) break;
         int currentInit {0};
         for (auto entityIter = entities.begin(); entityIter != entities.end();) {
             auto entity = *entityIter;

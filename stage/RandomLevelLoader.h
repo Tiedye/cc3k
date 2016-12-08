@@ -12,13 +12,14 @@ private:
 
     class SpawnSet {
     public:
+        SpawnSet();
         int amount {0};
 
         void addGroup(int weight, const std::vector<int> &items);
         std::vector<int> getGroup(int selection);
         int getTotalWeight() const;
     private:
-        int totalWeight;
+        int totalWeight {0};
         std::multimap<int, std::vector<int>> groups;
     };
 
@@ -42,6 +43,7 @@ private:
     };
 
     struct DungeonObject {
+        DungeonObject();
         ProbabilitySet probabilitySet;
         int next {-1};
         int id;

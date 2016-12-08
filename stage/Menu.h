@@ -5,10 +5,12 @@
 
 class Menu : public Stage {
 public:
-    Menu(const std::shared_ptr<State> &state, const int id, const int next);
+    Menu(const std::shared_ptr<State> &state);
 
 private:
     int run(Game &game) override;
+
+    int lastRace {-1};
 
     const int next;
 };

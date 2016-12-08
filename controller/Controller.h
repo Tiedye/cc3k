@@ -18,6 +18,7 @@ struct Controller {
         std::vector<Position> range;
     };
     struct ActionAndTarget {
+        ActionAndTarget() = default;
         std::shared_ptr<Action> action;
         Position target;
         std::shared_ptr<Entity> targetEntity;

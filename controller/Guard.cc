@@ -24,8 +24,8 @@ const Controller::ActionAndTarget Guard::getAction(const std::shared_ptr<Charact
     Position &guardedLocationRef = character->aiGetPosition(guardedLocation);
     if(guardedLocationRef == Position{-1, -1}) {
         for(auto p:positions) {
-            auto entity = dungeonLocked->getEntityAt(p+currentPosition);
-            if (entity && entity->isA(guardedType)) {
+            auto entities = dungeonLocked->getEntitiesAt(p+currentPosition, character);
+            if (entities.size() && entities.front()->isA(guardedType)) {
                 guardedLocationRef = p+currentPosition;
                 break;
             }
@@ -38,14 +38,14 @@ const Controller::ActionAndTarget Guard::getAction(const std::shared_ptr<Charact
             if (selection != actions.end()) {
                 for (auto p:positions) {
                     auto entity = dungeonLocked->getEntityAt(p + guardedLocationRef);
-                    if (entity && !entity->isA(guardedType) && find(selection->range.begin(), selection->range.end(), p + guardedLocationRef) != selection->range.end()) {
+                    if (entity && any_of(from.begin(), from.end(), [&entity](int a){ return entity->isA(a);}) && find(selection->range.begin(), selection->range.end(), p + guardedLocationRef) != selection->range.end()) {
                         options.push_back(p + guardedLocationRef);
                     }
                 }
                 if (!options.empty()) break;
                 for (auto p:positions) {
                     auto entity = dungeonLocked->getEntityAt(p + currentPosition);
-                    if (entity && !entity->isA(guardedType) && find(selection->range.begin(), selection->range.end(), p + currentPosition) != selection->range.end()) {
+                    if (entity && any_of(from.begin(), from.end(), [&entity](int a){ return entity->isA(a);}) && find(selection->range.begin(), selection->range.end(), p + currentPosition) != selection->range.end()) {
                         options.push_back(p + currentPosition);
                     }
                 }
@@ -72,4 +72,4 @@ const Controller::ActionAndTarget Guard::getAction(const std::shared_ptr<Charact
     return target;
 }
 
-Guard::Guard(const int guardedType) : guardedType{guardedType}, guardedLocation{HasAIData::aiReserveId()}, targetPosition{HasAIData::aiReserveId()} {}
+Guard::Guard(const int guardedType, const vector<int> &from) : guardedType{guardedType}, from{from}, guardedLocation{HasAIData::aiReserveId()}, targetPosition{HasAIData::aiReserveId()} {}

@@ -13,14 +13,14 @@ end
 start consumable boostAtkPotion
     set potion
     name a Boost Attack Potion done
-    consumed 50 atkBoost
+    consumed 30 atkBoost
     effectType positive
     representation P
 end
 start consumable boostDefPotion
     set potion
     name a Boost Defense Potion done
-    consumed 50 defBoost
+    consumed 30 defBoost
     effectType positive
     representation P
 end
@@ -36,14 +36,14 @@ end
 start consumable woundAtkPotion
     set potion
     name a Wound Attack Potion done
-    consumed 50 atkPenalty
+    consumed 20 atkPenalty
     effectType negative
     representation P
 end
 start consumable woundDefPotion
     set potion
     name a Wound Defense Potion done
-    consumed 50 defPenalty
+    consumed 20 defPenalty
     effectType negative
     representation P
 end
@@ -58,4 +58,15 @@ start set atkPenalty
 end
 start set defPenalty
     stat sub def 5
+end
+
+start consumable speedPotion
+    set potion
+    name a Speed Potion done
+    consumed 10 doubleSpeed
+    effectType positive
+    representation P
+end
+start set doubleSpeed
+    stat mult speed 2
 end

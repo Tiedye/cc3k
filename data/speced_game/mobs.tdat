@@ -17,6 +17,7 @@ start mob human
     name a Human done
     set humanSet
     controller wander localAttack done
+    score 5
     representation H
 end
 start set dwarfSet
@@ -31,21 +32,38 @@ start mob dwarf
     name a Dwarf done
     set dwarfSet
     controller wander localAttack done
+    score 4
     representation W
 end
 start set elfSet
     inherit mob
     stat base hp 140 0
     stat base atk 30 0
-    stat base def 10 0
+    stat base def 10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             0
     effect dropItems [ 1 normalGold ] [ 1 smallGold ] done
     action melee 2 0
 end
 start mob elf
-    name an Elf done
+    name a Elf done
     set elfSet
     controller wander localAttack done
+    score 7
     representation E
+end
+start set highElfSet
+    inherit mob
+    stat base hp 160 0
+    stat base atk 40 0
+    stat base def 50 0
+    effect dropItems [ 1 ringOfHealth ] [ 2 normalGold normalGold normalGold ] done
+    action melee 2 0
+end
+start mob highElf
+    name an Elf done
+    set highElfSet
+    controller wander localAttack done
+    score 15
+    representation I
 end
 start set orcSet
     inherit mob
@@ -59,6 +77,7 @@ start mob orc
     name an Orc done
     set orcSet
     controller wander localAttack done
+    score 6
     representation O
 end
 start set merchantSet
@@ -74,6 +93,7 @@ start mob merchant
     name a Merchant done
     set merchantSet
     controller stateIf merchants_hostile [ wander localAttack ] [ wander ] done
+    score 1
     representation M
 end
 start set dragonSet
@@ -86,7 +106,8 @@ end
 start mob dragon
     name a Dragon done
     set dragonSet
-    controller guard dragonHoard done
+    controller guard dragonHoard [ mob player ] done
+    score 4
     representation D
 end
 start set halflingSet
@@ -102,5 +123,24 @@ start mob halfling
     name a Halfling done
     set halflingSet
     controller wander localAttack done
+    score 4
     representation L
+end
+
+start set guardSet
+    stat base size 1 0
+    stat base init 5 0
+    stat base acc 50 0
+    stat base hp 100 0
+    stat base atk 25 0
+    stat base def 50 0
+    effect dropItems [ 1 sword ] [ 9 ] done
+    action melee 1 0
+end
+start mob guard
+    name a Guard done
+    set guardSet
+    controller wander localAttack done
+    score 0
+    representation G
 end

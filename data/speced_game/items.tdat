@@ -22,11 +22,12 @@ start item merchantHoard
     representation G
 end
 start item dragonHoard
-    name a Guard Gold Hoard done
+    name a Dragon Gold Hoard done
     set gold
     value 6
     representation G
 end
+
 start equippable sword
     name a Sword done
     value 8
@@ -35,4 +36,44 @@ start equippable sword
 end
 start set swordSet
     stat mult atk 2
+end
+
+start equippable mail
+    name Chain Mail done
+    value 8
+    equipped torso mailSet
+    representation A
+end
+start set mailSet
+    stat add def 70
+end
+
+start equippable bow
+    name a Bow done
+    value 6
+    equipped hand bowSet
+    representation S
+end
+start set bowSet
+    action shoot 1 0 3
+end
+
+start equippable boots
+    name Boots done
+    value 4
+    equipped feet bootsSet
+    representation B
+end
+start set bootsSet
+    stat add speed 1
+end
+
+start equippable ringOfHealth
+    name Ring of Health done
+    value 10
+    equipped ring ringOfHealthSet
+    representation R
+end
+start set ringOfHealthSet
+    stat add hp 70
 end

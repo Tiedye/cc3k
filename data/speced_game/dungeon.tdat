@@ -18,24 +18,25 @@ end
 start dungeon dungeon1
     size 24 78
     set all
-    next dengeon2
+    next dungeon2
 end
 start dungeon dungeon2
     size 24 78
     set all
-    next dengeon3
+    next dungeon3
 end
 start dungeon dungeon3
     size 24 78
     set all
-    next dengeon4
+    next dungeon4
 end
 start dungeon dungeon4
     size 24 78
     set all
-    next dengeon5
+    next dungeon5
 end
 start dungeon dungeon5
     size 24 78
     set all
 end
+initial dungeon1

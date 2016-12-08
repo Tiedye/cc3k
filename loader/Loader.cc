@@ -314,6 +314,8 @@ shared_ptr<Listener> Loader::loadEffect(istream &s) {
         return make_shared<AddValueOnHold>();
     } else if (effect == "invulnerable") {
         return make_shared<Invulnerable>();
+    } else if (effect == "stealScore") {
+        return make_shared<StealScoreOnKill>();
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;
         return nullptr;
@@ -421,7 +423,16 @@ shared_ptr<Controller> Loader::loadController(istream &s) {
         } else if (name == "guard") {
             string guarded;
             s >> guarded;
-            newController = make_shared<Guard>(parseId(guarded));
+            vector<int> from;
+            string token;
+            s >> token;
+            if (token != "[") {
+                cerr << "Invalid indentifier start block \"" << token << "\", must be \"[\"" << endl;
+            }
+            while(s >> token, token != "]") {
+                from.push_back(parseId(token));
+            }
+            newController = make_shared<Guard>(parseId(guarded), from);
         } else {
             cerr << "No such controller \"" << name << "\"" << endl;
         }
@@ -462,6 +473,10 @@ void Loader::parseMob(istream &s) {
                 fullName << " " << token;
             }
             newMob->name = fullName.str();
+        } else if (command == "score") {
+            int score;
+            s >> score;
+            newMob->score = score;
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing Mob" << endl;
         }
@@ -503,6 +518,10 @@ void Loader::parseItem(istream &s) {
                 fullName << " " << token;
             }
             newItem->name = fullName.str();
+        } else if (command == "score") {
+            int score;
+            s >> score;
+            newItem->score = score;
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing Item" << endl;
         }
@@ -568,6 +587,10 @@ void Loader::parseConsumable(std::istream &s) {
                 fullName << " " << token;
             }
             newConsumable->name = fullName.str();
+        } else if (command == "score") {
+            int score;
+            s >> score;
+            newConsumable->score = score;
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing Consumable" << endl;
         }
@@ -621,6 +644,10 @@ void Loader::parseEquippable(std::istream &s) {
                 fullName << " " << token;
             }
             newEquippable->name = fullName.str();
+        } else if (command == "score") {
+            int score;
+            s >> score;
+            newEquippable->score = score;
         } else {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }

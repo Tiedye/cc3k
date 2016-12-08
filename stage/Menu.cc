@@ -6,6 +6,19 @@
 using namespace std;
 
 int Menu::run(Game &game) {
+    // reset player
+    state->player->clearInventory();
+    state->player->setScore(0);
+    state->player->removeGold(state->player->currentGold());
+    state->player->clearTemporaryFeatureSets();
+    if (lastRace != -1) {
+        for(auto& race:state->library.getRaces()) {
+            if (race->id == lastRace) {
+                state->player->removeFeatureSet(*race->featureSet);
+            }
+        }
+    }
+
     string cmd;
 	cout << "Please select a class. For a list of classes, type: list. for info on each class type: stats 'classname'." << endl;
 	while(cin >> cmd){
@@ -27,9 +40,10 @@ int Menu::run(Game &game) {
 			state->player->create();
 			return next;
 		} else {
-			for(auto& pair:state->library.getRaces()) {
-				if(pair->name == cmd  || pair->shortcut == cmd){
-					state->player->addFeatureSet(*pair->featureSet);
+			for(auto& race:state->library.getRaces()) {
+				if(race->name == cmd  || race->shortcut == cmd){
+                    lastRace = race->id;
+					state->player->addFeatureSet(*race->featureSet);
 					state->player->create();
 					return next;
 				}
@@ -39,4 +53,4 @@ int Menu::run(Game &game) {
 	return -1;
 }
 
-Menu::Menu(const shared_ptr<State> &state, const int id, const int next) : Stage(state, id), next(next) {}
+Menu::Menu(const shared_ptr<State> &state) : Stage(state, Game::getId()), next(Game::nextId()) {}

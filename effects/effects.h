@@ -13,5 +13,6 @@
 #include "Loot.h"
 #include "Regen.h"
 #include "StartHp.h"
+#include "StealScoreOnKill.h"
 #include "TypeAutoPickup.h"
 #include "VenerabilityModifier.h"

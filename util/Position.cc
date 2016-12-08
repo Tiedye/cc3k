@@ -34,7 +34,5 @@ std::ostream &operator<<(std::ostream &os, const Position &position)  {
 bool operator<(const Position &lhs, const Position &rhs) {
     if (lhs.y < rhs.y)
         return true;
-    if (rhs.y < lhs.y)
-        return false;
-    return lhs.x < rhs.x;
+    return rhs.y >= lhs.y && lhs.x < rhs.x;
 }

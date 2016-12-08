@@ -60,6 +60,7 @@ public:
     void addTemporaryFeatureSet(const std::shared_ptr<Entity> &source, const std::shared_ptr<FeatureSet> &featureSet,
                                 EffectType effectType,
                                 int numTurns);
+    void clearTemporaryFeatureSets();
 
     bool isA(int type);
 	void makeA(int type);
@@ -73,8 +74,8 @@ public:
 
     int damage(const int amount, const std::shared_ptr<Entity> &source);
     int damage(const int damage);
-    void heal(const int amount, const std::shared_ptr<Entity> &source);
-    void heal(const int amount);
+    int heal(const int amount, const std::shared_ptr<Entity> &source);
+    int heal(const int amount);
     void move(const int distance, const Direction direction, const std::shared_ptr<Entity> &source);
     void move(const int distance, const Direction direction);
     void move(const Position destination, const std::shared_ptr<Entity> &source);
@@ -93,6 +94,10 @@ public:
     int getHealth();
     void setHealth(const int amount);
     bool isDead();
+
+	void addScore(const int value);
+	int currentScore() const;
+    void setScore(const int value);
 
 	void startTracking();
 	void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
@@ -118,24 +123,24 @@ public:
 
     virtual std::shared_ptr<Entity> clone();
 
-	void trigger(EventType eventType);
-	void trigger(EventType eventType, const std::shared_ptr<Entity> &secondary);
-	void trigger(EventType eventType, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(EventType eventType, Position position);
-	void trigger(EventType eventType, Position position, const std::shared_ptr<Entity> &secondary);
-	void trigger(EventType eventType, Position position, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(EventType eventType, int integer);
-	void trigger(EventType eventType, int integer, const std::shared_ptr<Entity> &secondary);
-	void trigger(EventType eventType, int integer, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(EventType eventType, float num);
-	void trigger(EventType eventType, float num, const std::shared_ptr<Entity> &secondary);
-	void trigger(EventType eventType, float num, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(EventType eventType, double num);
-	void trigger(EventType eventType, double num, const std::shared_ptr<Entity> &secondary);
-	void trigger(EventType eventType, double num, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(EventType eventType, EventInfo::Data &reference);
-	void trigger(EventType eventType, EventInfo::Data &reference, const std::shared_ptr<Entity> &secondary);
-	void trigger(EventType eventType, EventInfo::Data &reference, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType eventType);
+	void trigger(const EventType eventType, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType eventType, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType eventType, const Position position);
+	void trigger(const EventType eventType, const Position position, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType eventType, const Position position, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType eventType, const int integer);
+	void trigger(const EventType eventType, const int integer, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType eventType, const int integer, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType eventType, const float num);
+	void trigger(const EventType eventType, const float num, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType eventType, const float num, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType eventType, const double num);
+	void trigger(const EventType eventType, const double num, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType eventType, const double num, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType eventType, EventInfo::Data &reference);
+	void trigger(const EventType eventType, EventInfo::Data &reference, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType eventType, EventInfo::Data &reference, const std::vector<std::shared_ptr<Entity>> &secondaries);
 
 	template <typename Derived>
 	std::shared_ptr<Derived> shared_from_base()
@@ -208,6 +213,8 @@ private:
     std::set<int> types;
 
     bool dead {false};
+
+    int score {0};
 
     friend class Loader;
 };

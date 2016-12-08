@@ -8,3 +8,13 @@
 EventInfo::Data::Data() {}
 
 EventInfo::EventInfo() {}
+
+EventInfo::EventInfo(const Position eventPosition) : eventPosition(eventPosition) {}
+
+EventInfo::EventInfo(int eventInteger, int eventInteger2) : eventInteger(eventInteger), eventInteger2(eventInteger2) {}
+
+EventInfo::EventInfo(double eventDouble) : eventDouble(eventDouble) {}
+
+EventInfo::EventInfo(float eventFloat) : eventFloat(eventFloat) {}
+
+EventInfo::EventInfo(EventInfo::Data *eventDataPointer) : eventDataPointer(eventDataPointer) {}

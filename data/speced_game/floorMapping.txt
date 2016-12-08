@@ -17,3 +17,11 @@ D dragon
 L halfling
 
 S sword
+A mail
+C bow
+B boots
+F ringOfHealth
+I speedPotion
+
+G guard
+J highElf

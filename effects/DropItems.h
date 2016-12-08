@@ -18,7 +18,7 @@ public:
 private:
     std::weak_ptr<State> state;
     static const std::vector<EventType> eventTypes;
-    int totalWeight;
+    int totalWeight {0};
     std::multimap<int, std::vector<int>> weightsAndItems;
 };
 

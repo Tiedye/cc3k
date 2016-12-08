@@ -210,12 +210,12 @@ ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const s
                                     vector<ITEM *> items;
                                     for (size_t i = {0}; i < actions.size(); ++i) {
                                         if (actions[i].action->actionType == actionType) {
-                                            ITEM *newItem = new_item(actions[i].action->name.data(), "");
-                                            set_item_userptr(newItem, (void *) i);
+                                            ITEM *newItem = new_item(actions[i].action->name.c_str(), "");
+                                            set_item_userptr(newItem, (void *)(i+1));
                                             items.push_back(newItem);
                                         }
                                     }
-                                    currentSelection = actions.begin() + size_t(getOption(items));
+                                    currentSelection = actions.begin() + (size_t(getOption(items))-1);
                                 }
                                 selectingCell = false;
                                 disengageSelection();
@@ -356,10 +356,14 @@ void ConsoleDungeonIO::drawCell(const Position position, const bool highlight) {
             break;
         }
         case WALL: {
-            bool wallAbove{dungeon->getCellType({position.y - 1, position.x}) == WALL};
-            bool wallBelow{dungeon->getCellType({position.y + 1, position.x}) == WALL};
-            bool wallLeft{dungeon->getCellType({position.y, position.x - 1}) == WALL};
-            bool wallRight{dungeon->getCellType({position.y, position.x + 1}) == WALL};
+            CellType ct {dungeon->getCellType({position.y - 1, position.x})};
+            bool wallAbove{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
+            ct = dungeon->getCellType({position.y + 1, position.x});
+            bool wallBelow{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
+            ct = dungeon->getCellType({position.y, position.x - 1});
+            bool wallLeft{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
+            ct = dungeon->getCellType({position.y, position.x + 1});
+            bool wallRight{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
             setStandardCell(dungeonWindow, highlight);
             int wallIndex{wallAbove | wallBelow << 1 | wallLeft << 2 | wallRight << 3};
             mvwaddch(dungeonWindow, position.y, position.x, wallOut[wallIndex]);
@@ -419,7 +423,7 @@ void ConsoleDungeonIO::setStandardCell(WINDOW *win, bool highlight) {
 }
 
 void ConsoleDungeonIO::postMessage(std::string s) {
-    waddstr(messageWindow, s.data());
+    waddstr(messageWindow, s.c_str());
     waddch(messageWindow, '\n');
 }
 
@@ -434,7 +438,7 @@ void ConsoleDungeonIO::updateHUD(const std::shared_ptr<Character> &character) {
     out << "Atk:  " << character->getAttackStrength() << endl;
     out << "Def:  " << character->getDefenceStrength() << endl;
     out << "Gold: " << character->currentGold() << endl;
-    mvwaddstr(playerWindow, 0, 0, out.str().data());
+    mvwaddstr(playerWindow, 0, 0, out.str().c_str());
 }
 
 void ConsoleDungeonIO::engageSelection(const std::vector<Position> &range, const Position origin) {
@@ -656,7 +660,7 @@ void *ConsoleDungeonIO::getOption(std::vector<ITEM *> items) {
     int key;
     void *result = nullptr;
     while (result == nullptr) {
-        key = wgetch(menuWindow);
+        key = getch();
         switch (key) {
             case KEY_DOWN:
                 menu_driver(menu, REQ_DOWN_ITEM);
@@ -686,7 +690,7 @@ void *ConsoleDungeonIO::getOption(std::vector<ITEM *> items) {
     del_panel(menuPanel);
     delwin(menuWindow);
     updateDisplay();
-    return nullptr;
+    return result;
 }
 
 void ConsoleDungeonIO::showInfo(WINDOW* win, Item *item) {
@@ -700,7 +704,7 @@ void ConsoleDungeonIO::showInfo(WINDOW* win, Item *item) {
         }
     }
     wclear(win);
-    mvwaddstr(win, 0, 0, out.str().data());
+    mvwaddstr(win, 0, 0, out.str().c_str());
     wrefresh(win);
     updateDisplay();
 }
@@ -709,7 +713,7 @@ std::shared_ptr<Item> ConsoleDungeonIO::selectInventory(const std::shared_ptr<Ch
 
     std::vector<ITEM*> items;
     for(auto &item:character->getInventory()) {
-        ITEM*newItem = new_item(item->getName().data(), "");
+        ITEM*newItem = new_item(item->getName().c_str(), "");
         set_item_userptr(newItem, item.get());
         items.push_back(newItem);
     }
@@ -813,7 +817,7 @@ void ConsoleDungeonIO::printMode(Action::Type actionType) {
     }
     wmove(playerWindow, 4, 0);
     wclrtoeol(playerWindow);
-    mvwaddstr(playerWindow, 4, 0, out.str().data());
+    mvwaddstr(playerWindow, 4, 0, out.str().c_str());
 }
 
 ConsoleDungeonIO::outBuff::outBuff(ConsoleDungeonIO *consoleDungeonIO) : consoleDungeonIO(consoleDungeonIO) {}
@@ -837,7 +841,5 @@ std::ostream cdout{&cdbuff};
 bool ConsoleDungeonIO::SortPositionByX::operator()(const Position &lhs, const Position &rhs) const {
     if (lhs.x < rhs.x)
         return true;
-    if (rhs.x < lhs.x)
-        return false;
-    return lhs.y < rhs.y;
+    return rhs.x >= lhs.x && lhs.y < rhs.y;
 }

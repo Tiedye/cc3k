@@ -51,6 +51,8 @@ public:
 
     const std::vector<EventType> listeningFor() const override;
 
+    int defaultNext {-1};
+
 private:
     std::string name;
 

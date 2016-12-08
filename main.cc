@@ -47,24 +47,18 @@ int main(int argc, char *argv[]) {
 
     Game game(state);
     if (!dungeonFiles.empty()) {
-        int menuId, nextId;
-        menuId = Game::getId();
-        nextId = Game::nextId();
-        auto menu = make_shared<Menu>(state, menuId, nextId);
+        auto menu = make_shared<Menu>(state);
         auto simpleLoader = make_shared<SimpleLoader>(state, dungeonFiles);
         game.addStage(0, menu);
         game.addStage(0, simpleLoader);
         game.setInitialStage(menu->id);
-        game.start();
+        game.addStage(1, make_shared<EndScreen>(state, menu->id));
     } else {
-        int menuId, nextId;
-        menuId = Game::getId();
-        nextId = Game::nextId();
-        auto menu = make_shared<Menu>(state, menuId, nextId);
+        auto menu = make_shared<Menu>(state);
         auto randomLoader = make_shared<RandomLevelLoader>(state, dungeonSpec);
         game.addStage(0, menu);
         game.addStage(0, randomLoader);
         game.setInitialStage(menu->id);
-        game.start();
     }
+    game.start();
 }

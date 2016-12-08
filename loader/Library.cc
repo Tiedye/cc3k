@@ -34,7 +34,15 @@ std::shared_ptr<Character> Library::getAMob(int id) {
 }
 
 std::shared_ptr<Item> Library::getAnItem(int id) {
-    return static_pointer_cast<Item>(items[id]->clone());
+    if (items.count(id)) {
+        return static_pointer_cast<Item>(items[id]->clone());
+    }
+    if (equippables.count(id)) {
+        return static_pointer_cast<Item>(equippables[id]->clone());
+    }
+    if (consumables.count(id)) {
+        return static_pointer_cast<Item>(consumables[id]->clone());
+    }
 }
 
 std::shared_ptr<Consumable> Library::getAConsumable(int id) {

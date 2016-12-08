@@ -248,3 +248,12 @@ Character::Character(string name) : Entity(name) {
 const std::list<std::shared_ptr<Item>> &Character::getInventory() const {
     return inventory;
 }
+
+void Character::clearInventory() {
+    for(auto& slot:slots) {
+        if (slot.second) {
+            slot.second->unequip();
+        }
+    }
+    inventory.clear();
+}

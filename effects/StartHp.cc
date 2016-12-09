@@ -4,13 +4,13 @@
 #include "../entity/Entity.h"
 
 void StartHp::notify(EventInfo &info) {
-    info.primary->asEntity()->setHealth(hp);
+    info.primary->as_entity()->set_health(hp);
 }
 
-const std::vector<EventType> StartHp::eventTypes {CREATED_DONE};
+const std::vector<EventType> StartHp::event_types {CREATED_DONE};
 
-const std::vector<EventType> StartHp::listeningFor() const {
-    return eventTypes;
+const std::vector<EventType> StartHp::listening_for() const {
+    return event_types;
 }
 
 StartHp::StartHp(int hp) : hp{hp} {}

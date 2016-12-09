@@ -9,19 +9,19 @@
 using namespace std;
 
 const Controller::ActionAndTarget
-Wander::getAction(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
-    for (auto& actionAndRange:actions) {
-        std::shared_ptr<Action> action = actionAndRange.action;
-        if (action->actionType == Action::MOVE && !actionAndRange.range.empty()) {
-            ActionAndTarget actionAndTarget;
-            actionAndTarget.action = action;
-            uniform_int_distribution<> opts(0, actionAndRange.range.size()-1);
-            actionAndTarget.target = actionAndRange.range[opts(state->gen)];
-            return actionAndTarget;
+Wander::get_action(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
+    for (auto& action_and_range:actions) {
+        std::shared_ptr<Action> action = action_and_range.action;
+        if (action->action_type == Action::MOVE && !action_and_range.range.empty()) {
+            ActionAndTarget action_and_target;
+            action_and_target.action = action;
+            uniform_int_distribution<> opts(0, action_and_range.range.size()-1);
+            action_and_target.target = action_and_range.range[opts(state->gen)];
+            return action_and_target;
         }
     }
-    ActionAndTarget passAction;
-    auto pass = find_if(actions.begin(), actions.end(), [](ActionAndRange ar){ return ar.action->actionType == Action::PASS;});
-    passAction.action = pass->action;
-    return passAction;
+    ActionAndTarget pass_action;
+    auto pass = find_if(actions.begin(), actions.end(), [](ActionAndRange ar){ return ar.action->action_type == Action::PASS;});
+    pass_action.action = pass->action;
+    return pass_action;
 }

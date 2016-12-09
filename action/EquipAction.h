@@ -6,7 +6,7 @@ class EquipAction : public Action {
 public:
     EquipAction();
 
-    int getRange(const Character &source) const override;
+    int get_range(const Character &source) const override;
 };
 
 

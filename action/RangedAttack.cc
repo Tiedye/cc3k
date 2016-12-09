@@ -1,13 +1,13 @@
 #include "RangedAttack.h"
 
-int RangedAttack::getRange(const Character &source) const {
+int RangedAttack::get_range(const Character &source) const {
     return range;
 }
 
-RangedAttack::RangedAttack(const int atkNumerator, const int atkDenominator, const int spellNumerator,
-                           const int spellDenominator, const int range) : BasicAttack(atkNumerator, atkDenominator, spellNumerator, spellDenominator, "Ranged Attack"),
+RangedAttack::RangedAttack(const int atk_numerator, const int atk_denominator, const int spell_numerator,
+                           const int spell_denominator, const int range) : BasicAttack(atk_numerator, atk_denominator, spell_numerator, spell_denominator, "Ranged Attack"),
                                                                           range(range) {}
 
-int RangedAttack::getMinRange(const Character &source) const {
+int RangedAttack::get_min_range(const Character &source) const {
     return 1;
 }

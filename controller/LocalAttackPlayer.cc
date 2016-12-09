@@ -11,21 +11,21 @@
 
 using namespace std;
 
-const LocalAttackPlayer::ActionAndTarget LocalAttackPlayer::getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions,
+const LocalAttackPlayer::ActionAndTarget LocalAttackPlayer::get_action(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions,
                                                                     const std::shared_ptr<State> &state) {
-    for (auto &actionAndRange:actions) {
-        if (actionAndRange.action->actionType == Action::ATTACK) {
-            for (auto p:actionAndRange.range) {
-                for (auto &entity:state->getCurrentDungeon()->getEntitiesAt(p)) {
-                    if (entity->isA(state->loader->getId("player"))) {
+    for (auto &action_and_range:actions) {
+        if (action_and_range.action->action_type == Action::ATTACK) {
+            for (auto p:action_and_range.range) {
+                for (auto &entity:state->get_current_dungeon()->get_entities_at(p)) {
+                    if (entity->is_a(state->loader->get_id("player"))) {
                         ActionAndTarget at;
-                        at.action = actionAndRange.action;
-                        at.targetEntity = entity;
+                        at.action = action_and_range.action;
+                        at.target_entity = entity;
                         return at;
                     }
                 }
             }
         }
     }
-    return decorated->getAction(character, actions, state);
+    return decorated->get_action(character, actions, state);
 }

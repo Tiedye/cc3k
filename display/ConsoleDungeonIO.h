@@ -16,11 +16,11 @@ class ConsoleDungeonIO: public DungeonRenderer, public Controller {
 public:
 
     // TODO for debug
-    class outBuff : public std::stringbuf {
+    class out_buff : public std::stringbuf {
     public:
-        outBuff(ConsoleDungeonIO *consoleDungeonIO);
+        out_buff(ConsoleDungeonIO *console_dungeon_i_o);
 
-        ConsoleDungeonIO *consoleDungeonIO;
+        ConsoleDungeonIO *console_dungeon_i_o;
 
     protected:
         int sync() override;
@@ -29,29 +29,29 @@ public:
 
     ConsoleDungeonIO();
 
-    const ActionAndTarget getAction(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions, const std::shared_ptr<State> &state) override;
+    const ActionAndTarget get_action(const std::shared_ptr<Character> &character, const std::vector<ActionAndRange> &actions, const std::shared_ptr<State> &state) override;
 
     void engage() override;
 
     void disengage() override;
 
 protected:
-    void entityMoved(const std::shared_ptr<Entity> &entity, const Position oldPos) override;
+    void entity_moved(const std::shared_ptr<Entity> &entity, const Position old_pos) override;
 
-    void entityAdded(const std::shared_ptr<Entity> &entity) override;
+    void entity_added(const std::shared_ptr<Entity> &entity) override;
 
-    void entityRemoved(const std::shared_ptr<Entity> &entity) override;
+    void entity_removed(const std::shared_ptr<Entity> &entity) override;
 
-    void entityAttacked(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int damage) override;
+    void entity_attacked(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int damage) override;
 
-    void entityMissed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target) override;
+    void entity_missed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target) override;
 
-    void entityHealed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int heal) override;
+    void entity_healed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int heal) override;
 
-    void cellChanged(const Position position) override;
+    void cell_changed(const Position position) override;
 
 private:
-    friend class outBuff;
+    friend class out_buff;
 
     enum MODE {
         COMMAND,
@@ -61,21 +61,21 @@ private:
 
     const short BASIC_COLOR = 1;
     const short HIGHLIGHT_COLOR = 2;
-    void setWalkableCell(WINDOW *win, bool highlight);
-    void setStandardCell(WINDOW *win, bool highlight);
+    void set_walkable_cell(WINDOW *win, bool highlight);
+    void set_standard_cell(WINDOW *win, bool highlight);
 
 
-    WINDOW *dungeonWindow;
-    WINDOW *messageWindow;
-    WINDOW *inputWindow;
-    WINDOW *playerWindow;
-    WINDOW *inventoryWindow;
+    WINDOW *dungeon_window;
+    WINDOW *message_window;
+    WINDOW *input_window;
+    WINDOW *player_window;
+    WINDOW *inventory_window;
 
-    PANEL *dungeonPanel;
-    PANEL *messagePanel;
-    PANEL *inputPanel;
-    PANEL *playerPanel;
-    PANEL *inventoryPanel;
+    PANEL *dungeon_panel;
+    PANEL *message_panel;
+    PANEL *input_panel;
+    PANEL *player_panel;
+    PANEL *inventory_panel;
 
 
     //    |-----------------------------------------------------------------------------|
@@ -89,7 +89,7 @@ private:
     //    |            #                 #############                |........W......| |
     //    |            #                 #     |-----+------|         |1..............| |
     //    |            #                                              |...............| |
-    //    |            #########          dungeonWindow           ####+...............| |
+    //    |            #########          dungeon_window           ####+...............| |
     //    |            #                                              |...............| |
     //    |            #                 #     |-----+------|   #     |--------+------| |
     //    |  |---------+-----------|     #           #          #              #        |
@@ -105,23 +105,23 @@ private:
     //    |-----------------------------------------------------------------------------|
     //                                          |
     //                                          |
-    //                playerWindow              |          messagesWindow
+    //                player_window              |          messages_window
     //                                          |
     //                                          |
-    //                                     inputWindow
+    //                                     input_window
 
 
-    void drawCell(const Position position);
-    void drawCell(const Position position, const bool highlight);
-    void drawEntity(const std::shared_ptr<Entity> &entity);
-    void drawEntity(const std::shared_ptr<Entity> &entity, const bool highlight);
-    void postMessage(std::string s);
-    void updateHUD(const std::shared_ptr<Character> &character);
+    void draw_cell(const Position position);
+    void draw_cell(const Position position, const bool highlight);
+    void draw_entity(const std::shared_ptr<Entity> &entity);
+    void draw_entity(const std::shared_ptr<Entity> &entity, const bool highlight);
+    void post_message(std::string s);
+    void update_h_u_d(const std::shared_ptr<Character> &character);
 
-    void printMode(Action::Type actionType);
-    void* getOption(std::vector<ITEM*> items);
-    void showInfo(WINDOW* win, Item *item);
-    std::shared_ptr<Item> selectInventory(const std::shared_ptr<Character> &character);
+    void print_mode(Action::Type action_type);
+    void* get_option(std::vector<ITEM*> items);
+    void show_info(WINDOW* win, Item *item);
+    std::shared_ptr<Item> select_inventory(const std::shared_ptr<Character> &character);
 
     struct SortPositionByX {
         bool operator()(const Position &lhs, const Position &rhs) const;
@@ -129,19 +129,19 @@ private:
 
     std::vector<std::set<Position, SortPositionByX>> rows;
     std::vector<std::set<Position>> cols;
-    Position currentSelection;
+    Position current_selection;
     Position delta {0,0};
 
-    void engageSelection(const std::vector<Position> &range, const Position origin);
-    void disengageSelection();
-    void selectionUp();
-    void selectionDown();
-    void selectionLeft();
-    void selectionRight();
-    Position getSelection(const Position origin);
+    void engage_selection(const std::vector<Position> &range, const Position origin);
+    void disengage_selection();
+    void selection_up();
+    void selection_down();
+    void selection_left();
+    void selection_right();
+    Position get_selection(const Position origin);
 
-    void updateDisplay();
+    void update_display();
 };
 
-extern ConsoleDungeonIO::outBuff cdbuff;
+extern ConsoleDungeonIO::out_buff cdbuff;
 extern std::ostream cdout;

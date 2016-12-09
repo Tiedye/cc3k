@@ -22,7 +22,7 @@ struct EventInfo {
                 short short3;
                 short short4;
             };
-            double doubleFloat;
+            double double_float;
             struct {
                 float float1;
                 float float2;
@@ -30,24 +30,24 @@ struct EventInfo {
         };
     };
 
-    EventInfo(const Position eventPosition);
-    EventInfo(int eventInteger, int eventInteger2);
-    EventInfo(double eventDouble);
-    EventInfo(float eventFloat);
-    EventInfo(EventInfo::Data *eventDataPointer);
+    EventInfo(const Position event_position);
+    EventInfo(int event_integer, int event_integer2);
+    EventInfo(double event_double);
+    EventInfo(float event_float);
+    EventInfo(EventInfo::Data *event_data_pointer);
     EventInfo();
     //EventInfo(EventInfo &&other);
     union {
-        const Position eventPosition;
+        const Position event_position;
 		struct {
-			const int eventInteger;
-			const int eventInteger2;
+			const int event_integer;
+			const int event_integer2;
 		};
-		const double eventDouble;
-		const float eventFloat;
-		Data * const eventDataPointer;
+		const double event_double;
+		const float event_float;
+		Data * const event_data_pointer;
     };
-	EventType eventType {EventType::GENERIC};
+	EventType event_type {EventType::GENERIC};
 	std::unique_ptr<EventTarget> primary;
     std::unique_ptr<EventTarget> secondary;
 	std::vector<std::unique_ptr<EventTarget>> secondaries;

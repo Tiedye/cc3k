@@ -6,7 +6,7 @@ class EatAction : public Action {
 public:
     EatAction();
 
-    int getRange(const Character &source) const override;
+    int get_range(const Character &source) const override;
 };
 
 

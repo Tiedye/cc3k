@@ -4,14 +4,14 @@
 #include "../entity/Character.h"
 
 void StealScoreOnKill::notify(EventInfo &info) {
-    auto self = info.primary->asCharacter();
-    auto other = info.secondary->asEntity();
-    if (other->isDead()) {
-        self->addScore(other->currentScore());
+    auto self = info.primary->as_character();
+    auto other = info.secondary->as_entity();
+    if (other->is_dead()) {
+        self->add_score(other->current_score());
     }
 }
 
-const std::vector<EventType> StealScoreOnKill::listeningFor() const {
+const std::vector<EventType> StealScoreOnKill::listening_for() const {
     return {ATTACK_DONE};
 }
 

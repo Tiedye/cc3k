@@ -22,31 +22,31 @@ public:
         EQUIPPABLE
     };
 
-    void addRace(int id, std::unique_ptr<Race> race);
+    void add_race(int id, std::unique_ptr<Race> race);
 
-    void addMob(int id, std::unique_ptr<Character> mob);
-    void addItem(int id, std::unique_ptr<Item> item);
-    void addConsumable(int id, std::unique_ptr<Consumable> consumable);
-    void addEquippable(int id, std::unique_ptr<Equippable> equippable);
+    void add_mob(int id, const std::shared_ptr<Character> &mob);
+    void add_item(int id, const std::shared_ptr<Item> &item);
+    void add_consumable(int id, const std::shared_ptr<Consumable> &consumable);
+    void add_equippable(int id, const std::shared_ptr<Equippable> &equippable);
 
-    const std::vector<std::unique_ptr<Race>>& getRaces();
+    const std::vector<std::unique_ptr<Race>>& get_races();
 
-    std::shared_ptr<Character> getAMob(int id);
-    std::shared_ptr<Item> getAnItem(int id);
-    std::shared_ptr<Consumable> getAConsumable(int id);
-    std::shared_ptr<Equippable> getAnEquippable(int id);
+    std::shared_ptr<Character> get_a_mob(int id);
+    std::shared_ptr<Item> get_an_item(int id);
+    std::shared_ptr<Consumable> get_a_consumable(int id);
+    std::shared_ptr<Equippable> get_an_equippable(int id);
 
-    ItemType getType(int id);
+    ItemType get_type(int id);
 
 private:
     std::map<int, ItemType> types;
 
     std::vector<std::unique_ptr<Race>> races;
 
-    std::map<int, std::unique_ptr<Character>> mobs;
-    std::map<int, std::unique_ptr<Item>> items;
-    std::map<int, std::unique_ptr<Consumable>> consumables;
-    std::map<int, std::unique_ptr<Equippable>> equippables;
+    std::map<int, std::shared_ptr<Character>> mobs;
+    std::map<int, std::shared_ptr<Item>> items;
+    std::map<int, std::shared_ptr<Consumable>> consumables;
+    std::map<int, std::shared_ptr<Equippable>> equippables;
 };
 
 

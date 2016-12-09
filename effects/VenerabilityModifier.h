@@ -5,16 +5,16 @@
 
 class VenerabilityModifier : public Listener {
 public:
-    VenerabilityModifier(const int modNumerator, const int modDenominator, const std::vector<int> &to);
+    VenerabilityModifier(const int mod_numerator, const int mod_denominator, const std::vector<int> &to);
 
     void notify(EventInfo &info) override;
 
-    const std::vector<EventType> listeningFor() const override;
+    const std::vector<EventType> listening_for() const override;
 
 private:
-    static const std::vector<EventType> eventTypes;
-    const int modNumerator;
-    const int modDenominator;
+    static const std::vector<EventType> event_types;
+    const int mod_numerator;
+    const int mod_denominator;
     const std::vector<int> to;
 };
 

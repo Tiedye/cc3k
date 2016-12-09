@@ -1,42 +1,42 @@
 #include "DungeonRenderer.h"
 
 void DungeonRenderer::notify(EventInfo &info) {
-    switch (info.eventType) {
+    switch (info.event_type) {
         case MOVE_DONE:
         case MOVED_DONE:
-            entityMoved(info.primary->asEntity(), info.eventPosition);
+            entity_moved(info.primary->as_entity(), info.event_position);
             break;
         case ADDED_TO_FLOOR_DONE:
-            entityAdded(info.primary->asEntity());
+            entity_added(info.primary->as_entity());
             break;
         case REMOVED_FROM_FLOOR_DONE:
-            entityRemoved(info.primary->asEntity());
+            entity_removed(info.primary->as_entity());
             break;
         case ATTACK_DONE:
-            entityAttacked(info.primary->asCharacter(), info.secondary->asEntity(), info.eventInteger);
+            entity_attacked(info.primary->as_character(), info.secondary->as_entity(), info.event_integer);
             break;
         case MISS_DONE:
-            entityMissed(info.primary->asCharacter(), info.secondary->asEntity());
+            entity_missed(info.primary->as_character(), info.secondary->as_entity());
             break;
         case HEAL_DONE:
-            entityHealed(info.primary->asCharacter(), info.secondary->asEntity(), info.eventInteger);
+            entity_healed(info.primary->as_character(), info.secondary->as_entity(), info.event_integer);
             break;
         default:
             break;
     }
 }
 
-void DungeonRenderer::changeCell(Position position) {
-    cellChanged(position);
+void DungeonRenderer::change_cell(Position position) {
+    cell_changed(position);
 }
 
-const std::vector<EventType> DungeonRenderer::eventTypes {MOVE_DONE, MOVED_DONE, ADDED_TO_FLOOR_DONE, REMOVED_FROM_FLOOR_DONE, ATTACK_DONE, MISS_DONE, HEAL_DONE};
+const std::vector<EventType> DungeonRenderer::event_types {MOVE_DONE, MOVED_DONE, ADDED_TO_FLOOR_DONE, REMOVED_FROM_FLOOR_DONE, ATTACK_DONE, MISS_DONE, HEAL_DONE};
 
-const std::vector<EventType> DungeonRenderer::listeningFor() const {
-    return eventTypes;
+const std::vector<EventType> DungeonRenderer::listening_for() const {
+    return event_types;
 }
 
-void DungeonRenderer::setDungeon(const std::shared_ptr<Dungeon> &dungeon) {
+void DungeonRenderer::set_dungeon(const std::shared_ptr<Dungeon> &dungeon) {
     DungeonRenderer::dungeon = dungeon;
 }
 

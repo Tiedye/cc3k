@@ -9,8 +9,8 @@ public:
 
     void notify(EventInfo &info) override;
 
-    static const std::vector<EventType> eventTypes;
-    const std::vector<EventType> listeningFor() const override;
+    static const std::vector<EventType> event_types;
+    const std::vector<EventType> listening_for() const override;
 
 private:
     const int amount;

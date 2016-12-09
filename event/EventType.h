@@ -58,4 +58,4 @@ enum EventType {
 	REMOVE_FROM_INVENTORY_DONE = 0b101'0000'0000'1,
 };
 
-/* In general, the events without _DONE are used to modify the event, and with _DONE are used to react to the event */
+/* In general, the events without __d_oNE are used to modify the event, and with __d_oNE are used to react to the event */

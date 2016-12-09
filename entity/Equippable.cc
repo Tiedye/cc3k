@@ -12,35 +12,35 @@ Equippable::Equippable(std::string name) : Item(name) {
 
 Equippable::Target::Target(const shared_ptr<Equippable> &equippable) : equippable(equippable) {}
 
-std::shared_ptr<Equippable> Equippable::Target::asEquippable() {
+std::shared_ptr<Equippable> Equippable::Target::as_equippable() {
     return equippable;
 }
 
-std::shared_ptr<Entity> Equippable::Target::asEntity() {
+std::shared_ptr<Entity> Equippable::Target::as_entity() {
     return equippable;
 }
 
-std::shared_ptr<Item> Equippable::Target::asItem() {
+std::shared_ptr<Item> Equippable::Target::as_item() {
     return equippable;
 }
 
 void Equippable::equip(const shared_ptr<Character> &onto) {
-    if (!equippedTo) {
+    if (!equipped_to) {
         trigger(EQUIPPED, onto);
-        if(set) onto->addFeatureSet(*set);
+        if(set) onto->add_feature_set(*set);
         onto->equip(shared_from_base<Equippable>());
-        equippedTo = onto;
+        equipped_to = onto;
         trigger(EQUIPPED_DONE, onto);
     }
 }
 
 void Equippable::unequip() {
-    if (equippedTo) {
-        trigger(UNEQUIPPED, equippedTo);
-        if (set) equippedTo->removeFeatureSet(*set);
-        equippedTo->unequip(shared_from_base<Equippable>());
-        trigger(UNEQUIPPED_DONE, equippedTo);
-        equippedTo = nullptr;
+    if (equipped_to) {
+        trigger(UNEQUIPPED, equipped_to);
+        if (set) equipped_to->remove_feature_set(*set);
+        equipped_to->unequip(shared_from_base<Equippable>());
+        trigger(UNEQUIPPED_DONE, equipped_to);
+        equipped_to = nullptr;
     }
 }
 
@@ -48,11 +48,11 @@ bool Equippable::equippable() {
     return true;
 }
 
-int Equippable::equippedSlot() {
-    return equippedTo ? slot : -1;
+int Equippable::equipped_slot() {
+    return equipped_to ? slot : -1;
 }
 
-int Equippable::getSlot() {
+int Equippable::get_slot() {
     return slot;
 }
 

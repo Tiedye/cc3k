@@ -4,11 +4,11 @@
 
 class MeleeAttack : public BasicAttack {
 public:
-    MeleeAttack(const int atkNumerator, const int atkDenominator, const int spellNumerator, const int spellDenominator);
+    MeleeAttack(const int atk_numerator, const int atk_denominator, const int spell_numerator, const int spell_denominator);
 
-    int getMinRange(const Character &source) const override;
+    int get_min_range(const Character &source) const override;
 
-    int getRange(const Character &source) const override;
+    int get_range(const Character &source) const override;
 };
 
 

@@ -10,40 +10,40 @@ start set player
     action equip
     action unequip
 end
-start set shadeSet
+start set shade_set
     inherit player
     stat base hp 125 0
     stat base atk 25 0
     stat base def 25 0
 end
 start race shade
-    set shadeSet
+    set shade_set
 end
-start set drowSet
+start set drow_set
     inherit player
     stat base hp 150 0
     stat base atk 25 0
     stat base def 15 0
-    effect healthGainEnhancer 3 2 potion
-    effect damageTakenEnhancer 3 2 potion
+    effect health_gain_enhancer 3 2 potion
+    effect damage_taken_enhancer 3 2 potion
     effect resistance 2 1 elf done
 end
 start race drow
-    set drowSet
+    set drow_set
 end
-start set vampireSet
+start set vampire_set
     inherit player
     stat base hp 32767 0
     stat base atk 25 0
     stat base def 25 0
-    effect startHp 50
-    effect lifeDrain 5
+    effect start_hp 50
+    effect life_drain 5
     effect allergy 10 dwarf done
 end
 start race vampire
-    set vampireSet
+    set vampire_set
 end
-start set trollSet
+start set troll_set
     inherit player
     stat base hp 120 0
     stat base atk 25 0
@@ -51,9 +51,9 @@ start set trollSet
     effect regen 5
 end
 start race troll
-    set trollSet
+    set troll_set
 end
-start set goblinSet
+start set goblin_set
     inherit player
     stat base hp 110 0
     stat base atk 15 0
@@ -62,5 +62,5 @@ start set goblinSet
     effect venerability 3 2 orc done
 end
 start race goblin
-    set goblinSet
+    set goblin_set
 end

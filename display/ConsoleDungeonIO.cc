@@ -19,7 +19,7 @@ ConsoleDungeonIO::ConsoleDungeonIO() {
 
 }
 
-Position getDirection(string dir, const Position position) {
+Position get_direction(string dir, const Position position) {
     if (dir == "n" || dir == "no") { return position + Position(-1, 0); }
     else if (dir == "s" || dir == "so") { return position + Position(1, 0); }
     else if (dir == "w" || dir == "we") { return position + Position(0, -1); }
@@ -32,206 +32,206 @@ Position getDirection(string dir, const Position position) {
 }
 
 const Controller::ActionAndTarget
-ConsoleDungeonIO::getAction(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
-    updateHUD(character);
-    updateDisplay();
+ConsoleDungeonIO::get_action(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
+    update_h_u_d(character);
+    update_display();
     // toggle between two control paths, command mode, and interactive mode
-    Controller::ActionAndTarget actionAndTarget;
-    bool gotAction{false};
-    while (!gotAction) {
+    Controller::ActionAndTarget action_and_target;
+    bool got_action{false};
+    while (!got_action) {
         if (mode == COMMAND) {
 
 //            ostringstream msg;
-//            msg << character->getPosition() << endl;
+//            msg << character->get_position() << endl;
 //            for (auto p:actions[1].range) {
 //                msg << p << ", ";
 //            }
-//            postMessage(msg.str());
-//            updateDisplay();
+//            post_message(msg.str());
+//            update_display();
 
             echo();
             curs_set(1);
             char raw_input[80];
-            wmove(inputWindow, 0, 0);
-            wgetnstr(inputWindow, raw_input, 80);
-            wclear(inputWindow);
-            updateDisplay();
-            string wholeCommand{raw_input};
+            wmove(input_window, 0, 0);
+            wgetnstr(input_window, raw_input, 80);
+            wclear(input_window);
+            update_display();
+            string whole_command{raw_input};
             curs_set(0);
             noecho();
 
 #ifdef NODISP
-            auto& commandStream = cin;
+            auto& command_stream = cin;
 #else
-            istringstream commandStream{wholeCommand};
+            istringstream command_stream{whole_command};
 #endif
             string cmd;
-            commandStream >> cmd;
+            command_stream >> cmd;
             if (cmd == "v") {
                 mode = INTERACTIVE;
                 continue;
             } else if (cmd == "i") {
-                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::INTERACT; });
+                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::INTERACT; });
                 string dir;
-                if (commandStream >> dir) {
-                    Position dest = getDirection(dir, character->getPosition());
+                if (command_stream >> dir) {
+                    Position dest = get_direction(dir, character->get_position());
                     if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
-                        actionAndTarget.action = selection->action;
-                        actionAndTarget.target = dest;
-                        gotAction = true;
+                        action_and_target.action = selection->action;
+                        action_and_target.target = dest;
+                        got_action = true;
                     }
                 }
             } else if (cmd == "a") {
-                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::ATTACK; });
+                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::ATTACK; });
                 string dir;
-                if (commandStream >> dir) {
-                    Position dest = getDirection(dir, character->getPosition());
+                if (command_stream >> dir) {
+                    Position dest = get_direction(dir, character->get_position());
                     if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
-                        actionAndTarget.action = selection->action;
-                        actionAndTarget.target = dest;
-                        gotAction = true;
+                        action_and_target.action = selection->action;
+                        action_and_target.target = dest;
+                        got_action = true;
                     }
                 }
             } else if (cmd == "u") {
-                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::CONSUME; });
+                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::CONSUME; });
                 string dir;
-                if (commandStream >> dir) {
-                    Position dest = getDirection(dir, character->getPosition());
+                if (command_stream >> dir) {
+                    Position dest = get_direction(dir, character->get_position());
                     if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
-                        actionAndTarget.action = selection->action;
-                        actionAndTarget.target = dest;
-                        gotAction = true;
+                        action_and_target.action = selection->action;
+                        action_and_target.target = dest;
+                        got_action = true;
                     }
                 }
             } else {
-                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::MOVE; });
-                Position dest = getDirection(cmd, character->getPosition());
+                auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::MOVE; });
+                Position dest = get_direction(cmd, character->get_position());
                 if (find(selection->range.begin(), selection->range.end(), dest) != selection->range.end()) {
-                    actionAndTarget.action = selection->action;
-                    actionAndTarget.target = dest;
-                    gotAction = true;
+                    action_and_target.action = selection->action;
+                    action_and_target.target = dest;
+                    got_action = true;
                 }
             }
 
-            if (!gotAction) {
-                cdout << "No cmd: " << wholeCommand << endl;
+            if (!got_action) {
+                cdout << "No cmd: " << whole_command << endl;
             }
 
 
         } else if (mode == INTERACTIVE) {
             noecho();
-            auto currentSelection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::MOVE; });
-            if (currentSelection == actions.end()) currentSelection  = actions.begin();
+            auto current_selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::MOVE; });
+            if (current_selection == actions.end()) current_selection = actions.begin();
             int key;
-            bool selectingCell {false};
-            while (!gotAction && mode == INTERACTIVE) {
-                printMode(currentSelection->action->actionType);
-                updateDisplay();
-                if (selectingCell && (currentSelection->action->targets & Action::EXTERNAL) == 0) {
-                    disengageSelection();
-                    selectingCell = false;
+            bool selecting_cell{false};
+            while (!got_action && mode == INTERACTIVE) {
+                print_mode(current_selection->action->action_type);
+                update_display();
+                if (selecting_cell && (current_selection->action->targets & Action::EXTERNAL) == 0) {
+                    disengage_selection();
+                    selecting_cell = false;
                 }
-                if (!selectingCell && currentSelection->range.size() && (currentSelection->action->targets & Action::EXTERNAL) != 0) {
-                    engageSelection(currentSelection->range, character->getPosition());
-                    updateDisplay();
-                    selectingCell = true;
+                if (!selecting_cell && current_selection->range.size() && (current_selection->action->targets & Action::EXTERNAL) != 0) {
+                    engage_selection(current_selection->range, character->get_position());
+                    update_display();
+                    selecting_cell = true;
                 }
                 key = getch();
                 switch (key) {
                     case 27:
-                        actionAndTarget.action = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::PASS; })->action;
-                        gotAction = true;
+                        action_and_target.action = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::PASS; })->action;
+                        got_action = true;
                         break;
                     case KEY_UP:
-                        if (selectingCell) selectionUp();
+                        if (selecting_cell) selection_up();
                         break;
                     case KEY_DOWN:
-                        if (selectingCell) selectionDown();
+                        if (selecting_cell) selection_down();
                         break;
                     case KEY_LEFT:
-                        if (selectingCell) selectionLeft();
+                        if (selecting_cell) selection_left();
                         break;
                     case KEY_RIGHT:
-                        if (selectingCell) selectionRight();
+                        if (selecting_cell) selection_right();
                         break;
                     case '\t': {
-                        shared_ptr<Item> selection = selectInventory(character);
-                        if (selection && (currentSelection->action->targets & Action::INVENTORY)) {
-                            actionAndTarget.action = currentSelection->action;
-                            actionAndTarget.targetEntity = selection;
-                            if (selectingCell) disengageSelection();
-                            gotAction = true;
+                        shared_ptr<Item> selection = select_inventory(character);
+                        if (selection && (current_selection->action->targets & Action::INVENTORY)) {
+                            action_and_target.action = current_selection->action;
+                            action_and_target.target_entity = selection;
+                            if (selecting_cell) disengage_selection();
+                            got_action = true;
                         }
                         break;
                     }
                     case '\n':
-                    case ' ':{
-                        if (selectingCell) {
-                            actionAndTarget.action = currentSelection->action;
-                            actionAndTarget.target = getSelection(character->getPosition());
-                            disengageSelection();
-                            gotAction = true;
+                    case ' ': {
+                        if (selecting_cell) {
+                            action_and_target.action = current_selection->action;
+                            action_and_target.target = get_selection(character->get_position());
+                            disengage_selection();
+                            got_action = true;
                             break;
                         }
                     }
                     default: {
-                        Action::Type actionType = Action::PASS;
+                        Action::Type action_type = Action::PASS;
                         switch (key) {
                             case 'a':
-                                actionType = Action::ATTACK;
+                                action_type = Action::ATTACK;
                                 break;
                             case 'm':
-                                actionType = Action::MOVE;
+                                action_type = Action::MOVE;
                                 break;
                             case 'h':
-                                actionType = Action::AID;
+                                action_type = Action::AID;
                                 break;
                             case 'e':
-                                actionType = Action::EQUIP;
+                                action_type = Action::EQUIP;
                                 break;
                             case 'u':
-                                actionType = Action::UNEQUIP;
+                                action_type = Action::UNEQUIP;
                                 break;
                             case 'c':
-                                actionType = Action::CONSUME;
+                                action_type = Action::CONSUME;
                                 break;
                             case 'p':
-                                actionType = Action::INTERACT;
+                                action_type = Action::INTERACT;
                                 break;
                             default:
                                 break;
                         }
-                        if (actionType != Action::PASS) {
-                            long num = count_if(actions.begin(), actions.end(), [actionType](ActionAndRange ar) { return ar.action->actionType == actionType; });
+                        if (action_type != Action::PASS) {
+                            long num = count_if(actions.begin(), actions.end(), [action_type](ActionAndRange ar) { return ar.action->action_type == action_type; });
                             if (num) {
                                 if (num == 1) {
-                                    currentSelection = find_if(actions.begin(), actions.end(), [actionType](ActionAndRange ar) { return ar.action->actionType == actionType; });
+                                    current_selection = find_if(actions.begin(), actions.end(), [action_type](ActionAndRange ar) { return ar.action->action_type == action_type; });
                                 } else {
                                     vector<ITEM *> items;
                                     for (size_t i = {0}; i < actions.size(); ++i) {
-                                        if (actions[i].action->actionType == actionType) {
-                                            ITEM *newItem = new_item(actions[i].action->name.c_str(), "");
-                                            set_item_userptr(newItem, (void *)(i+1));
-                                            items.push_back(newItem);
+                                        if (actions[i].action->action_type == action_type) {
+                                            ITEM *item = new_item(actions[i].action->name.c_str(), "");
+                                            set_item_userptr(item, (void *) (i + 1));
+                                            items.push_back(item);
                                         }
                                     }
-                                    currentSelection = actions.begin() + (size_t(getOption(items))-1);
+                                    current_selection = actions.begin() + (size_t(get_option(items)) - 1);
                                 }
-                                selectingCell = false;
-                                disengageSelection();
+                                selecting_cell = false;
+                                disengage_selection();
                             }
                         }
                         break;
                     }
                 }
-                updateDisplay();
+                update_display();
             }
 
         }
     }
 
     // TODO all user input during dungeon here
-    return actionAndTarget;
+    return action_and_target;
 }
 
 void ConsoleDungeonIO::engage() {
@@ -240,7 +240,7 @@ void ConsoleDungeonIO::engage() {
 #ifndef NODISP
     initscr();
 #endif
-    cdbuff.consoleDungeonIO = this;
+    cdbuff.console_dungeon_i_o = this;
     start_color();
     cbreak();
     noecho();
@@ -250,88 +250,88 @@ void ConsoleDungeonIO::engage() {
     curs_set(0);
 
     mvvline(dungeon->height, dungeon->width / 3, ACS_VLINE, 5);
-    dungeonWindow = newwin(dungeon->height, dungeon->width, 0, 0);
-    //box(dungeonWindow, 0,0);
-    playerWindow = newwin(5, dungeon->width / 3, dungeon->height, 0);
-    //box(playerWindow, 0,0);
-    messageWindow = newwin(6, dungeon->width * 2 / 3, dungeon->height, dungeon->width / 3 + 1);
-    //box(messageWindow, 0,0);
-    inputWindow = newwin(1, dungeon->width, dungeon->height + 5, 0);
-    //box(inputWindow, 0,0);
-    //inventoryWindow = newwin(dungeon->width - 6, dungeon->height - 6, 3, 3);
+    dungeon_window = newwin(dungeon->height, dungeon->width, 0, 0);
+    //box(dungeon_window, 0,0);
+    player_window = newwin(5, dungeon->width / 3, dungeon->height, 0);
+    //box(player_window, 0,0);
+    message_window = newwin(6, dungeon->width * 2 / 3, dungeon->height, dungeon->width / 3 + 1);
+    //box(message_window, 0,0);
+    input_window = newwin(1, dungeon->width, dungeon->height + 5, 0);
+    //box(input_window, 0,0);
+    //inventory_window = newwin(dungeon->width - 6, dungeon->height - 6, 3, 3);
 
-    scrollok(messageWindow, true);
-    waddstr(messageWindow, "\n\n\n\n\n");
+    scrollok(message_window, true);
+    waddstr(message_window, "\n\n\n\n\n");
 
-    dungeonPanel = new_panel(dungeonWindow);
-    messagePanel = new_panel(messageWindow);
-    inputPanel = new_panel(inputWindow);
-    playerPanel = new_panel(playerWindow);
-    //inventoryPanel = new_panel(inventoryWindow);
+    dungeon_panel = new_panel(dungeon_window);
+    message_panel = new_panel(message_window);
+    input_panel = new_panel(input_window);
+    player_panel = new_panel(player_window);
+    //inventory_panel = new_panel(inventory_window);
 
-    //hide_panel(inventoryPanel);
+    //hide_panel(inventory_panel);
 
     for (int y = 0; y < dungeon->height; ++y)
         for (int x = 0; x < dungeon->width; ++x) {
-            drawCell({y, x});
+            draw_cell({y, x});
         }
-    updateDisplay();
+    update_display();
 }
 
 void ConsoleDungeonIO::disengage() {
-    cdbuff.consoleDungeonIO = nullptr;
+    cdbuff.console_dungeon_i_o = nullptr;
     endwin();
 }
 
-void ConsoleDungeonIO::entityMoved(const std::shared_ptr<Entity> &entity, const Position oldPos) {
-    drawCell(oldPos);
-    drawEntity(entity);
-    updateDisplay();
+void ConsoleDungeonIO::entity_moved(const std::shared_ptr<Entity> &entity, const Position old_pos) {
+    draw_cell(old_pos);
+    draw_entity(entity);
+    update_display();
 }
 
-void ConsoleDungeonIO::entityAdded(const std::shared_ptr<Entity> &entity) {
-    drawEntity(entity);
-    updateDisplay();
+void ConsoleDungeonIO::entity_added(const std::shared_ptr<Entity> &entity) {
+    draw_entity(entity);
+    update_display();
 }
 
-void ConsoleDungeonIO::entityRemoved(const std::shared_ptr<Entity> &entity) {
-    drawCell(entity->getPosition());
-    entity->removeListener(shared_from_this());
-    updateDisplay();
+void ConsoleDungeonIO::entity_removed(const std::shared_ptr<Entity> &entity) {
+    draw_cell(entity->get_position());
+    entity->remove_listener(shared_from_this());
+    update_display();
 }
 
-void ConsoleDungeonIO::entityAttacked(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int damage) {
+void ConsoleDungeonIO::entity_attacked(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int damage) {
     ostringstream msg;
-    msg << source->getName() << " attacked " << target->getName() << " for " << damage << " damage";
-    postMessage(msg.str());
-    updateDisplay();
+    msg << source->get_name() << " attacked " << target->get_name() << " for " << damage << " damage";
+    post_message(msg.str());
+    update_display();
 }
 
-void ConsoleDungeonIO::entityMissed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target) {
+void ConsoleDungeonIO::entity_missed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target) {
     ostringstream msg;
-    msg << source->getName() << " tried to attack " << target->getName();
-    postMessage(msg.str());
-    updateDisplay();
+    msg << source->get_name() << " tried to attack " << target->get_name();
+    post_message(msg.str());
+    update_display();
 }
 
-void ConsoleDungeonIO::entityHealed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int heal) {
+void ConsoleDungeonIO::entity_healed(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target, const int heal) {
     ostringstream msg;
-    msg << source->getName() << " healed " << target->getName() << " for " << heal << " health";
-    postMessage(msg.str());
-    updateDisplay();
+    msg << source->get_name() << " healed " << target->get_name() << " for " << heal << " health";
+    post_message(msg.str());
+    update_display();
 }
 
-void ConsoleDungeonIO::cellChanged(const Position position) {
-    drawCell(position);
-    updateDisplay();
+void ConsoleDungeonIO::cell_changed(const Position position) {
+    draw_cell(position);
+    update_display();
 }
 
-void ConsoleDungeonIO::drawCell(const Position position) {
-    drawCell(position, false);
+void ConsoleDungeonIO::draw_cell(const Position position) {
+    draw_cell(position, false);
 }
 
-void ConsoleDungeonIO::drawCell(const Position position, const bool highlight) {
-    static const chtype wallOut[] = {// a b l r
+void ConsoleDungeonIO::draw_cell(const Position position, const bool highlight) {
+    static const chtype wall_out[] = {// a b l r
             ACS_DIAMOND,  // 0 0 0 0
             ACS_VLINE,    // 1 0 0 0
             ACS_VLINE,    // 0 1 0 0
@@ -349,99 +349,99 @@ void ConsoleDungeonIO::drawCell(const Position position, const bool highlight) {
             ACS_TTEE,     // 0 1 1 1
             ACS_PLUS,     // 1 1 1 1
     };
-    switch (dungeon->getCellType(position)) {
+    switch (dungeon->get_cell_type(position)) {
         case EMPTY: {
-            setStandardCell(dungeonWindow, highlight);
-            mvwaddch(dungeonWindow, position.y, position.x, ' ');
+            set_standard_cell(dungeon_window, highlight);
+            mvwaddch(dungeon_window, position.y, position.x, ' ');
             break;
         }
         case WALL: {
-            CellType ct {dungeon->getCellType({position.y - 1, position.x})};
-            bool wallAbove{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
-            ct = dungeon->getCellType({position.y + 1, position.x});
-            bool wallBelow{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
-            ct = dungeon->getCellType({position.y, position.x - 1});
-            bool wallLeft{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
-            ct = dungeon->getCellType({position.y, position.x + 1});
-            bool wallRight{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
-            setStandardCell(dungeonWindow, highlight);
-            int wallIndex{wallAbove | wallBelow << 1 | wallLeft << 2 | wallRight << 3};
-            mvwaddch(dungeonWindow, position.y, position.x, wallOut[wallIndex]);
+            CellType ct{dungeon->get_cell_type({position.y - 1, position.x})};
+            bool wall_above{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
+            ct = dungeon->get_cell_type({position.y + 1, position.x});
+            bool wall_below{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
+            ct = dungeon->get_cell_type({position.y, position.x - 1});
+            bool wall_left{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
+            ct = dungeon->get_cell_type({position.y, position.x + 1});
+            bool wall_right{ct == WALL || ct == OPEN_DOOR || ct == CLOSED_DOOR};
+            set_standard_cell(dungeon_window, highlight);
+            int wall_index{wall_above | wall_below << 1 | wall_left << 2 | wall_right << 3};
+            mvwaddch(dungeon_window, position.y, position.x, wall_out[wall_index]);
             break;
         }
         case FLOOR: {
-            setWalkableCell(dungeonWindow, highlight);
-            mvwaddch(dungeonWindow, position.y, position.x, ' ');
+            set_walkable_cell(dungeon_window, highlight);
+            mvwaddch(dungeon_window, position.y, position.x, ' ');
             break;
         }
         case HALL: {
-            setWalkableCell(dungeonWindow, highlight);
-            mvwaddch(dungeonWindow, position.y, position.x, ACS_CKBOARD);
+            set_walkable_cell(dungeon_window, highlight);
+            mvwaddch(dungeon_window, position.y, position.x, ACS_CKBOARD);
             break;
         }
         case OPEN_DOOR: {
-            setWalkableCell(dungeonWindow, highlight);
-            mvwaddch(dungeonWindow, position.y, position.x, '+');
+            set_walkable_cell(dungeon_window, highlight);
+            mvwaddch(dungeon_window, position.y, position.x, '+');
             break;
         }
         case CLOSED_DOOR:
             break;
     }
-    auto entity = dungeon->getEntityAt(position);
+    auto entity = dungeon->get_entity_at(position);
     if (entity) {
-        drawEntity(entity, highlight);
+        draw_entity(entity, highlight);
     }
 }
 
-void ConsoleDungeonIO::drawEntity(const std::shared_ptr<Entity> &entity) {
-    drawEntity(entity, false);
+void ConsoleDungeonIO::draw_entity(const std::shared_ptr<Entity> &entity) {
+    draw_entity(entity, false);
 }
 
-void ConsoleDungeonIO::drawEntity(const std::shared_ptr<Entity> &entity, const bool highlight) {
-    switch (dungeon->getCellType(entity->getPosition())) {
+void ConsoleDungeonIO::draw_entity(const std::shared_ptr<Entity> &entity, const bool highlight) {
+    switch (dungeon->get_cell_type(entity->get_position())) {
         case EMPTY:
         case WALL:
-            setStandardCell(dungeonWindow, highlight);
+            set_standard_cell(dungeon_window, highlight);
             break;
         case FLOOR:
         case HALL:
         case OPEN_DOOR:
-            setWalkableCell(dungeonWindow, highlight);
+            set_walkable_cell(dungeon_window, highlight);
             break;
         case CLOSED_DOOR:
             break;
     }
-    mvwaddch(dungeonWindow, entity->getPosition().y, entity->getPosition().x, entity->representation);
+    mvwaddch(dungeon_window, entity->get_position().y, entity->get_position().x, entity->representation);
 }
 
-void ConsoleDungeonIO::setWalkableCell(WINDOW *win, bool highlight) {
+void ConsoleDungeonIO::set_walkable_cell(WINDOW *win, bool highlight) {
     wattrset(win, A_BOLD | (highlight ? COLOR_PAIR(HIGHLIGHT_COLOR) : COLOR_PAIR(BASIC_COLOR)) | A_STANDOUT);
 }
 
-void ConsoleDungeonIO::setStandardCell(WINDOW *win, bool highlight) {
+void ConsoleDungeonIO::set_standard_cell(WINDOW *win, bool highlight) {
     wattrset(win, (highlight ? COLOR_PAIR(HIGHLIGHT_COLOR) : COLOR_PAIR(BASIC_COLOR)) | A_STANDOUT);
 }
 
-void ConsoleDungeonIO::postMessage(std::string s) {
-    waddstr(messageWindow, s.c_str());
-    waddch(messageWindow, '\n');
+void ConsoleDungeonIO::post_message(std::string s) {
+    waddstr(message_window, s.c_str());
+    waddch(message_window, '\n');
 }
 
-void ConsoleDungeonIO::updateDisplay() {
+void ConsoleDungeonIO::update_display() {
     update_panels();
     doupdate();
 }
 
-void ConsoleDungeonIO::updateHUD(const std::shared_ptr<Character> &character) {
+void ConsoleDungeonIO::update_h_u_d(const std::shared_ptr<Character> &character) {
     ostringstream out;
-    out << "HP:   " << character->getHealth() << endl;
-    out << "Atk:  " << character->getAttackStrength() << endl;
-    out << "Def:  " << character->getDefenceStrength() << endl;
-    out << "Gold: " << character->currentGold() << endl;
-    mvwaddstr(playerWindow, 0, 0, out.str().c_str());
+    out << "HP:   " << character->get_health() << endl;
+    out << "Atk:  " << character->get_attack_strength() << endl;
+    out << "Def:  " << character->get_defence_strength() << endl;
+    out << "Gold: " << character->current_gold() << endl;
+    mvwaddstr(player_window, 0, 0, out.str().c_str());
 }
 
-void ConsoleDungeonIO::engageSelection(const std::vector<Position> &range, const Position origin) {
+void ConsoleDungeonIO::engage_selection(const std::vector<Position> &range, const Position origin) {
     for (auto &row:rows) row.clear();
     for (auto &col:cols) col.clear();
     Position min{range.front()};
@@ -457,123 +457,123 @@ void ConsoleDungeonIO::engageSelection(const std::vector<Position> &range, const
         cols[pos.x].insert(pos);
     }
     for (int row{0}; row < height; ++row) {
-        auto &currentRow = rows[row];
-        int rowSize{int(currentRow.size())};
-        if (rowSize) {
-            int rowMinX{currentRow.begin()->x};
-            int rowMaxX{currentRow.rbegin()->x};
-            if (rowMinX > min.x) {
+        auto &current_row = rows[row];
+        int row_size{int(current_row.size())};
+        if (row_size) {
+            int row_min_x{current_row.begin()->x};
+            int row_max_x{current_row.rbegin()->x};
+            if (row_min_x > min.x) {
                 for (int dist{1};; ++dist) {
                     if (row + dist < height) {
-                        auto &otherRow = rows[row + dist];
-                        for (Position p{row + dist, rowMinX - 1}; p.x >= min.x; --p.x) {
-                            if (otherRow.find(p) != otherRow.end()) {
-                                currentRow.insert(p);
+                        auto &other_row = rows[row + dist];
+                        for (Position p{row + dist, row_min_x - 1}; p.x >= min.x; --p.x) {
+                            if (other_row.find(p) != other_row.end()) {
+                                current_row.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentRow.size()) != rowSize) break;
+                        if (int(current_row.size()) != row_size) break;
                     }
                     if (row - dist > 0) {
-                        auto &otherRow = rows[row - dist];
-                        for (Position p{row - dist, rowMinX - 1}; p.x >= min.x; --p.x) {
-                            if (otherRow.find(p) != otherRow.end()) {
-                                currentRow.insert(p);
+                        auto &other_row = rows[row - dist];
+                        for (Position p{row - dist, row_min_x - 1}; p.x >= min.x; --p.x) {
+                            if (other_row.find(p) != other_row.end()) {
+                                current_row.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentRow.size()) != rowSize) break;
+                        if (int(current_row.size()) != row_size) break;
                     }
                 }
             }
-            rowSize = int(currentRow.size());
-            if (rowMaxX < max.x) {
+            row_size = int(current_row.size());
+            if (row_max_x < max.x) {
                 for (int dist{1};; ++dist) {
                     if (row + dist < height) {
-                        auto &otherRow = rows[row + dist];
-                        for (Position p{row + dist, rowMaxX + 1}; p.x <= max.x; ++p.x) {
-                            if (otherRow.find(p) != otherRow.end()) {
-                                currentRow.insert(p);
+                        auto &other_row = rows[row + dist];
+                        for (Position p{row + dist, row_max_x + 1}; p.x <= max.x; ++p.x) {
+                            if (other_row.find(p) != other_row.end()) {
+                                current_row.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentRow.size()) != rowSize) break;
+                        if (int(current_row.size()) != row_size) break;
                     }
                     if (row - dist > 0) {
-                        auto &otherRow = rows[row - dist];
-                        for (Position p{row - dist, rowMaxX + 1}; p.x <= max.x; ++p.x) {
-                            if (otherRow.find(p) != otherRow.end()) {
-                                currentRow.insert(p);
+                        auto &other_row = rows[row - dist];
+                        for (Position p{row - dist, row_max_x + 1}; p.x <= max.x; ++p.x) {
+                            if (other_row.find(p) != other_row.end()) {
+                                current_row.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentRow.size()) != rowSize) break;
+                        if (int(current_row.size()) != row_size) break;
                     }
                 }
             }
         }
     }
     for (int col{0}; col < width; ++col) {
-        auto &currentCol = cols[col];
-        int colSize{int(currentCol.size())};
-        if (colSize) {
-            int colMinY{currentCol.begin()->y};
-            int colMaxY{currentCol.rbegin()->y};
-            if (colMinY > min.y) {
+        auto &current_col = cols[col];
+        int col_size{int(current_col.size())};
+        if (col_size) {
+            int col_min_y{current_col.begin()->y};
+            int col_max_y{current_col.rbegin()->y};
+            if (col_min_y > min.y) {
                 for (int dist{1};; ++dist) {
                     if (col + dist < width) {
-                        auto &otherCol = cols[col + dist];
-                        for (Position p{colMinY - 1, col + dist}; p.y >= min.y; --p.y) {
-                            if (otherCol.find(p) != otherCol.end()) {
-                                currentCol.insert(p);
+                        auto &other_col = cols[col + dist];
+                        for (Position p{col_min_y - 1, col + dist}; p.y >= min.y; --p.y) {
+                            if (other_col.find(p) != other_col.end()) {
+                                current_col.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentCol.size()) != colSize) break;
+                        if (int(current_col.size()) != col_size) break;
                     }
                     if (col - dist > 0) {
-                        auto &otherCol = cols[col - dist];
-                        for (Position p{colMinY - 1, col - dist}; p.y >= min.y; --p.y) {
-                            if (otherCol.find(p) != otherCol.end()) {
-                                currentCol.insert(p);
+                        auto &other_col = cols[col - dist];
+                        for (Position p{col_min_y - 1, col - dist}; p.y >= min.y; --p.y) {
+                            if (other_col.find(p) != other_col.end()) {
+                                current_col.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentCol.size()) != colSize) break;
+                        if (int(current_col.size()) != col_size) break;
                     }
                 }
             }
-            colSize = int(currentCol.size());
-            if (colMaxY < max.y) {
+            col_size = int(current_col.size());
+            if (col_max_y < max.y) {
                 for (int dist{1};; ++dist) {
                     if (col + dist < width) {
-                        auto &otherCol = cols[col + dist];
-                        for (Position p{colMaxY + 1, col + dist}; p.y <= max.y; ++p.y) {
-                            if (otherCol.find(p) != otherCol.end()) {
-                                currentCol.insert(p);
+                        auto &other_col = cols[col + dist];
+                        for (Position p{col_max_y + 1, col + dist}; p.y <= max.y; ++p.y) {
+                            if (other_col.find(p) != other_col.end()) {
+                                current_col.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentCol.size()) != colSize) break;
+                        if (int(current_col.size()) != col_size) break;
                     }
                     if (col - dist > 0) {
-                        auto &otherCol = cols[col - dist];
-                        for (Position p{colMaxY + 1, col - dist}; p.y <= max.y; ++p.y) {
-                            if (otherCol.find(p) != otherCol.end()) {
-                                currentCol.insert(p);
+                        auto &other_col = cols[col - dist];
+                        for (Position p{col_max_y + 1, col - dist}; p.y <= max.y; ++p.y) {
+                            if (other_col.find(p) != other_col.end()) {
+                                current_col.insert(p);
                                 break;
                             }
                         }
-                        if (int(currentCol.size()) != colSize) break;
+                        if (int(current_col.size()) != col_size) break;
                     }
                 }
             }
         }
     }
 
-    currentSelection = {-1, -1};
+    current_selection = {-1, -1};
     if (find(range.begin(), range.end(), origin + delta) != range.end()) {
-        currentSelection = origin + delta;
+        current_selection = origin + delta;
     } else {
         Position etas[]{
                 {-1, 1},
@@ -587,76 +587,76 @@ void ConsoleDungeonIO::engageSelection(const std::vector<Position> &range, const
         };
         for (auto eta:etas) {
             if (find(range.begin(), range.end(), origin + delta + eta) != range.end()) {
-                currentSelection = origin + delta + eta;
+                current_selection = origin + delta + eta;
                 break;
             }
         }
     }
-    if (currentSelection == Position{-1, -1}) currentSelection = range.front();
-    drawCell(currentSelection, true);
+    if (current_selection == Position{-1, -1}) current_selection = range.front();
+    draw_cell(current_selection, true);
 }
 
-void ConsoleDungeonIO::disengageSelection() {
-    drawCell(currentSelection);
+void ConsoleDungeonIO::disengage_selection() {
+    draw_cell(current_selection);
 }
 
-void ConsoleDungeonIO::selectionUp() {
-    auto currentY = find(cols[currentSelection.x].begin(), cols[currentSelection.x].end(), currentSelection);
-    if (currentY != cols[currentSelection.x].begin()) {
-        --currentY;
-        drawCell(currentSelection);
-        currentSelection = *currentY;
-        drawCell(currentSelection, true);
+void ConsoleDungeonIO::selection_up() {
+    auto current_y = find(cols[current_selection.x].begin(), cols[current_selection.x].end(), current_selection);
+    if (current_y != cols[current_selection.x].begin()) {
+        --current_y;
+        draw_cell(current_selection);
+        current_selection = *current_y;
+        draw_cell(current_selection, true);
     }
 }
 
-void ConsoleDungeonIO::selectionDown() {
-    auto currentY = find(cols[currentSelection.x].begin(), cols[currentSelection.x].end(), currentSelection);
-    ++currentY;
-    if (currentY != cols[currentSelection.x].end()) {
-        drawCell(currentSelection);
-        currentSelection = *currentY;
-        drawCell(currentSelection, true);
+void ConsoleDungeonIO::selection_down() {
+    auto current_y = find(cols[current_selection.x].begin(), cols[current_selection.x].end(), current_selection);
+    ++current_y;
+    if (current_y != cols[current_selection.x].end()) {
+        draw_cell(current_selection);
+        current_selection = *current_y;
+        draw_cell(current_selection, true);
     }
 }
 
-void ConsoleDungeonIO::selectionLeft() {
-    auto currentX = find(rows[currentSelection.y].begin(), rows[currentSelection.y].end(), currentSelection);
-    if (currentX != rows[currentSelection.y].begin()) {
-        --currentX;
-        drawCell(currentSelection);
-        currentSelection = *currentX;
-        drawCell(currentSelection, true);
+void ConsoleDungeonIO::selection_left() {
+    auto current_x = find(rows[current_selection.y].begin(), rows[current_selection.y].end(), current_selection);
+    if (current_x != rows[current_selection.y].begin()) {
+        --current_x;
+        draw_cell(current_selection);
+        current_selection = *current_x;
+        draw_cell(current_selection, true);
     }
 }
 
-void ConsoleDungeonIO::selectionRight() {
-    auto currentX = find(rows[currentSelection.y].begin(), rows[currentSelection.y].end(), currentSelection);
-    ++currentX;
-    if (currentX != rows[currentSelection.y].end()) {
-        drawCell(currentSelection);
-        currentSelection = *currentX;
-        drawCell(currentSelection, true);
+void ConsoleDungeonIO::selection_right() {
+    auto current_x = find(rows[current_selection.y].begin(), rows[current_selection.y].end(), current_selection);
+    ++current_x;
+    if (current_x != rows[current_selection.y].end()) {
+        draw_cell(current_selection);
+        current_selection = *current_x;
+        draw_cell(current_selection, true);
     }
 }
 
-Position ConsoleDungeonIO::getSelection(const Position origin) {
-    delta = currentSelection - origin;
-    return currentSelection;
+Position ConsoleDungeonIO::get_selection(const Position origin) {
+    delta = current_selection - origin;
+    return current_selection;
 }
 
-void *ConsoleDungeonIO::getOption(std::vector<ITEM *> items) {
+void *ConsoleDungeonIO::get_option(std::vector<ITEM *> items) {
     items.push_back(NULL);
     MENU *menu = new_menu(items.data());
-    WINDOW *menuWindow = newwin(10, 40, dungeon->height / 2 - 5, dungeon->width / 2 - 20);
-    PANEL *menuPanel = new_panel(menuWindow);
-    set_menu_win(menu, menuWindow);
-    set_menu_sub(menu, derwin(menuWindow, 8, 38, 1, 1));
+    WINDOW *menu_window = newwin(10, 40, dungeon->height / 2 - 5, dungeon->width / 2 - 20);
+    PANEL *menu_panel = new_panel(menu_window);
+    set_menu_win(menu, menu_window);
+    set_menu_sub(menu, derwin(menu_window, 8, 38, 1, 1));
     set_menu_format(menu, 8, 1);
     set_menu_mark(menu, " * ");
-    box(menuWindow, 0, 0);
+    box(menu_window, 0, 0);
     post_menu(menu);
-    updateDisplay();
+    update_display();
     int key;
     void *result = nullptr;
     while (result == nullptr) {
@@ -680,102 +680,102 @@ void *ConsoleDungeonIO::getOption(std::vector<ITEM *> items) {
             default:
                 break;
         }
-        updateDisplay();
+        update_display();
     }
     unpost_menu(menu);
     free_menu(menu);
-    for(auto item:items) {
+    for (auto item:items) {
         if (item) free_item(item);
     }
-    del_panel(menuPanel);
-    delwin(menuWindow);
-    updateDisplay();
+    del_panel(menu_panel);
+    delwin(menu_window);
+    update_display();
     return result;
 }
 
-void ConsoleDungeonIO::showInfo(WINDOW* win, Item *item) {
+void ConsoleDungeonIO::show_info(WINDOW *win, Item *item) {
     ostringstream out;
-    out << item->getName() << endl << endl;
-    out << "Value: " << item->getValue() << endl;
+    out << item->get_name() << endl << endl;
+    out << "Value: " << item->get_value() << endl;
     if (item->equippable()) {
         out << "Equippable" << endl;
-        if (item->equippedSlot() != -1) {
-            out << "Equipped to slot: " << (dungeon->getState()->loader->getName(item->equippedSlot())) << endl;
+        if (item->equipped_slot() != -1) {
+            out << "Equipped to slot: " << (dungeon->get_state()->loader->get_name(item->equipped_slot())) << endl;
         }
     }
     wclear(win);
     mvwaddstr(win, 0, 0, out.str().c_str());
     wrefresh(win);
-    updateDisplay();
+    update_display();
 }
 
-std::shared_ptr<Item> ConsoleDungeonIO::selectInventory(const std::shared_ptr<Character> &character) {
+std::shared_ptr<Item> ConsoleDungeonIO::select_inventory(const std::shared_ptr<Character> &character) {
 
-    std::vector<ITEM*> items;
-    for(auto &item:character->getInventory()) {
-        ITEM*newItem = new_item(item->getName().c_str(), "");
-        set_item_userptr(newItem, item.get());
-        items.push_back(newItem);
+    std::vector<ITEM *> items;
+    for (auto &item:character->get_inventory()) {
+        ITEM *item_ptr = new_item(item->get_name().c_str(), "");
+        set_item_userptr(item_ptr, item.get());
+        items.push_back(item_ptr);
     }
     items.push_back(NULL);
     MENU *menu = new_menu(items.data());
     WINDOW *window = newwin(dungeon->height, dungeon->width - 6, 3, 3);
-    PANEL *windowPanel = new_panel(window);
-    WINDOW *infoWindow = derwin(window, dungeon->height - 2, (dungeon->width - 8)/2, 1, (dungeon->width - 6)/2);
+    PANEL *window_panel = new_panel(window);
+    WINDOW *info_window = derwin(window, dungeon->height - 2, (dungeon->width - 8) / 2, 1, (dungeon->width - 6) / 2);
     set_menu_win(menu, window);
-    set_menu_sub(menu, derwin(window, dungeon->height - 2, (dungeon->width - 8)/2 - 1, 1, 1));
+    set_menu_sub(menu, derwin(window, dungeon->height - 2, (dungeon->width - 8) / 2 - 1, 1, 1));
     set_menu_format(menu, dungeon->height - 3, 1);
     set_menu_mark(menu, " * ");
     box(window, 0, 0);
-    mvwvline(window, 1, (dungeon->width - 6) /2 - 1, ACS_VLINE, dungeon->height - 2);
+    mvwvline(window, 1, (dungeon->width - 6) / 2 - 1, ACS_VLINE, dungeon->height - 2);
     post_menu(menu);
-    updateDisplay();
+    update_display();
 
     int key;
-    Item* result = nullptr;
-    bool hasResult = false;
-    if(current_item(menu)) {
-        showInfo(infoWindow, (Item*)item_userptr(current_item(menu)));
+    Item *result = nullptr;
+    bool has_result = false;
+    if (current_item(menu)) {
+        show_info(info_window, (Item *) item_userptr(current_item(menu)));
     }
-    while (!hasResult) {
+    while (!has_result) {
         key = getch();
         switch (key) {
             case KEY_DOWN:
                 menu_driver(menu, REQ_DOWN_ITEM);
-                showInfo(infoWindow, (Item*)item_userptr(current_item(menu)));
+                show_info(info_window, (Item *) item_userptr(current_item(menu)));
                 break;
             case KEY_UP:
                 menu_driver(menu, REQ_UP_ITEM);
-                showInfo(infoWindow, (Item*)item_userptr(current_item(menu)));
+                show_info(info_window, (Item *) item_userptr(current_item(menu)));
                 break;
             case KEY_NPAGE:
                 menu_driver(menu, REQ_SCR_DPAGE);
-                showInfo(infoWindow, (Item*)item_userptr(current_item(menu)));
+                show_info(info_window, (Item *) item_userptr(current_item(menu)));
                 break;
             case KEY_PPAGE:
                 menu_driver(menu, REQ_SCR_UPAGE);
-                showInfo(infoWindow, (Item*)item_userptr(current_item(menu)));
+                show_info(info_window, (Item *) item_userptr(current_item(menu)));
                 break;
             case '\t':
-                hasResult = true;
+                has_result = true;
                 break;
             case '\n':
-                hasResult = true;
-                result = (Item*)item_userptr(current_item(menu));
+                has_result = true;
+                result = (Item *) item_userptr(current_item(menu));
                 break;
             default:
                 break;
         }
-        updateDisplay();
+        update_display();
     }
     unpost_menu(menu);
     free_menu(menu);
-    for(auto item:items) {
+    for (auto item:items) {
         if (item) free_item(item);
     }
-    del_panel(windowPanel);
+    del_panel(window_panel);
     delwin(window);
-    updateDisplay();
+    update_display();
     if (result) {
         return result->shared_from_base<Item>();
     } else {
@@ -783,10 +783,10 @@ std::shared_ptr<Item> ConsoleDungeonIO::selectInventory(const std::shared_ptr<Ch
     }
 }
 
-void ConsoleDungeonIO::printMode(Action::Type actionType) {
+void ConsoleDungeonIO::print_mode(Action::Type action_type) {
     ostringstream out;
     out << "Mode: ";
-    switch (actionType) {
+    switch (action_type) {
         case Action::PASS:
             out << "Pass";
             break;
@@ -815,27 +815,27 @@ void ConsoleDungeonIO::printMode(Action::Type actionType) {
             out << "Effect";
             break;
     }
-    wmove(playerWindow, 4, 0);
-    wclrtoeol(playerWindow);
-    mvwaddstr(playerWindow, 4, 0, out.str().c_str());
+    wmove(player_window, 4, 0);
+    wclrtoeol(player_window);
+    mvwaddstr(player_window, 4, 0, out.str().c_str());
 }
 
-ConsoleDungeonIO::outBuff::outBuff(ConsoleDungeonIO *consoleDungeonIO) : consoleDungeonIO(consoleDungeonIO) {}
+ConsoleDungeonIO::out_buff::out_buff(ConsoleDungeonIO *console_dungeon_i_o) : console_dungeon_i_o(console_dungeon_i_o) {}
 
-int ConsoleDungeonIO::outBuff::sync() {
-    if (consoleDungeonIO) {
+int ConsoleDungeonIO::out_buff::sync() {
+    if (console_dungeon_i_o) {
 #ifdef NODISP
         cout << str();
 #else
-        consoleDungeonIO->postMessage(str());
-        consoleDungeonIO->updateDisplay();
+        console_dungeon_i_o->post_message(str());
+        console_dungeon_i_o->update_display();
 #endif
         str("");
     }
     return basic_streambuf::sync();
 }
 
-ConsoleDungeonIO::outBuff cdbuff{nullptr};
+ConsoleDungeonIO::out_buff cdbuff{nullptr};
 std::ostream cdout{&cdbuff};
 
 bool ConsoleDungeonIO::SortPositionByX::operator()(const Position &lhs, const Position &rhs) const {

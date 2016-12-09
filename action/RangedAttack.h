@@ -4,12 +4,12 @@
 
 class RangedAttack : public BasicAttack {
 public:
-    RangedAttack(const int atkNumerator, const int atkDenominator, const int spellNumerator, const int spellDenominator,
+    RangedAttack(const int atk_numerator, const int atk_denominator, const int spell_numerator, const int spell_denominator,
                  const int range);
 
-    int getMinRange(const Character &source) const override;
+    int get_min_range(const Character &source) const override;
 
-    int getRange(const Character &source) const override;
+    int get_range(const Character &source) const override;
 
 private:
     const int range;

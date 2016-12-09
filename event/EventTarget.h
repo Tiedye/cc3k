@@ -10,9 +10,9 @@ class Equippable;
 
 struct EventTarget {
 	virtual ~EventTarget() = default;
-	virtual std::shared_ptr<Entity> asEntity();
-	virtual std::shared_ptr<Character> asCharacter();
-	virtual std::shared_ptr<Item> asItem();
-	virtual std::shared_ptr<Consumable> asConsumable();
-	virtual std::shared_ptr<Equippable> asEquippable();
+	virtual std::shared_ptr<Entity> as_entity();
+	virtual std::shared_ptr<Character> as_character();
+	virtual std::shared_ptr<Item> as_item();
+	virtual std::shared_ptr<Consumable> as_consumable();
+	virtual std::shared_ptr<Equippable> as_equippable();
 };

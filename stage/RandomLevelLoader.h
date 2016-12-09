@@ -5,21 +5,21 @@
 
 class RandomLevelLoader : public Stage {
 public:
-    RandomLevelLoader(const std::shared_ptr<State> &state, const std::string &configFile);
+    RandomLevelLoader(const std::shared_ptr<State> &state, const std::string &config_file);
     int run(Game &game) override;
 private:
-    const std::string configFile;
+    const std::string config_file;
 
     class SpawnSet {
     public:
         SpawnSet();
         int amount {0};
 
-        void addGroup(int weight, const std::vector<int> &items);
-        std::vector<int> getGroup(int selection);
-        int getTotalWeight() const;
+        void add_group(int weight, const std::vector<int> &items);
+        std::vector<int> get_group(int selection);
+        int get_total_weight() const;
     private:
-        int totalWeight {0};
+        int total_weight {0};
         std::multimap<int, std::vector<int>> groups;
     };
 
@@ -39,28 +39,28 @@ private:
         int hhlm = {30};
         int hhls = {10};
 
-        std::vector<SpawnSet> spawnSets;
+        std::vector<SpawnSet> spawn_sets;
     };
 
     struct DungeonObject {
         DungeonObject();
-        ProbabilitySet probabilitySet;
+        ProbabilitySet probability_set;
         int next {-1};
         int id;
         int width{50};
         int height{20};
     };
 
-    void parseProbabilitySet(std::istream &s);
-    void parseDungeon(std::istream &s);
-    SpawnSet parseSpawnSet(std::istream &s);
+    void parse_probability_set(std::istream &s);
+    void parse_dungeon(std::istream &s);
+    SpawnSet parse_spawn_set(std::istream &s);
 
-    std::map<int, ProbabilitySet> probabilitySets;
-    std::map<int, DungeonObject> dungeonObjects;
+    std::map<int, ProbabilitySet> probability_sets;
+    std::map<int, DungeonObject> dungeon_objects;
 
-    std::shared_ptr<Dungeon> genDungeon(const DungeonObject &dungeonObject);
+    std::shared_ptr<Dungeon> gen_dungeon(const DungeonObject &dungeon_object);
 
-    std::map<int, int> idMapping;
+    std::map<int, int> id_mapping;
 };
 
 

@@ -12,47 +12,47 @@ class HasAIData {
 public:
     virtual ~HasAIData();
 
-    std::vector<std::shared_ptr<Entity>> &aiStartEntityList(int id);
-    std::vector<int> &aiStartIntegerList(int id);
-    std::vector<float> &aiStartFloatList(int id);
-    std::vector<double> &aiStartDoubleList(int id);
-    std::vector<Position> &aiStartPositionList(int id);
+    std::vector<std::shared_ptr<Entity>> &ai_start_entity_list(int id);
+    std::vector<int> &ai_start_integer_list(int id);
+    std::vector<float> &ai_start_float_list(int id);
+    std::vector<double> &ai_start_double_list(int id);
+    std::vector<Position> &ai_start_position_list(int id);
 
-    std::vector<std::shared_ptr<Entity>> &aiGetEntityList(int id);
-    std::vector<int> &aiGetIntegerList(int id);
-//    std::vector<float> &aiGetFloatList(int id);
-//    std::vector<double> &aiGetDoubleList(int id);
-    std::vector<Position> &aiGetPositionList(int id);
+    std::vector<std::shared_ptr<Entity>> &ai_get_entity_list(int id);
+    std::vector<int> &ai_get_integer_list(int id);
+//    std::vector<float> &ai_get_float_list(int id);
+//    std::vector<double> &ai_get_double_list(int id);
+    std::vector<Position> &ai_get_position_list(int id);
 
-    std::shared_ptr<Entity> &aiGetEntity(int id);
-    int &aiGetInteger(int id);
-//    float &aiGetFloat(int id);
-//    double &aiGetDouble(int id);
-    Position &aiGetPosition(int id);
+    std::shared_ptr<Entity> &ai_get_entity(int id);
+    int &ai_get_integer(int id);
+//    float &ai_get_float(int id);
+//    double &ai_get_double(int id);
+    Position &ai_get_position(int id);
 
-    static int aiReserveId();
-    static int aiReserveId(std::string name);
-    static int aiGetId(std::string name);
-    static int aiReservedId(std::string name);
+    static int ai_reserve_id();
+    static int ai_reserve_id(std::string name);
+    static int ai_get_id(std::string name);
+    static int ai_reserved_id(std::string name);
 private:
-    static int freeId;
-    static std::map<std::string, int> nameIds;
+    static int free_id;
+    static std::map<std::string, int> name_ids;
 
     struct Data {
         Data();
         std::shared_ptr<Entity> entity;
-        int integerValue;
-        //float floatValue;
-        //double doubleValue;
+        int integer_value;
+        //float float_value;
+        //double double_value;
         Position position;
     };
 
     std::map<int, Data> data;
-    std::map<int, std::vector<std::shared_ptr<Entity>>> entityListData;
-    std::map<int, std::vector<int>> intListData;
-    std::map<int, std::vector<float>> floatListData;
-    std::map<int, std::vector<double>> doubleListData;
-    std::map<int, std::vector<Position>> positionListData;
+    std::map<int, std::vector<std::shared_ptr<Entity>>> entity_list_data;
+    std::map<int, std::vector<int>> int_list_data;
+    std::map<int, std::vector<float>> float_list_data;
+    std::map<int, std::vector<double>> double_list_data;
+    std::map<int, std::vector<Position>> position_list_data;
 
 };
 

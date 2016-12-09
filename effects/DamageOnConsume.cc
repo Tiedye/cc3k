@@ -6,10 +6,10 @@
 DamageOnConsume::DamageOnConsume(int amount) : amount(amount) {}
 
 void DamageOnConsume::notify(EventInfo &info) {
-    info.secondary->asEntity()->damage(amount, info.primary->asEntity());
+    info.secondary->as_entity()->damage(amount, info.primary->as_entity());
 }
 
-const std::vector<EventType> DamageOnConsume::listeningFor() const {
-    return eventTypes;
+const std::vector<EventType> DamageOnConsume::listening_for() const {
+    return event_types;
 }
-const std::vector<EventType> DamageOnConsume::eventTypes {CONSUMED_DONE};
+const std::vector<EventType> DamageOnConsume::event_types {CONSUMED_DONE};

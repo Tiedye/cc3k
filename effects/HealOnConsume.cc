@@ -6,10 +6,10 @@
 HealOnConsume::HealOnConsume(int amount) : amount(amount) {}
 
 void HealOnConsume::notify(EventInfo &info) {
-    info.secondary->asEntity()->heal(amount, info.primary->asEntity());
+    info.secondary->as_entity()->heal(amount, info.primary->as_entity());
 }
 
-const std::vector<EventType> HealOnConsume::listeningFor() const {
-    return eventTypes;
+const std::vector<EventType> HealOnConsume::listening_for() const {
+    return event_types;
 }
-const std::vector<EventType> HealOnConsume::eventTypes {CONSUMED_DONE};
+const std::vector<EventType> HealOnConsume::event_types {CONSUMED_DONE};

@@ -1,72 +1,73 @@
 start set potion
     effect invulnerable
+    is_type
 end
-start set restoreHealthPotionSet
-    effect restoreOnConsume 10
+start set restore_health_potion_set
+    effect restore_on_consume 10
 end
-start consumable restoreHealthPotion
+start consumable restore_health_potion
     set potion
     name a Restore Health Potion done
-    set restoreHealthPotionSet
+    set restore_health_potion_set
     representation P
 end
-start consumable boostAtkPotion
+start consumable boost_atk_potion
     set potion
     name a Boost Attack Potion done
-    consumed 30 atkBoost
-    effectType positive
+    consumed 30 atk_boost
+    effect_type positive
     representation P
 end
-start consumable boostDefPotion
+start consumable boost_def_potion
     set potion
     name a Boost Defense Potion done
-    consumed 30 defBoost
-    effectType positive
+    consumed 30 def_boost
+    effect_type positive
     representation P
 end
-start set poisonHealthPotionSet
-    effect depleteOnConsume 10
+start set poison_health_potion_set
+    effect deplete_on_consume 10
 end
-start consumable poisonHealthPotion
+start consumable poison_health_potion
     set potion
     name a Poison Health Potion done
-    set poisonHealthPotionSet
+    set poison_health_potion_set
     representation P
 end
-start consumable woundAtkPotion
+start consumable wound_atk_potion
     set potion
     name a Wound Attack Potion done
-    consumed 20 atkPenalty
-    effectType negative
+    consumed 20 atk_penalty
+    effect_type negative
     representation P
 end
-start consumable woundDefPotion
+start consumable wound_def_potion
     set potion
     name a Wound Defense Potion done
-    consumed 20 defPenalty
-    effectType negative
+    consumed 20 def_penalty
+    effect_type negative
     representation P
 end
-start set atkBoost
+start set atk_boost
     stat add atk 5
 end
-start set defBoost
+start set def_boost
     stat add def 5
 end
-start set atkPenalty
+start set atk_penalty
     stat sub atk 5
 end
-start set defPenalty
+start set def_penalty
     stat sub def 5
 end
 
-start consumable speedPotion
+start consumable speed_potion
     set potion
     name a Speed Potion done
-    consumed 10 doubleSpeed
-    effectType positive
+    consumed 10 double_speed
+    effect_type positive
     representation P
 end
-start set doubleSpeed
+start set double_speed
     stat mult speed 2
 end

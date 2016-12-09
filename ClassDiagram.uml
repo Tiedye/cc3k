@@ -1,6 +1,6 @@
 @startuml
 
-set namespaceSeparator ::
+set namespace_separator ::
 
 class Entity
 class Character

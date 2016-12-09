@@ -29,7 +29,7 @@ public:
 	class Target : public EventTarget {
 	public:
 		Target(const std::shared_ptr<Entity> &entity);
-		std::shared_ptr<Entity> asEntity() override;
+		std::shared_ptr<Entity> as_entity() override;
 	private:
         std::shared_ptr<Entity> entity;
 	};
@@ -37,33 +37,33 @@ public:
     Entity(std::string name = "");
     Entity(const Entity&other);
 
-	virtual void doTurn(Dungeon &dungeon, const int turnId);
-    int lastTurnId() const;
+	virtual void do_turn(Dungeon &dungeon, const int turn_id);
+    int last_turn_id() const;
 
-    void removeFromContainers();
+    void remove_from_containers();
 	virtual ~Entity() = default;
 
     // Entity is an EventEmmiter, as their are no other th functionality is included here
-    void addListener(const std::shared_ptr<Listener> &listener);
-    void removeListener(const std::shared_ptr<Listener> &listener);
-	virtual std::unique_ptr<EventTarget> getAsTarget();
+    void add_listener(const std::shared_ptr<Listener> &listener);
+    void remove_listener(const std::shared_ptr<Listener> &listener);
+	virtual std::unique_ptr<EventTarget> get_as_target();
 
-    void addModifier(const StatModifier &modifier, int modNumerator = 1, int modDenominator = 1);
-    void removeModifier(const StatModifier &modifier, int modNumerator = 1, int modDenominator = 1);
+    void add_modifier(const StatModifier &modifier, int mod_numerator = 1, int mod_denominator = 1);
+    void remove_modifier(const StatModifier &modifier, int mod_numerator = 1, int mod_denominator = 1);
 
-    void addAction(const std::shared_ptr<Action> &action);
-    void removeAction(const std::shared_ptr<Action> &action);
+    void add_action(const std::shared_ptr<Action> &action);
+    void remove_action(const std::shared_ptr<Action> &action);
 
-    void addFeatureSet(const FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1);
-    void removeFeatureSet(const FeatureSet &featureSet, int modNumerator = 1, int modDenominator = 1);
+    void add_feature_set(const FeatureSet &feature_set, int mod_numerator = 1, int mod_denominator = 1);
+    void remove_feature_set(const FeatureSet &feature_set, int mod_numerator = 1, int mod_denominator = 1);
 
-    void addTemporaryFeatureSet(const std::shared_ptr<Entity> &source, const std::shared_ptr<FeatureSet> &featureSet,
-                                EffectType effectType,
-                                int numTurns);
-    void clearTemporaryFeatureSets();
+    void add_temporary_feature_set(const std::shared_ptr<Entity> &source, const std::shared_ptr<FeatureSet> &feature_set,
+                                EffectType effect_type,
+                                int num_turns);
+    void clear_temporary_feature_sets();
 
-    bool isA(int type);
-	void makeA(int type);
+    bool is_a(int type);
+	void make_a(int type);
 
     // acting upon this entity
 	void create();
@@ -89,58 +89,58 @@ public:
     virtual void consume(const std::shared_ptr<Character> &by);
     virtual bool consumable();
     virtual bool equippable();
-    virtual int equippedSlot();
+    virtual int equipped_slot();
 
-    int getHealth();
-    void setHealth(const int amount);
-    bool isDead();
+    int get_health();
+    void set_health(const int amount);
+    bool is_dead();
 
-	void addScore(const int value);
-	int currentScore() const;
-    void setScore(const int value);
+	void add_score(const int value);
+	int current_score() const;
+    void set_score(const int value);
 
-	void startTracking();
-	void addListReference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
-	void addListReference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference);
-	void removeListReference(std::list<std::shared_ptr<Entity>> &list);
-	void removeListReference(std::list<std::shared_ptr<Item>> &list);
-	bool iteratorInvalid();
+	void start_tracking();
+	void add_list_reference(std::list<std::shared_ptr<Entity>> &list, std::list<std::shared_ptr<Entity>>::iterator reference);
+	void add_list_reference(std::list<std::shared_ptr<Item>> &list, std::list<std::shared_ptr<Item>>::iterator reference);
+	void remove_list_reference(std::list<std::shared_ptr<Entity>> &list);
+	void remove_list_reference(std::list<std::shared_ptr<Item>> &list);
+	bool iterator_invalid();
 
-	Position getPosition() const;
-	int getSize() const;
-	int getMaxHealth() const;
-	int getInitiative() const;
-	int getDefenceStrength() const;
-    int getKnockbackResist() const;
-    int getTenacity() const;
-    int getDodge() const;
+	Position get_position() const;
+	int get_size() const;
+	int get_max_health() const;
+	int get_initiative() const;
+	int get_defence_strength() const;
+    int get_knockback_resist() const;
+    int get_tenacity() const;
+    int get_dodge() const;
 
-    const std::string & getName();
+    const std::string & get_name();
 
-    bool onFloor {false};
+    bool on_floor {false};
 
     char representation;
 
     virtual std::shared_ptr<Entity> clone();
 
-	void trigger(const EventType eventType);
-	void trigger(const EventType eventType, const std::shared_ptr<Entity> &secondary);
-	void trigger(const EventType eventType, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(const EventType eventType, const Position position);
-	void trigger(const EventType eventType, const Position position, const std::shared_ptr<Entity> &secondary);
-	void trigger(const EventType eventType, const Position position, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(const EventType eventType, const int integer);
-	void trigger(const EventType eventType, const int integer, const std::shared_ptr<Entity> &secondary);
-	void trigger(const EventType eventType, const int integer, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(const EventType eventType, const float num);
-	void trigger(const EventType eventType, const float num, const std::shared_ptr<Entity> &secondary);
-	void trigger(const EventType eventType, const float num, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(const EventType eventType, const double num);
-	void trigger(const EventType eventType, const double num, const std::shared_ptr<Entity> &secondary);
-	void trigger(const EventType eventType, const double num, const std::vector<std::shared_ptr<Entity>> &secondaries);
-	void trigger(const EventType eventType, EventInfo::Data &reference);
-	void trigger(const EventType eventType, EventInfo::Data &reference, const std::shared_ptr<Entity> &secondary);
-	void trigger(const EventType eventType, EventInfo::Data &reference, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType event_type);
+	void trigger(const EventType event_type, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType event_type, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType event_type, const Position position);
+	void trigger(const EventType event_type, const Position position, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType event_type, const Position position, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType event_type, const int integer);
+	void trigger(const EventType event_type, const int integer, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType event_type, const int integer, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType event_type, const float num);
+	void trigger(const EventType event_type, const float num, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType event_type, const float num, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType event_type, const double num);
+	void trigger(const EventType event_type, const double num, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType event_type, const double num, const std::vector<std::shared_ptr<Entity>> &secondaries);
+	void trigger(const EventType event_type, EventInfo::Data &reference);
+	void trigger(const EventType event_type, EventInfo::Data &reference, const std::shared_ptr<Entity> &secondary);
+	void trigger(const EventType event_type, EventInfo::Data &reference, const std::vector<std::shared_ptr<Entity>> &secondaries);
 
 	template <typename Derived>
 	std::shared_ptr<Derived> shared_from_base()
@@ -152,27 +152,27 @@ protected:
 
     std::string name;
 
-    virtual Stat & getCorrespondingStat(const StatModifier &modifier);
+    virtual Stat & get_corresponding_stat(const StatModifier &modifier);
 
 	Position position {0,0};
     int health = {0};
 
 	Stat size; // base value 0
-	Stat maxHealth {1}; // base value 1
+	Stat max_health {1}; // base value 1
 	Stat initiative; // base value 0
-	Stat defenseStrength; // base value 0
-	Stat knockbackResist; // base value 0
+	Stat defense_strength; // base value 0
+	Stat knockback_resist; // base value 0
     Stat tenacity; // base value 0
     Stat dodge; // base value 0
-    //Stat tempModNumerator {1};
-    //Stat tempModDenominator {1};
+    //Stat temp_mod_numerator {1};
+    //Stat temp_mod_denominator {1};
 
-    void checkDead();
+    void check_dead();
 
     std::set<std::shared_ptr<Action>> actions;
 
 private:
-//    bool iteratorsLocked {false};
+//    bool iterators_locked {false};
 //    struct ListReferenceOp {
 //        enum Op {
 //            ADD,
@@ -184,31 +184,31 @@ private:
 //        std::list<std::shared_ptr<Entity>>::iterator reference;
 //        ListReferenceOp(const Op op, std::list<std::shared_ptr<Entity>> *list = nullptr, const std::list<std::shared_ptr<Entity>>::iterator reference = {});
 //    };
-//    std::vector<ListReferenceOp> queuedOps;
+//    std::vector<ListReferenceOp> queued_ops;
 
-	bool trackIteratorValidity {false};
-    int lastTurn {-1};
+	bool track_iterator_validity {false};
+    int last_turn {-1};
 
-    int turnCount {0};
+    int turn_count {0};
 
-    void checkTempFeatures();
+    void check_temp_features();
     struct TempFeatureSet {
         std::shared_ptr<FeatureSet> set;
         std::shared_ptr<Entity> source;
-        EffectType effectType;
-        int modNumerator;
-        int modDenominator;
+        EffectType effect_type;
+        int mod_numerator;
+        int mod_denominator;
     };
 
     struct ListenerSort {
         bool operator()(const std::shared_ptr<Listener> &a, const std::shared_ptr<Listener> &b) const;
     };
 
-    std::map<std::list<std::shared_ptr<Entity>>*, std::list<std::shared_ptr<Entity>>::iterator> listReferences;
+    std::map<std::list<std::shared_ptr<Entity>>*, std::list<std::shared_ptr<Entity>>::iterator> list_references;
 
 	std::map<EventType, std::set<std::shared_ptr<Listener>, ListenerSort>> listeners;
 
-    std::map<int, TempFeatureSet> tempFeatureSets;
+    std::map<int, TempFeatureSet> temp_feature_sets;
 
     std::set<int> types;
 

@@ -7,9 +7,9 @@
 
 using namespace std;
 
-const Controller::ActionAndTarget Guard::getAction(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
-    Position currentPosition {character->getPosition()};
-    auto dungeonLocked = state->currentDungeon.lock();
+const Controller::ActionAndTarget Guard::get_action(const std::shared_ptr<Character> &character, const std::vector<Controller::ActionAndRange> &actions, const std::shared_ptr<State> &state) {
+    Position current_position {character->get_position()};
+    auto dungeon_locked = state->current_dungeon.lock();
     Position positions[]{
             {0, 0},
             {1, 1},
@@ -21,55 +21,55 @@ const Controller::ActionAndTarget Guard::getAction(const std::shared_ptr<Charact
             {-1, 0},
             {-1, -1}
     };
-    Position &guardedLocationRef = character->aiGetPosition(guardedLocation);
-    if(guardedLocationRef == Position{-1, -1}) {
+    Position &guarded_location_ref = character->ai_get_position(guarded_location);
+    if(guarded_location_ref == Position{-1, -1}) {
         for(auto p:positions) {
-            auto entities = dungeonLocked->getEntitiesAt(p+currentPosition, character);
-            if (entities.size() && entities.front()->isA(guardedType)) {
-                guardedLocationRef = p+currentPosition;
+            auto entities = dungeon_locked->get_entities_at(p+current_position, character);
+            if (entities.size() && entities.front()->is_a(guarded_type)) {
+                guarded_location_ref = p+current_position;
                 break;
             }
         }
     }
-    auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::ATTACK; });
+    auto selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::ATTACK; });
     vector<Position> options;
-    if(guardedLocationRef != Position{-1, -1}) {
+    if(guarded_location_ref != Position{-1, -1}) {
         do {
             if (selection != actions.end()) {
                 for (auto p:positions) {
-                    auto entity = dungeonLocked->getEntityAt(p + guardedLocationRef);
-                    if (entity && any_of(from.begin(), from.end(), [&entity](int a){ return entity->isA(a);}) && find(selection->range.begin(), selection->range.end(), p + guardedLocationRef) != selection->range.end()) {
-                        options.push_back(p + guardedLocationRef);
+                    auto entity = dungeon_locked->get_entity_at(p + guarded_location_ref);
+                    if (entity && any_of(from.begin(), from.end(), [&entity](int a){ return entity->is_a(a);}) && find(selection->range.begin(), selection->range.end(), p + guarded_location_ref) != selection->range.end()) {
+                        options.push_back(p + guarded_location_ref);
                     }
                 }
                 if (!options.empty()) break;
                 for (auto p:positions) {
-                    auto entity = dungeonLocked->getEntityAt(p + currentPosition);
-                    if (entity && any_of(from.begin(), from.end(), [&entity](int a){ return entity->isA(a);}) && find(selection->range.begin(), selection->range.end(), p + currentPosition) != selection->range.end()) {
-                        options.push_back(p + currentPosition);
+                    auto entity = dungeon_locked->get_entity_at(p + current_position);
+                    if (entity && any_of(from.begin(), from.end(), [&entity](int a){ return entity->is_a(a);}) && find(selection->range.begin(), selection->range.end(), p + current_position) != selection->range.end()) {
+                        options.push_back(p + current_position);
                     }
                 }
                 if (!options.empty()) break;
             }
-            selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::MOVE; });
+            selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::MOVE; });
             if (selection != actions.end()) {
                 for (auto p:positions) {
-                    if (find(selection->range.begin(), selection->range.end(), p + guardedLocationRef) != selection->range.end()) {
-                        options.push_back(p + guardedLocationRef);
+                    if (find(selection->range.begin(), selection->range.end(), p + guarded_location_ref) != selection->range.end()) {
+                        options.push_back(p + guarded_location_ref);
                     }
                 }
             }
         } while(false);
         if (!options.empty()) {
-            ActionAndTarget actionAndTarget;
-            actionAndTarget.action = selection->action;
-            actionAndTarget.target = options[uniform_int_distribution<>(0,options.size()-1)(state->gen)];
-            return actionAndTarget;
+            ActionAndTarget action_and_target;
+            action_and_target.action = selection->action;
+            action_and_target.target = options[uniform_int_distribution<>(0,options.size()-1)(state->gen)];
+            return action_and_target;
         }
     }
     ActionAndTarget target;
-    target.action = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->actionType == Action::PASS; })->action;
+    target.action = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::PASS; })->action;
     return target;
 }
 
-Guard::Guard(const int guardedType, const vector<int> &from) : guardedType{guardedType}, from{from}, guardedLocation{HasAIData::aiReserveId()}, targetPosition{HasAIData::aiReserveId()} {}
+Guard::Guard(const int guarded_type, const vector<int> &from) : guarded_type{guarded_type}, from{from}, guarded_location{HasAIData::ai_reserve_id()}, target_position{HasAIData::ai_reserve_id()} {}

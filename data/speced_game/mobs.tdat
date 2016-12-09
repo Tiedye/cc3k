@@ -3,100 +3,100 @@ start set mob
     stat base init 5 0
     stat base acc 50 0
     stat base speed 1 0
-    action walkAsAction floor done
+    action walk_as_action floor done
 end
-start set humanSet
+start set human_set
     inherit mob
     stat base hp 140 0
     stat base atk 20 0
     stat base def 20 0
-    effect dropItems [ 1 normalGold normalGold ] done
+    effect drop_items [ 1 normal_gold normal_gold ] done
     action melee 1 0
 end
 start mob human
     name a Human done
-    set humanSet
-    controller wander localAttack done
+    set human_set
+    controller wander local_attack done
     score 5
     representation H
 end
-start set dwarfSet
+start set dwarf_set
     inherit mob
     stat base hp 100 0
     stat base atk 20 0
     stat base def 30 0
-    effect dropItems [ 1 normalGold ] [ 1 smallGold ] done
+    effect drop_items [ 1 normal_gold ] [ 1 small_gold ] done
     action melee 1 0
 end
 start mob dwarf
     name a Dwarf done
-    set dwarfSet
-    controller wander localAttack done
+    set dwarf_set
+    controller wander local_attack done
     score 4
     representation W
 end
-start set elfSet
+start set elf_set
     inherit mob
     stat base hp 140 0
     stat base atk 30 0
     stat base def 10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             0
-    effect dropItems [ 1 normalGold ] [ 1 smallGold ] done
+    effect drop_items [ 1 normal_gold ] [ 1 small_gold ] done
     action melee 2 0
 end
 start mob elf
     name a Elf done
-    set elfSet
-    controller wander localAttack done
+    set elf_set
+    controller wander local_attack done
     score 7
     representation E
 end
-start set highElfSet
+start set high_elf_set
     inherit mob
     stat base hp 160 0
     stat base atk 40 0
     stat base def 50 0
-    effect dropItems [ 1 ringOfHealth ] [ 2 normalGold normalGold normalGold ] done
+    effect drop_items [ 1 ring_of_health ] [ 2 normal_gold normal_gold normal_gold ] done
     action melee 2 0
 end
-start mob highElf
+start mob high_elf
     name an Elf done
-    set highElfSet
-    controller wander localAttack done
+    set high_elf_set
+    controller wander local_attack done
     score 15
     representation I
 end
-start set orcSet
+start set orc_set
     inherit mob
     stat base hp 180 0
     stat base atk 30 0
     stat base def 25 0
-    effect dropItems [ 1 normalGold ] [ 1 smallGold ] done
+    effect drop_items [ 1 normal_gold ] [ 1 small_gold ] done
     action melee 1 0
 end
 start mob orc
     name an Orc done
-    set orcSet
-    controller wander localAttack done
+    set orc_set
+    controller wander local_attack done
     score 6
     representation O
 end
-start set merchantSet
+start set merchant_set
     inherit mob
     stat base hp 30 0
     stat base atk 70 0
     stat base def 5 0
-    effect dropItems [ 1 merchantHoard ] done
-    effect setStateOnAttacked merchants_hostile player
+    effect drop_items [ 1 merchant_hoard ] done
+    effect set_state_on_attacked merchants_hostile player
     action melee 1 0
 end
 start mob merchant
     name a Merchant done
-    set merchantSet
-    controller stateIf merchants_hostile [ wander localAttack ] [ wander ] done
+    set merchant_set
+    controller state_if merchants_hostile [ wander local_attack ] [ wander ] done
     score 1
     representation M
 end
-start set dragonSet
+start set dragon_set
     inherit mob
     stat base hp 150 0
     stat base atk 30 0
@@ -105,42 +105,42 @@ start set dragonSet
 end
 start mob dragon
     name a Dragon done
-    set dragonSet
-    controller guard dragonHoard [ mob player ] done
+    set dragon_set
+    controller guard dragon_hoard [ mob player ] done
     score 4
     representation D
 end
-start set halflingSet
+start set halfling_set
     inherit mob
     stat base hp 100 0
     stat base atk 15 0
     stat base def 20 0
     stat base dodge 50 0
-    effect dropItems [ 1 normalGold ] [ 1 smallGold ] done
+    effect drop_items [ 1 normal_gold ] [ 1 small_gold ] done
     action melee 1 0
 end
 start mob halfling
     name a Halfling done
-    set halflingSet
-    controller wander localAttack done
+    set halfling_set
+    controller wander local_attack done
     score 4
     representation L
 end
 
-start set guardSet
+start set guard_set
     stat base size 1 0
     stat base init 5 0
     stat base acc 50 0
     stat base hp 100 0
     stat base atk 25 0
     stat base def 50 0
-    effect dropItems [ 1 sword ] [ 9 ] done
+    effect drop_items [ 1 sword ] [ 9 ] done
     action melee 1 0
 end
 start mob guard
     name a Guard done
-    set guardSet
-    controller wander localAttack done
+    set guard_set
+    controller wander local_attack done
     score 0
     representation G
 end

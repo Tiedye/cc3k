@@ -7,12 +7,12 @@
 Loot::Loot(int amount) : amount(amount) {}
 
 void Loot::notify(EventInfo &info) {
-    if(info.secondary->asEntity()->isDead()) {
-        info.primary->asCharacter()->addGold(amount);
+    if(info.secondary->as_entity()->is_dead()) {
+        info.primary->as_character()->add_gold(amount);
     }
 }
 
-const std::vector<EventType> Loot::eventTypes {ATTACKED_DONE};
-const std::vector<EventType> Loot::listeningFor() const {
-    return eventTypes;
+const std::vector<EventType> Loot::event_types {ATTACKED_DONE};
+const std::vector<EventType> Loot::listening_for() const {
+    return event_types;
 }

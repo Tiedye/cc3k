@@ -19,8 +19,8 @@ struct Position {
     bool operator==(const Position &other) const;
     bool operator!=(const Position &other) const;
 
-    void shiftX(int amount);
-    void shiftY(int amount);
+    void shift_x(int amount);
+    void shift_y(int amount);
 
     friend std::ostream &operator<<(std::ostream &os, const Position &position);
 };

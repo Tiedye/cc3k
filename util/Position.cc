@@ -18,11 +18,11 @@ bool Position::operator!=(const Position &other) const {
     return x != other.x || y != other.y;;
 }
 
-void Position::shiftX(int amount) {
+void Position::shift_x(int amount) {
     x += amount;
 }
 
-void Position::shiftY(int amount) {
+void Position::shift_y(int amount) {
     y += amount;
 }
 

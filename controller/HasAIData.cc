@@ -2,128 +2,128 @@
 
 using namespace std;
 
-std::vector<std::shared_ptr<Entity>> &HasAIData::aiStartEntityList(int id) {
-    auto result = entityListData.emplace(id, vector<shared_ptr<Entity>>());
+std::vector<std::shared_ptr<Entity>> &HasAIData::ai_start_entity_list(int id) {
+    auto result = entity_list_data.emplace(id, vector<shared_ptr<Entity>>());
     return result.first->second;
 }
 
-std::vector<int> &HasAIData::aiStartIntegerList(int id) {
-    auto result = intListData.emplace(id, vector<int>());
+std::vector<int> &HasAIData::ai_start_integer_list(int id) {
+    auto result = int_list_data.emplace(id, vector<int>());
     return result.first->second;
 }
 
-std::vector<float> &HasAIData::aiStartFloatList(int id) {
-    auto result = floatListData.emplace(id, vector<float>());
+std::vector<float> &HasAIData::ai_start_float_list(int id) {
+    auto result = float_list_data.emplace(id, vector<float>());
     return result.first->second;
 }
 
-std::vector<double> &HasAIData::aiStartDoubleList(int id) {
-    auto result = doubleListData.emplace(id, vector<double >());
+std::vector<double> &HasAIData::ai_start_double_list(int id) {
+    auto result = double_list_data.emplace(id, vector<double >());
     return result.first->second;
 }
 
-std::vector<Position> &HasAIData::aiStartPositionList(int id) {
-    auto result = positionListData.emplace(id, vector<Position>());
+std::vector<Position> &HasAIData::ai_start_position_list(int id) {
+    auto result = position_list_data.emplace(id, vector<Position>());
     return result.first->second;
 }
 
-std::vector<std::shared_ptr<Entity>> &HasAIData::aiGetEntityList(int id) {
-    return entityListData.at(id);
+std::vector<std::shared_ptr<Entity>> &HasAIData::ai_get_entity_list(int id) {
+    return entity_list_data.at(id);
 }
 
-std::vector<int> &HasAIData::aiGetIntegerList(int id) {
-    return intListData.at(id);
+std::vector<int> &HasAIData::ai_get_integer_list(int id) {
+    return int_list_data.at(id);
 }
 
-//std::vector<float> &HasAIData::aiGetFloatList(int id) {
-//    return floatListData.at(id);
+//std::vector<float> &HasAIData::ai_get_float_list(int id) {
+//    return float_list_data.at(id);
 //}
 //
-//std::vector<double> &HasAIData::aiGetDoubleList(int id) {
-//    return doubleListData.at(id);
+//std::vector<double> &HasAIData::ai_get_double_list(int id) {
+//    return double_list_data.at(id);
 //}
 
-std::vector<Position> &HasAIData::aiGetPositionList(int id) {
-    return positionListData.at(id);
+std::vector<Position> &HasAIData::ai_get_position_list(int id) {
+    return position_list_data.at(id);
 }
 
-std::shared_ptr<Entity> &HasAIData::aiGetEntity(int id) {
+std::shared_ptr<Entity> &HasAIData::ai_get_entity(int id) {
     auto result = data.find(id);
     if (result == data.end()) {
-        auto addResult = data.emplace(id, Data());
-        return addResult.first->second.entity;
+        auto add_result = data.emplace(id, Data());
+        return add_result.first->second.entity;
     } else {
         return result->second.entity;
     }
 }
 
-int &HasAIData::aiGetInteger(int id) {
+int &HasAIData::ai_get_integer(int id) {
     auto result = data.find(id);
     if (result == data.end()) {
-        auto addResult = data.emplace(id, Data());
-        return addResult.first->second.integerValue;
+        auto add_result = data.emplace(id, Data());
+        return add_result.first->second.integer_value;
     } else {
-        return result->second.integerValue;
+        return result->second.integer_value;
     }
 }
 
-//float &HasAIData::aiGetFloat(int id) {
+//float &HasAIData::ai_get_float(int id) {
 //    auto result = data.find(id);
 //    if (result == data.end()) {
-//        auto addResult = data.emplace(id, {});
-//        return addResult.first->second.floatValue;
+//        auto add_result = data.emplace(id, {});
+//        return add_result.first->second.float_value;
 //    } else {
-//        return result->second.floatValue;
+//        return result->second.float_value;
 //    }
 //}
 //
-//double &HasAIData::aiGetDouble(int id) {
+//double &HasAIData::ai_get_double(int id) {
 //    auto result = data.find(id);
 //    if (result == data.end()) {
-//        auto addResult = data.emplace(id, {});
-//        return addResult.first->second.doubleValue;
+//        auto add_result = data.emplace(id, {});
+//        return add_result.first->second.double_value;
 //    } else {
-//        return result->second.doubleValue;
+//        return result->second.double_value;
 //    }
 //}
 
-Position &HasAIData::aiGetPosition(int id) {
+Position &HasAIData::ai_get_position(int id) {
     auto result = data.find(id);
     if (result == data.end()) {
-        auto addResult = data.emplace(id, Data());
-        return addResult.first->second.position;
+        auto add_result = data.emplace(id, Data());
+        return add_result.first->second.position;
     } else {
         return result->second.position;
     }
 }
 
-int HasAIData::aiReserveId() {
-    return freeId++;
+int HasAIData::ai_reserve_id() {
+    return free_id++;
 }
 
-int HasAIData::aiReserveId(std::string name) {
-    if (nameIds.count(name)) {
+int HasAIData::ai_reserve_id(std::string name) {
+    if (name_ids.count(name)) {
         return -1;
     } else {
-        int id {freeId++};
-        nameIds[name] = id;
+        int id {free_id++};
+        name_ids[name] = id;
         return id;
     }
 }
 
-int HasAIData::aiGetId(std::string name) {
-    return nameIds.at(name);
+int HasAIData::ai_get_id(std::string name) {
+    return name_ids.at(name);
 }
 
-int HasAIData::aiReservedId(std::string name) {
-    return nameIds.count(name) != 0;
+int HasAIData::ai_reserved_id(std::string name) {
+    return name_ids.count(name) != 0;
 }
 
 HasAIData::~HasAIData() {
 
 }
 
-HasAIData::Data::Data() : entity{nullptr}, integerValue{0}, position{-1,-1} {}
+HasAIData::Data::Data() : entity{nullptr}, integer_value{0}, position{-1,-1} {}
 
-int HasAIData::freeId {0};
-std::map<std::string, int> HasAIData::nameIds;
+int HasAIData::free_id {0};
+std::map<std::string, int> HasAIData::name_ids;

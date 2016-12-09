@@ -7,18 +7,18 @@ WalkAsActionAction::WalkAsActionAction(const std::vector<int> &walkable): Action
 
 }
 
-int WalkAsActionAction::getRange(const Character &source) const {
-    return source.getSpeed();
+int WalkAsActionAction::get_range(const Character &source) const {
+    return source.get_speed();
 }
 
-int WalkAsActionAction::getMinRange(const Character &source) const {
+int WalkAsActionAction::get_min_range(const Character &source) const {
     return 1;
 }
 
-bool WalkAsActionAction::canTarget(const Position position, const std::shared_ptr<State> &state) {
-    CellType cellType {state->getCurrentDungeon()->getCellType(position)};
+bool WalkAsActionAction::can_target(const Position position, const std::shared_ptr<State> &state) {
+    CellType cell_type {state->get_current_dungeon()->get_cell_type(position)};
     for(auto type:walkable) {
-        if (cellType == type) return true;
+        if (cell_type == type) return true;
     }
     return false;
 }

@@ -29,40 +29,40 @@
 
 using namespace std;
 
-Loader::Loader(const shared_ptr<State> &state)  : typeTable{{"player", 10}, {"mob", 11}, {"floor", CellType::FLOOR}, {"door", CellType::OPEN_DOOR}, {"hall", CellType::HALL}}, state{state} {}
+Loader::Loader(const shared_ptr<State> &state)  : type_table{{"player", 10}, {"mob", 11}, {"floor", CellType::FLOOR}, {"door", CellType::OPEN_DOOR}, {"hall", CellType::HALL}}, state{state} {}
 
-int Loader::getId(std::string name) const {
-    return typeTable.at(name);
+int Loader::get_id(std::string name) const {
+    return type_table.at(name);
 }
 
-string Loader::getName(int id) const {
-    return typeBackTable.at(id);
+string Loader::get_name(int id) const {
+    return type_back_table.at(id);
 }
 
-string getPath(string file) {
+string get_path(string file) {
     size_t found {file.find_last_of("/\\")};
     return file.substr(0, found);
 }
 
-void Loader::parseFile(string gameFile) {
-    parseSets(gameFile);
-    parseRest(gameFile);
+void Loader::parse_file(string game_file) {
+    parse_sets(game_file);
+    parse_rest(game_file);
 };
 
-void Loader::parseSets(std::string gameFile) {
-    ifstream s {gameFile};
+void Loader::parse_sets(std::string game_file) {
+    ifstream s {game_file};
     if (s) {
         string command;
         while (s >> command) {
             if (command == "include") {
                 string file;
                 s >> file;
-                parseSets(getPath(gameFile) + "/" + file + ".tdat");
+                parse_sets(get_path(game_file) + "/" + file + ".tdat");
             } else if (command == "start") {
                 string object;
                 s >> object;
                 if (object == "set") {
-                    parseSet(s);
+                    parse_set(s);
                 } else {
                     string buf;
                     do {
@@ -77,28 +77,28 @@ void Loader::parseSets(std::string gameFile) {
     s.close();
 }
 
-void Loader::parseRest(std::string gameFile) {
-    ifstream s {gameFile};
+void Loader::parse_rest(std::string game_file) {
+    ifstream s {game_file};
     if (s) {
         string command;
         while (s >> command) {
             if (command == "include") {
                 string file;
                 s >> file;
-                parseRest(getPath(gameFile) + "/" + file + ".tdat");
+                parse_rest(get_path(game_file) + "/" + file + ".tdat");
             } else if (command == "start") {
                 string object;
                 s >> object;
                 if (object == "race") {
-                    parseRace(s);
+                    parse_race(s);
                 } else if (object == "item") {
-                    parseItem(s);
+                    parse_item(s);
                 } else if (object == "mob") {
-                    parseMob(s);
+                    parse_mob(s);
                 } else if (object == "consumable") {
-                    parseConsumable(s);
+                    parse_consumable(s);
                 } else if (object == "equippable") {
-                    parseEquippable(s);
+                    parse_equippable(s);
                 } else {
                     if (object != "set") {
                         cerr << "Unrecognized object type \"" << object << "\"" << endl;
@@ -118,61 +118,61 @@ void Loader::parseRest(std::string gameFile) {
     s.close();
 }
 
-void Loader::parseSet(istream &s) {
+void Loader::parse_set(istream &s) {
     string name;
     s >> name;
-    if (setTable.count(name)) {
+    if (set_table.count(name)) {
         cerr << "Duplicate definition of set \"" << name << "\"" << endl;
         return;
     }
     // initialise new unique_ptr in place, then retrieve a reference to the FeatureSet
-    FeatureSet &newSet = *setTable.emplace(name, make_unique<FeatureSet>()).first->second;
+    FeatureSet &new_set = *set_table.emplace(name, make_unique<FeatureSet>()).first->second;
     string command;
     while(s >> command, command != "end") {
         if (command == "inherit") {
             string inherited;
             s >> inherited;
-            if (!setTable.count(inherited)){
+            if (!set_table.count(inherited)){
                 cerr << "Inherited set \"" << inherited << "\" has not been declared yet." << endl;
                 continue;
             }
-            FeatureSet &inheritedSet = *setTable.at(inherited);
-            for(auto listener:inheritedSet.listeners) {
-                newSet.listeners.push_back(listener);
+            FeatureSet &inherited_set = *set_table.at(inherited);
+            for(auto listener:inherited_set.listeners) {
+                new_set.listeners.push_back(listener);
             }
-            for(StatModifier statModifier:inheritedSet.statModifiers) {
-                newSet.statModifiers.push_back(statModifier);
+            for(StatModifier stat_modifier:inherited_set.stat_modifiers) {
+                new_set.stat_modifiers.push_back(stat_modifier);
             }
-            for(auto action:inheritedSet.actions) {
-                newSet.actions.push_back(action);
+            for(auto action:inherited_set.actions) {
+                new_set.actions.push_back(action);
             }
         } else if (command == "stat") {
             string type, stat;
             s >> type >> stat;
 
-            StatType statType {NONE};
+            StatType stat_type {NONE};
             if (stat == "hp") {
-                statType = MAX_HEALTH;
+                stat_type = MAX_HEALTH;
             } else if (stat == "size") {
-                statType = SIZE;
+                stat_type = SIZE;
             } else if (stat == "init") {
-                statType = INITIATIVE;
+                stat_type = INITIATIVE;
             } else if (stat == "def") {
-                statType = DEFENSE_STRENGTH;
+                stat_type = DEFENSE_STRENGTH;
             } else if (stat == "kbr") {
-                statType = KNOCKBACK_RESIST;
+                stat_type = KNOCKBACK_RESIST;
             } else if (stat == "dodge") {
-                statType = DODGE;
+                stat_type = DODGE;
             } else if (stat == "atk") {
-                statType = ATTACK_STRENGTH;
+                stat_type = ATTACK_STRENGTH;
             } else if (stat == "spell") {
-                statType = SPELL_STRENGTH;
+                stat_type = SPELL_STRENGTH;
             } else if (stat == "speed") {
-                statType = SPEED;
+                stat_type = SPEED;
             } else if (stat == "ccr") {
-                statType = TENACITY;
+                stat_type = TENACITY;
             } else if (stat == "acc") {
-                statType = ACCURACY;
+                stat_type = ACCURACY;
             } else {
                 cerr << "Unknown Stat \"" << stat << "\"" << endl;
             }
@@ -180,46 +180,76 @@ void Loader::parseSet(istream &s) {
             if (type == "base") {
                 short int value, priority;
                 s >> value >> priority;
-                newSet.statModifiers.emplace_back(statType, StatModifier::BASE, value, priority);
+                new_set.stat_modifiers.emplace_back(stat_type, StatModifier::BASE, value, priority);
             } else if (type == "add") {
                 int value;
                 s >> value;
-                newSet.statModifiers.emplace_back(statType, StatModifier::ADD, value);
+                new_set.stat_modifiers.emplace_back(stat_type, StatModifier::ADD, value);
             } else if (type == "sub") {
                 int value;
                 s >> value;
-                newSet.statModifiers.emplace_back(statType, StatModifier::SUBTRACT, value);
+                new_set.stat_modifiers.emplace_back(stat_type, StatModifier::SUBTRACT, value);
             } else if (type == "mult") {
                 int value;
                 s >> value;
-                newSet.statModifiers.emplace_back(statType, StatModifier::MULTIPLY, value);
+                new_set.stat_modifiers.emplace_back(stat_type, StatModifier::MULTIPLY, value);
             } else if (type == "div") {
                 int value;
                 s >> value;
-                newSet.statModifiers.emplace_back(statType, StatModifier::DIVIDE, value);
+                new_set.stat_modifiers.emplace_back(stat_type, StatModifier::DIVIDE, value);
             } else if (type == "mdiv") {
                 short int num, den;
                 s >> num >> den;
-                newSet.statModifiers.emplace_back(statType, StatModifier::MULTDIV, num, den);
+                new_set.stat_modifiers.emplace_back(stat_type, StatModifier::MULTDIV, num, den);
             }
         } else if (command == "effect") {
-            newSet.listeners.emplace_back(loadEffect(s));
+            new_set.listeners.emplace_back(load_effect(s));
         } else if (command == "action") {
-            newSet.actions.emplace_back(loadAction(s));
+            new_set.actions.emplace_back(load_action(s));
+        } else if (command == "is_type") {
+            sets_is_type.insert(parse_id(name));
         } else {
             cerr << "Unknown Command \"" << command << "\"" << endl;
         }
     }
 }
 
-shared_ptr<Listener> Loader::loadEffect(istream &s) {
+std::vector<int> Loader::read_list(std::istream &s) {
+    vector<int> list;
+    string item;
+    while(s >> item, item != "]" && item != "done") list.push_back(parse_id(item));
+    return list;
+}
+
+std::string Loader::read_string(std::istream &s) {
+    ostringstream new_string;
+    string token;
+    s >> token;
+    new_string << token;
+    while(s >> token, token != "done" && token != "]") {
+        new_string << " " << token;
+    }
+    return new_string.str();
+}
+
+std::string Loader::read_multiline_string(std::istream &s) {
+    ostringstream new_string;
+    string token;
+    while (s >> token, token != "end_str") {
+        if (token == "nl") new_string << endl;
+        else new_string << token << " ";
+    }
+    return new_string.str();
+}
+
+shared_ptr<Listener> Loader::load_effect(istream &s) {
     string effect;
     s >> effect;
-    if (effect == "startHp") {
+    if (effect == "start_hp") {
         int hp;
         s >> hp;
         return make_shared<StartHp>(hp);
-    } else if (effect == "lifeDrain") {
+    } else if (effect == "life_drain") {
         int hp;
         s >> hp;
         return make_shared<LifeDrain>(hp);
@@ -227,32 +257,24 @@ shared_ptr<Listener> Loader::loadEffect(istream &s) {
         int amount;
         s >> amount;
         string type;
-        vector<int> to;
-        while (s >> type, type != "done") {
-            to.push_back(parseId(type));
-        }
-        return make_shared<Allergy>(amount, to);
-    } else if (effect == "healthGainEnhancer") {
+        return make_shared<Allergy>(amount, read_list(s));
+    } else if (effect == "health_gain_enhancer") {
         int numerator, denominator;
         s >> numerator >> denominator;
         string from;
         s >> from;
-        return make_shared<HealthGainEnhancer>(numerator, denominator, parseId(from));
-    } else if (effect == "damageTakenEnhancer") {
+        return make_shared<HealthGainModifier>(numerator, denominator, parse_id(from));
+    } else if (effect == "damage_taken_enhancer") {
         int numerator, denominator;
         s >> numerator >> denominator;
         string from;
         s >> from;
-        return make_shared<DamageTakenEnhancer>(numerator, denominator, parseId(from));
+        return make_shared<DamageTakenModifier>(numerator, denominator, parse_id(from));
     } else if (effect == "resistance") {
         int numerator, denominator;
         s >> numerator >> denominator;
         string type;
-        vector<int> to;
-        while (s >> type, type != "done") {
-            to.push_back(parseId(type));
-        }
-        return make_shared<VenerabilityModifier>(denominator, numerator, to);
+        return make_shared<VenerabilityModifier>(denominator, numerator, read_list(s));
     } else if (effect == "regen") {
         int amount;
         s >> amount;
@@ -265,88 +287,71 @@ shared_ptr<Listener> Loader::loadEffect(istream &s) {
         int numerator, denominator;
         s >> numerator >> denominator;
         string type;
-        vector<int> to;
-        while (s >> type, type != "done") {
-            to.push_back(parseId(type));
-        }
-        return make_shared<VenerabilityModifier>(numerator, denominator, to);
-    } else if (effect == "depleteOnConsume") {
+        return make_shared<VenerabilityModifier>(numerator, denominator, read_list(s));
+    } else if (effect == "deplete_on_consume") {
         int amount;
         s >> amount;
         return make_shared<DamageOnConsume>(amount);
-    } else if (effect == "restoreOnConsume") {
+    } else if (effect == "restore_on_consume") {
         int amount;
         s >> amount;
         return make_shared<HealOnConsume>(amount);
-    } else if (effect == "dropItems") {
-        auto dropItems = make_shared<DropItems>(state);
+    } else if (effect == "drop_items") {
+        auto drop_items = make_shared<DropItems>(state);
         string token;
-        vector<int> itemSet;
-        int weight {0};
         while (s >> token, token != "done") {
             if (token == "[") {
+                int weight;
                 s >> weight;
-            } else if (token == "]") {
-                dropItems->addItem(weight, itemSet);
-                itemSet.clear();
+                drop_items->add_item(weight, read_list(s));
             } else {
-                itemSet.emplace_back(parseId(token));
+                cerr << "Not a valid weighted list start \"" << token << "\"" << endl;
             }
         }
-        return dropItems;
-    } else if (effect == "autoPickup") {
-        return make_shared<TypeAutoPickup>(parseId("player"));
-    } else if (effect == "enhanceTempEffects") {
-        short modNumerator, modDenominator;
-        s >> modNumerator >> modDenominator;
+        return drop_items;
+    } else if (effect == "auto_pickup") {
+        return make_shared<TypeAutoPickup>(parse_id("player"));
+    } else if (effect == "enhance_temp_effects") {
+        short mod_numerator, mod_denominator;
+        s >> mod_numerator >> mod_denominator;
         string type;
-        vector<int> from;
-        while (s >> type, type != "done") {
-            from.push_back(parseId(type));
-        }
-        return make_shared<EnhanceTemporaryEffects>(from, modNumerator, modDenominator);
-    } else if (effect == "setStateOnAttacked") {
-        string stateName, by;
-        s >> stateName >> by;
-        if (!HasAIData::aiReservedId(stateName)) HasAIData::aiReserveId(stateName);
-        return make_shared<StateSetOnAttacked>(HasAIData::aiGetId(stateName), parseId(by), state);
-    } else if (effect == "addValueOnHold") {
+        return make_shared<EnhanceTemporaryEffects>(mod_numerator, mod_denominator, read_list(s));
+    } else if (effect == "set_state_on_attacked") {
+        string state_name, by;
+        s >> state_name >> by;
+        if (!HasAIData::ai_reserved_id(state_name)) HasAIData::ai_reserve_id(state_name);
+        return make_shared<StateSetOnAttacked>(HasAIData::ai_get_id(state_name), parse_id(by), state);
+    } else if (effect == "add_value_on_hold") {
         return make_shared<AddValueOnHold>();
     } else if (effect == "invulnerable") {
         return make_shared<Invulnerable>();
-    } else if (effect == "stealScore") {
+    } else if (effect == "steal_score") {
         return make_shared<StealScoreOnKill>();
+    } else if (effect == "thorns") {
+        int numerator, denominator;
+        s >> numerator >> denominator;
+        return make_shared<Thorns>(numerator, denominator);
     } else {
         cerr << "No such effect \"" << effect << "\"" << endl;
         return nullptr;
     }
 }
 
-shared_ptr<Action> Loader::loadAction(istream &s) {
+shared_ptr<Action> Loader::load_action(istream &s) {
     string action;
     s >> action;
     if (action == "melee") {
-        int atkModifier, spellModifier;
-        s >> atkModifier >> spellModifier;
-        return make_shared<MeleeAttack>(atkModifier, 1, spellModifier, 1);
+        int atk_modifier, spell_modifier;
+        s >> atk_modifier >> spell_modifier;
+        return make_shared<MeleeAttack>(atk_modifier, 1, spell_modifier, 1);
     } else if (action == "shoot") {
-        int atkModifier, spellModifier, range;
-        s >> atkModifier >> spellModifier >> range;
-        return make_shared<RangedAttack>(atkModifier, 1, spellModifier, 1, range);
+        int atk_modifier, spell_modifier, range;
+        s >> atk_modifier >> spell_modifier >> range;
+        return make_shared<RangedAttack>(atk_modifier, 1, spell_modifier, 1, range);
     } else if (action == "walk") {
-        string type;
-        vector<int> walkable;
-        while (s >> type, type != "done") {
-            walkable.push_back(parseId(type));
-        }
-        return make_shared<WalkAction>(walkable);
-    } else if (action == "walkAsAction") {
-        string type;
-        vector<int> walkable;
-        while (s >> type, type != "done") {
-            walkable.push_back(parseId(type));
-        }
-        return make_shared<WalkAsActionAction>(walkable);
+        return make_shared<WalkAction>(read_list(s));
+    } else if (action == "walk_as_action") {
+        return make_shared<WalkAsActionAction>(read_list(s));
     } else if (action == "eat") {
         return make_shared<EatAction>();
     } else if (action == "interact") {
@@ -361,33 +366,26 @@ shared_ptr<Action> Loader::loadAction(istream &s) {
     }
 }
 
-void Loader::parseRace(istream &s){
+void Loader::parse_race(istream &s){
     auto race = make_unique<Race>();
     s >> race->name;
-    race->id = parseId(race->name);
+    race->id = parse_id(race->name);
     string command;
     while(s >> command, command != "end") {
         if (command == "set") {
             string set;
             s >> set;
-            if (setTable.count(set)) {
-                race->featureSet = setTable[set];
+            if (set_table.count(set)) {
+                race->feature_set = set_table[set];
             } else {
                 cerr << "Could not find set \"" << set << "\"" << endl;
             }
         } else if (command == "slots") {
-            string slot;
-            while(s >> slot, slot != "done") {
-                race->slots.insert(parseId(slot));
+            for(auto slot:read_list(s)) {
+                race->slots.insert(slot);
             }
         } else if (command == "desc") {
-            string word;
-            ostringstream desc;
-            while (s >> word, word != "end_desc") {
-                if (word == "nl") desc << endl;
-                else desc << word << " ";
-            }
-            race->description = desc.str();
+            race->description = read_multiline_string(s);
         } else if (command == "shortcut") {
             s >> race->shortcut;
         } else {
@@ -395,277 +393,212 @@ void Loader::parseRace(istream &s){
         }
     }
     int id {race->id};
-    state.lock()->library.addRace(id, move(race));
+    state.lock()->library.add_race(id, move(race));
 }
 
-shared_ptr<Controller> Loader::loadController(istream &s) {
-    shared_ptr<Controller> newController;
+shared_ptr<Controller> Loader::load_controller(istream &s) {
+    shared_ptr<Controller> new_controller;
     string name;
     while(s >> name, name != "done" && name!= "]") {
         if (name == "wander") {
-            newController = make_shared<Wander>();
-        } else if (name == "localAttack") {
-            newController = make_shared<LocalAttackPlayer>(newController);
-        } else if (name == "stateIf") {
-            string stateName, token;
-            s >> stateName >> token;
+            new_controller = make_shared<Wander>();
+        } else if (name == "local_attack") {
+            new_controller = make_shared<LocalAttackPlayer>(new_controller);
+        } else if (name == "state_if") {
+            string state_name, token;
+            s >> state_name >> token;
             if (token != "[") {
                 cerr << "Invalid controller start block \"" << token << "\", must be \"[\"" << endl;
             }
-            auto trueController = loadController(s);
+            auto true_controller = load_controller(s);
             s >> token;
             if (token != "[") {
                 cerr << "Invalid controller start block \"" << token << "\", must be \"[\"" << endl;
             }
-            auto falseController = loadController(s);
-            if (!HasAIData::aiReservedId(stateName)) HasAIData::aiReserveId(stateName);
-            newController = make_shared<StateConditional>(HasAIData::aiGetId(stateName), trueController, falseController);
+            auto false_controller = load_controller(s);
+            if (!HasAIData::ai_reserved_id(state_name)) HasAIData::ai_reserve_id(state_name);
+            new_controller = make_shared<StateConditional>(HasAIData::ai_get_id(state_name), true_controller, false_controller);
         } else if (name == "guard") {
             string guarded;
             s >> guarded;
-            vector<int> from;
             string token;
             s >> token;
             if (token != "[") {
-                cerr << "Invalid indentifier start block \"" << token << "\", must be \"[\"" << endl;
+                cerr << "Invalid identifier start block \"" << token << "\", must be \"[\"" << endl;
             }
-            while(s >> token, token != "]") {
-                from.push_back(parseId(token));
-            }
-            newController = make_shared<Guard>(parseId(guarded), from);
+            new_controller = make_shared<Guard>(parse_id(guarded), read_list(s));
         } else {
             cerr << "No such controller \"" << name << "\"" << endl;
         }
     }
-    controllers.push_back(newController);  // TODO, necedssary to track controllers in loader?
-    return newController;
+    controllers.push_back(new_controller);  // TODO, necedssary to track controllers in loader?
+    return new_controller;
 }
 
-void Loader::parseMob(istream &s) {
-    unique_ptr<Character> newMob {make_unique<Character>()};
+void Loader::parse_mob(istream &s) {
+    auto new_mob = make_shared<Character>();
     string name;
     s >> name;
-    int id {parseId(name)};
-    newMob->types.insert(id);
-    newMob->types.insert(parseId("mob"));
+    int id {parse_id(name)};
+    new_mob->types.insert(id);
+    new_mob->types.insert(parse_id("mob"));
     string command;
     while(s >> command, command != "end") {
-        if (command == "set") {
-            string set;
-            s >> set;
-            if (setTable.count(set)) {
-                newMob->addFeatureSet(*setTable[set]);
-            } else {
-                cerr << "Could not find set \"" << set << "\"" << endl;
-            }
-        } else if (command == "controller") {
-            newMob->controller = loadController(s);
-        } else if (command == "representation") {
-            char c;
-            s >> c;
-            newMob->representation = c;
-        } else if (command == "name") {
-            ostringstream fullName;
-            string token;
-            s >> token;
-            fullName << token;
-            while(s >> token, token != "done") {
-                fullName << " " << token;
-            }
-            newMob->name = fullName.str();
-        } else if (command == "score") {
-            int score;
-            s >> score;
-            newMob->score = score;
-        } else {
-            cerr << "Unknown Command \"" << command << "\" when parsing Mob" << endl;
-        }
+        read_mob_command(new_mob, command, s);
     }
-    state.lock()->library.addMob(id, move(newMob));
+    state.lock()->library.add_mob(id, new_mob);
 }
 
-void Loader::parseItem(istream &s) {
-    auto newItem = make_unique<Item>();
+void Loader::parse_item(istream &s) {
+    auto new_item = make_shared<Item>();
     string name;
     s >> name;
-    int id {parseId(name)};
-    newItem->types.insert(id);
-    newItem->types.insert(parseId("item"));
+    int id {parse_id(name)};
+    new_item->types.insert(id);
+    new_item->types.insert(parse_id("item"));
     string command;
     while(s >> command, command != "end") {
-        if (command == "set") {
-            string set;
-            s >> set;
-            if (setTable.count(set)) {
-                newItem->addFeatureSet(*setTable[set]);
-            } else {
-                cerr << "Could not find set \"" << set << "\"" << endl;
-            }
-        } else if (command == "value") {
-            int value;
-            s >> value;
-            newItem->value = value;
-        } else if (command == "representation") {
-            char c;
-            s >> c;
-            newItem->representation = c;
-        } else if (command == "name") {
-            ostringstream fullName;
-            string token;
-            s >> token;
-            fullName << token;
-            while(s >> token, token != "done") {
-                fullName << " " << token;
-            }
-            newItem->name = fullName.str();
-        } else if (command == "score") {
-            int score;
-            s >> score;
-            newItem->score = score;
-        } else {
-            cerr << "Unknown Command \"" << command << "\" when parsing Item" << endl;
-        }
+        read_item_command(new_item, command, s);
     }
-    state.lock()->library.addItem(id, move(newItem));
+    state.lock()->library.add_item(id, new_item);
 }
 
-void Loader::parseConsumable(std::istream &s) {
-    auto newConsumable = make_unique<Consumable>();
+void Loader::parse_consumable(std::istream &s) {
+    auto new_consumable = make_shared<Consumable>();
     string name;
     s >> name;
-    int id {parseId(name)};
-    newConsumable->types.insert(id);
-    newConsumable->types.insert(parseId("item"));
-    newConsumable->types.insert(parseId("consumable"));
+    int id {parse_id(name)};
+    new_consumable->types.insert(id);
+    new_consumable->types.insert(parse_id("item"));
+    new_consumable->types.insert(parse_id("consumable"));
     string command;
     while(s >> command, command != "end") {
-        if (command == "set") {
-            string set;
-            s >> set;
-            if (setTable.count(set)) {
-                newConsumable->addFeatureSet(*setTable[set]);
-            } else {
-                cerr << "Could not find set \"" << set << "\"" << endl;
-            }
-        } else if (command == "value") {
-            int value;
-            s >> value;
-            newConsumable->value = value;
-        } else if (command == "consumed") {
-            int numTurns; // TODO check syntax error
-            s >> numTurns;
-            string set;
-            s >> set;
-            if (setTable.count(set)) {
-                newConsumable->set = setTable[set];
-                newConsumable->numTurns = numTurns;
-            } else {
-                cerr << "Could not find set \"" << set << "\"" << endl;
-            }
-        } else if (command == "effectType"){
-            string effectType;
-            s >> effectType;
-            if (effectType == "positive") {
-                newConsumable->effectType = POSITIVE;
-            } else if (effectType == "negative") {
-                newConsumable->effectType = NEGATIVE;
-            } else if (effectType == "neutral") {
-                newConsumable->effectType = NEUTRAL;
-            } else {
-                cerr << "Unknown effectType \"" << effectType << "\"" << endl;
-            }
-        } else if (command == "representation") {
-            char c;
-            s >> c;
-            newConsumable->representation = c;
-        } else if (command == "name") {
-            ostringstream fullName;
-            string token;
-            s >> token;
-            fullName << token;
-            while(s >> token, token != "done") {
-                fullName << " " << token;
-            }
-            newConsumable->name = fullName.str();
-        } else if (command == "score") {
-            int score;
-            s >> score;
-            newConsumable->score = score;
-        } else {
-            cerr << "Unknown Command \"" << command << "\" when parsing Consumable" << endl;
-        }
+        read_consumable_command(new_consumable, command, s);
     }
-    state.lock()->library.addConsumable(id, move(newConsumable));
+    state.lock()->library.add_consumable(id, new_consumable);
 }
 
-void Loader::parseEquippable(std::istream &s) {
-    auto newEquippable = make_unique<Equippable>();
+void Loader::parse_equippable(std::istream &s) {
+    auto new_equippable = make_shared<Equippable>();
     string name;
     s >> name;
-    int id {parseId(name)};
-    newEquippable->types.insert(id);
-    newEquippable->types.insert(parseId("item"));
-    newEquippable->types.insert(parseId("equippable"));
+    int id {parse_id(name)};
+    new_equippable->types.insert(id);
+    new_equippable->types.insert(parse_id("item"));
+    new_equippable->types.insert(parse_id("equippable"));
     string command;
     while(s >> command, command != "end") {
-        if (command == "set") {
-            string set;
-            s >> set;
-            if (setTable.count(set)) {
-                newEquippable->addFeatureSet(*setTable[set]);
-            } else {
-                cerr << "Could not find set \"" << set << "\"" << endl;
-            }
-        } else if (command == "value") {
-            int value;
-            s >> value;
-            newEquippable->value = value;
-        } else if (command == "equipped") {
-            string slot;
-            s >> slot;
-            string set;
-            s >> set;
-            if (setTable.count(set)) {
-                newEquippable->slot = parseId(slot);
-                newEquippable->set = setTable[set];
-            } else {
-                cerr << "Could not find set \"" << set << "\"" << endl;
-            }
-        } else if (command == "representation") {
-            char c;
-            s >> c;
-            newEquippable->representation = c;
-        } else if (command == "name") {
-            ostringstream fullName;
-            string token;
-            s >> token;
-            fullName << token;
-            while(s >> token, token != "done") {
-                fullName << " " << token;
-            }
-            newEquippable->name = fullName.str();
-        } else if (command == "score") {
-            int score;
-            s >> score;
-            newEquippable->score = score;
-        } else {
-            cerr << "Unknown Command \"" << command << "\"" << endl;
-        }
+        read_equippable_command(new_equippable, command, s);
     }
-    state.lock()->library.addEquippable(id, move(newEquippable));
+    state.lock()->library.add_equippable(id, new_equippable);
 }
 
-int Loader::parseId(std::string name) {
-    auto it = typeTable.find(name);
-    if (it == typeTable.end()) {
-        int id = nextId++;
-        typeTable.emplace(name, id);
-        typeBackTable.emplace(id, name);
+int Loader::parse_id(std::string name) {
+    auto it = type_table.find(name);
+    if (it == type_table.end()) {
+        int id = next_id++;
+        type_table.emplace(name, id);
+        type_back_table.emplace(id, name);
         return id;
     }
     return it->second;
 }
 
-void Loader::loadFile(std::string file) {
-    parseFile(file);
+void Loader::load_file(std::string file) {
+    parse_file(file);
+}
+
+void Loader::read_entity_command(const std::shared_ptr<Entity> &entity, const std::string &command, std::istream &s) {
+    if (command == "set") {
+        string set;
+        s >> set;
+        if (set_table.count(set)) {
+            entity->add_feature_set(*set_table[set]);
+            if (sets_is_type.count(parse_id(set))) {
+                entity->types.insert(parse_id(set));
+            }
+        } else {
+            cerr << "Could not find set \"" << set << "\"" << endl;
+        }
+    } else if (command == "representation") {
+        char c;
+        s >> c;
+        entity->representation = c;
+    } else if (command == "name") {
+        entity->name = read_string(s);
+    } else if (command == "score") {
+        int score;
+        s >> score;
+        entity->score = score;
+    } else if (command == "type") {
+        string type;
+        s >> type;
+        entity->types.insert(parse_id(type));
+    } else {
+        cerr << "Unknown Command \"" << command << "\"" << endl;
+    }
+}
+
+void Loader::read_mob_command(const std::shared_ptr<Character> &entity, const std::string &command, std::istream &s) {
+    if (command == "controller") {
+        entity->controller = load_controller(s);
+    } else {
+        read_entity_command(entity, command, s);
+    }
+}
+
+void Loader::read_item_command(const std::shared_ptr<Item> &entity, const std::string &command, std::istream &s) {
+    if (command == "value") {
+        int value;
+        s >> value;
+        entity->value = value;
+    } else {
+        read_entity_command(entity, command, s);
+    }
+}
+
+void Loader::read_consumable_command(const std::shared_ptr<Consumable> &entity, const std::string &command, std::istream &s) {
+    if (command == "consumed") {
+        int num_turns; // TODO check syntax error
+        s >> num_turns;
+        string set;
+        s >> set;
+        if (set_table.count(set)) {
+            entity->set = set_table[set];
+            entity->num_turns = num_turns;
+        } else {
+            cerr << "Could not find set \"" << set << "\"" << endl;
+        }
+    } else if (command == "effect_type"){
+        string effect_type;
+        s >> effect_type;
+        if (effect_type == "positive") {
+            entity->effect_type = POSITIVE;
+        } else if (effect_type == "negative") {
+            entity->effect_type = NEGATIVE;
+        } else if (effect_type == "neutral") {
+            entity->effect_type = NEUTRAL;
+        } else {
+            cerr << "Unknown effect_type \"" << effect_type << "\"" << endl;
+        }
+    } else {
+        read_item_command(entity, command, s);
+    }
+}
+
+void Loader::read_equippable_command(const std::shared_ptr<Equippable> &entity, const std::string &command, std::istream &s) {
+    if (command == "equipped") {
+        string slot;
+        s >> slot;
+        string set;
+        s >> set;
+        if (set_table.count(set)) {
+            entity->slot = parse_id(slot);
+            entity->set = set_table[set];
+        } else {
+            cerr << "Could not find set \"" << set << "\"" << endl;
+        }
+    } else {
+        read_item_command(entity, command, s);
+    }
 }

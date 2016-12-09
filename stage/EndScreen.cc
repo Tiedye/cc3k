@@ -6,9 +6,9 @@
 
 using namespace std;
 
-EndScreen::EndScreen(const std::shared_ptr<State> &state, const int returnId) : Stage(state), returnId{returnId} {}
+EndScreen::EndScreen(const std::shared_ptr<State> &state, const int return_id) : Stage(state), return_id{return_id} {}
 
-void printCentered(WINDOW*win, string str, int row){
+void print_centered(WINDOW*win, string str, int row){
     int width {getmaxx(win)};
     mvwaddstr(win, row, (width - str.length())/2, str.c_str());
 }
@@ -19,31 +19,31 @@ int EndScreen::run(Game &game) {
     noecho();
     int height {getmaxy(stdscr)};
     int row {height/2};
-    if (state->player->isDead()) {
-        printCentered(stdscr, "You Died.", row);
+    if (state->player->is_dead()) {
+        print_centered(stdscr, "You Died.", row);
     } else {
-        printCentered(stdscr, "You Complete the Game.", row);
+        print_centered(stdscr, "You Complete the Game.", row);
     }
     ++row;
-    printCentered(stdscr, "Your score:", row);
+    print_centered(stdscr, "Your score:", row);
     ++row;
-    printCentered(stdscr, to_string(state->player->currentScore()), row);
+    print_centered(stdscr, to_string(state->player->current_score()), row);
     int c;
-    int nextStage {-1};
-    bool needsInput {true};
-    while (needsInput) {
+    int next_stage {-1};
+    bool needs_input {true};
+    while (needs_input) {
         c = getch();
         switch (c) {
             case 'q':
-                needsInput = false;
+                needs_input = false;
                 break;
             case 'r':
-                needsInput = false;
-                nextStage = returnId;
+                needs_input = false;
+                next_stage = return_id;
             default:
                 break;
         }
     }
     endwin();
-    return nextStage;
+    return next_stage;
 }

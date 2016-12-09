@@ -1,6 +1,6 @@
 #include "UnequipAction.h"
 
-int UnequipAction::getRange(const Character &source) const {
+int UnequipAction::get_range(const Character &source) const {
     return 1;
 }
 

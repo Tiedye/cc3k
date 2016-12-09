@@ -39,7 +39,7 @@ public:
 
     const Step type;
 
-    const Type actionType;
+    const Type action_type;
 
     const std::string name;
 
@@ -48,27 +48,27 @@ public:
 
     const Shape shape;
     const bool aoe;
-    const int aoeSize;
+    const int aoe_size;
 
-    virtual int getRange(const Character &source) const;
+    virtual int get_range(const Character &source) const;
 
-    virtual int getMinRange(const Character &source) const;
+    virtual int get_min_range(const Character &source) const;
 
     // used to get values associated with ATTACK and AID actions, can also be used before that for informational purposes
-    virtual int getAmount(Character &source) const;
-    virtual void onUse(const std::shared_ptr<Character> &source,
-                       Position castPoint); // called on actions of type: PASS, MOVE, AID(SELF), EFFECT(SELF)
-    virtual void onUse(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target,
-                       Position castPoint); // called on actions of type: CONSUME, EQUIP, INTERACT, ATTACK, AID(!SELF), EFFECT(!SELF)
+    virtual int get_amount(Character &source) const;
+    virtual void on_use(const std::shared_ptr<Character> &source,
+                       Position cast_point); // called on actions of type: PASS, MOVE, AID(SELF), EFFECT(SELF)
+    virtual void on_use(const std::shared_ptr<Character> &source, const std::shared_ptr<Entity> &target,
+                       Position cast_point); // called on actions of type: CONSUME, EQUIP, INTERACT, ATTACK, AID(!SELF), EFFECT(!SELF)
 
-    virtual bool canTarget(const Position position, const std::shared_ptr<State> &state);
+    virtual bool can_target(const Position position, const std::shared_ptr<State> &state);
 
     virtual ~Action() = default;
 
 
 protected:
-    Action(const Type actionType, const std::string name, const Step type = PASSACTION, const int targets = SELF, const Range range = ANY,
-           const Shape shape = POINT, const bool aoe = false, const int aoeSize = 0);
+    Action(const Type action_type, const std::string name, const Step type = PASSACTION, const int targets = SELF, const Range range = ANY,
+           const Shape shape = POINT, const bool aoe = false, const int aoe_size = 0);
 };
 
 

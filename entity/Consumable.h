@@ -8,9 +8,9 @@ public:
     class Target : public EventTarget {
     public:
         Target(const std::shared_ptr<Consumable> &consumable);
-        std::shared_ptr<Entity> asEntity() override;
-        std::shared_ptr<Item> asItem() override;
-        std::shared_ptr<Consumable> asConsumable() override;
+        std::shared_ptr<Entity> as_entity() override;
+        std::shared_ptr<Item> as_item() override;
+        std::shared_ptr<Consumable> as_consumable() override;
 
     private:
         std::shared_ptr<Consumable> consumable;
@@ -28,9 +28,9 @@ public:
     std::shared_ptr<Entity> clone() override;
 
 private:
-    EffectType effectType;
+    EffectType effect_type;
     std::shared_ptr<FeatureSet> set;
-    int numTurns;
+    int num_turns;
 
     friend class Loader;
 };

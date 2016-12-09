@@ -15,18 +15,18 @@ public:
     class Target : public EventTarget {
     public:
         Target(const std::shared_ptr<Item> &item);
-        std::shared_ptr<Entity> asEntity() override;
-        std::shared_ptr<Item> asItem() override;
+        std::shared_ptr<Entity> as_entity() override;
+        std::shared_ptr<Item> as_item() override;
 
     private:
         std::shared_ptr<Item> item;
     };
 
-    std::unique_ptr<EventTarget> getAsTarget() override;
+    std::unique_ptr<EventTarget> get_as_target() override;
 
     std::shared_ptr<Entity> clone() override;
 
-    int getValue();
+    int get_value();
 
 private:
     int value {0};
@@ -35,10 +35,10 @@ private:
     public:
         virtual void notify(EventInfo &info) override;
 
-        static const std::vector<EventType> eventTypes;
-        const std::vector<EventType> listeningFor() const override;
+        static const std::vector<EventType> event_types;
+        const std::vector<EventType> listening_for() const override;
     };
-    static std::shared_ptr<PickupOnInteract> pickupOnInteract;
+    static std::shared_ptr<PickupOnInteract> pickup_on_interact;
 
     friend class Loader;
 };

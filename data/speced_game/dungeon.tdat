@@ -1,19 +1,19 @@
-start probabilitySet all
-    param cellHeightMean 5
-    param cellHeightShift 1
-    param cellWidthMean 11
-    param cellWidthShift 4
+start probability_set all
+    param cell_height_mean 5
+    param cell_height_shift 1
+    param cell_width_mean 11
+    param cell_width_shift 4
     
-    param cellCountMean 6
-    param cellCountShift 1
+    param cell_count_mean 6
+    param cell_count_shift 1
     
-    param verticalHallLengthMean 10
-    param verticalHallLengthShift 10
-    param horizontalHallLengthMean 30
-    param horizontalHallLengthShift 10
+    param vertical_hall_length_mean 10
+    param vertical_hall_length_shift 10
+    param horizontal_hall_length_mean 30
+    param horizontal_hall_length_shift 10
 
-    spawnSet 10 [ 5 normalGold ] [ 1 dragonHoard dragon ] [ 2 smallGold ] done
-    spawnSet 20 [ 4 human ] [ 3 dwarf ] [ 5 halfling ] [ 2 elf ] [ 2 orc ] [ 2 merchant ] done
+    spawn_set 10 [ 5 normal_gold ] [ 1 dragon_hoard dragon ] [ 2 small_gold ] done
+    spawn_set 20 [ 4 human ] [ 3 dwarf ] [ 5 halfling ] [ 2 elf ] [ 2 orc ] [ 2 merchant ] done
 end
 start dungeon dungeon1
     size 24 78

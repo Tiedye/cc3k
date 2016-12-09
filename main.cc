@@ -13,52 +13,52 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    string gameFile = "data/full_game/game.tdat";
-    string dungeonSpec = "data/full_game/dungeon/dungeon.tdat";
+    string game_file = "data/full_game/game.tdat";
+    string dungeon_spec = "data/full_game/dungeon/dungeon.tdat";
 
-    vector<string> dungeonFiles;
+    vector<string> dungeon_files;
 
     for(int index = 1; index < argc; ++index) {
         string arg {argv[index]};
         if (arg == "--game") {
             ++index;
             if (index == argc) break;
-            gameFile = argv[index];
+            game_file = argv[index];
         } else if (arg == "--dungeon_spec") {
             ++index;
             if (index == argc) break;
-            dungeonSpec = argv[index];
+            dungeon_spec = argv[index];
         } else {
             if (index == argc) break;
-            dungeonFiles.push_back(string(argv[index]));
+            dungeon_files.push_back(string(argv[index]));
         }
     }
 
     shared_ptr<State> state = make_shared<State>();
     shared_ptr<Loader> loader = make_shared<Loader>(state);
-    shared_ptr<ConsoleDungeonIO> dungeonIO = make_shared<ConsoleDungeonIO>();
+    shared_ptr<ConsoleDungeonIO> dungeon_i_o = make_shared<ConsoleDungeonIO>();
     state->loader = loader;
-    state->dungeonRenderer = dungeonIO;
+    state->dungeon_renderer = dungeon_i_o;
     state->player = make_shared<Character>("Player");
-    state->player->makeA(state->loader->getId("player"));
-    state->player->controller = dungeonIO;
+    state->player->make_a(state->loader->get_id("player"));
+    state->player->controller = dungeon_i_o;
     state->player->representation = '@';
-    loader->loadFile(gameFile);
+    loader->load_file(game_file);
 
     Game game(state);
-    if (!dungeonFiles.empty()) {
+    if (!dungeon_files.empty()) {
         auto menu = make_shared<Menu>(state);
-        auto simpleLoader = make_shared<SimpleLoader>(state, dungeonFiles);
-        game.addStage(0, menu);
-        game.addStage(0, simpleLoader);
-        game.setInitialStage(menu->id);
-        game.addStage(1, make_shared<EndScreen>(state, menu->id));
+        auto simple_loader = make_shared<SimpleLoader>(state, dungeon_files);
+        game.add_stage(0, menu);
+        game.add_stage(0, simple_loader);
+        game.set_initial_stage(menu->id);
+        game.add_stage(1, make_shared<EndScreen>(state, menu->id));
     } else {
         auto menu = make_shared<Menu>(state);
-        auto randomLoader = make_shared<RandomLevelLoader>(state, dungeonSpec);
-        game.addStage(0, menu);
-        game.addStage(0, randomLoader);
-        game.setInitialStage(menu->id);
+        auto random_loader = make_shared<RandomLevelLoader>(state, dungeon_spec);
+        game.add_stage(0, menu);
+        game.add_stage(0, random_loader);
+        game.set_initial_stage(menu->id);
     }
     game.start();
 }

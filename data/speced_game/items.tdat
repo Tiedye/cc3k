@@ -1,27 +1,27 @@
 start set gold
-    effect autoPickup
-    effect addValueOnHold
+    effect auto_pickup
+    effect add_value_on_hold
     effect invulnerable
 end
-start item smallGold
+start item small_gold
     name a Small Gold Pile done
     set gold
     value 1
     representation G
 end
-start item normalGold
+start item normal_gold
     name a Gold Pile done
     set gold
     value 2
     representation G
 end
-start item merchantHoard
+start item merchant_hoard
     name a Merchant Gold Hoard done
     set gold
     value 4
     representation G
 end
-start item dragonHoard
+start item dragon_hoard
     name a Dragon Gold Hoard done
     set gold
     value 6
@@ -31,49 +31,49 @@ end
 start equippable sword
     name a Sword done
     value 8
-    equipped hand swordSet
+    equipped hand sword_set
     representation S
 end
-start set swordSet
+start set sword_set
     stat mult atk 2
 end
 
 start equippable mail
     name Chain Mail done
     value 8
-    equipped torso mailSet
+    equipped torso mail_set
     representation A
 end
-start set mailSet
+start set mail_set
     stat add def 70
 end
 
 start equippable bow
     name a Bow done
     value 6
-    equipped hand bowSet
+    equipped hand bow_set
     representation S
 end
-start set bowSet
+start set bow_set
     action shoot 1 0 3
 end
 
 start equippable boots
     name Boots done
     value 4
-    equipped feet bootsSet
+    equipped feet boots_set
     representation B
 end
-start set bootsSet
+start set boots_set
     stat add speed 1
 end
 
-start equippable ringOfHealth
+start equippable ring_of_health
     name Ring of Health done
     value 10
-    equipped ring ringOfHealthSet
+    equipped ring ring_of_health_set
     representation R
 end
-start set ringOfHealthSet
+start set ring_of_health_set
     stat add hp 70
 end

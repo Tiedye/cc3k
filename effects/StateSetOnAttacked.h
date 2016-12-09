@@ -5,12 +5,12 @@ class State;
 
 class StateSetOnAttacked : public Listener {
 public:
-    StateSetOnAttacked(const int idToSet, const int whenAttackedBy, const std::weak_ptr<State> &state);
+    StateSetOnAttacked(const int id_to_set, const int when_attacked_by, const std::weak_ptr<State> &state);
     void notify(EventInfo &info) override;
-    const std::vector<EventType> listeningFor() const override;
+    const std::vector<EventType> listening_for() const override;
 private:
-    const int idToSet;
-    const int whenAttackedBy;
+    const int id_to_set;
+    const int when_attacked_by;
     std::weak_ptr<State> state;
 };
 

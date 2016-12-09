@@ -1,6 +1,6 @@
 #include "EatAction.h"
 
-int EatAction::getRange(const Character &source) const {
+int EatAction::get_range(const Character &source) const {
     return 1;
 }
 

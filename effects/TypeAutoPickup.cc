@@ -13,23 +13,23 @@
 using namespace std;
 
 void TypeAutoPickup::notify(EventInfo &info) {
-    auto to = info.secondary->asCharacter();
-    if (to->isA(type)) {
-        auto self = info.primary->asItem();
+    auto to = info.secondary->as_character();
+    if (to->is_a(type)) {
+        auto self = info.primary->as_item();
         EventInfo::Data data;
         data.integer1 = true;
         self->trigger(ADD_TO_INVENTORY, data, to);
         if (data.integer1) {
-            self->removeFromContainers();
-            to->give(info.primary->asItem());
+            self->remove_from_containers();
+            to->give(info.primary->as_item());
             self->trigger(ADD_TO_INVENTORY_DONE, to);
         }
-        info.primary->asEntity()->removeFromContainers();
-        to->give(info.primary->asItem());
+        info.primary->as_entity()->remove_from_containers();
+        to->give(info.primary->as_item());
     }
 }
 
-const std::vector<EventType> TypeAutoPickup::listeningFor() const {
+const std::vector<EventType> TypeAutoPickup::listening_for() const {
     return {OCCUPIED_DONE};
 }
 

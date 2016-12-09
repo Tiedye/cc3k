@@ -10,7 +10,7 @@ public:
 private:
     int run(Game &game) override;
 
-    int lastRace {-1};
+    int last_race {-1};
 
     const int next;
 };

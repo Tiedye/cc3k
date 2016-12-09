@@ -1,40 +1,40 @@
-start set restoreHealthPotionSet
-    effect restoreOnConsume 10
+start set restore_health_potion_set
+    effect restore_on_consume 10
 end
-start consumable restoreHealthPotion
-    set restoreHealthPotionSet
+start consumable restore_health_potion
+    set restore_health_potion_set
 end
-start consumable boostAtkPotion
-    consumed 50 atkBoost
-    effectType positive
+start consumable boost_atk_potion
+    consumed 50 atk_boost
+    effect_type positive
 end
-start consumable boostDefPotion
-    consumed 50 defBoost
-    effectType positive
+start consumable boost_def_potion
+    consumed 50 def_boost
+    effect_type positive
 end
-start set poisonHealthPotionSet
-    effect depleteOnConsume 10
+start set poison_health_potion_set
+    effect deplete_on_consume 10
 end
-start consumable poisonHealthPotion
-    set poisonHealthPotionSet
+start consumable poison_health_potion
+    set poison_health_potion_set
 end
-start consumable woundAtkPotion
-    consumed 50 atkPenalty
-    effectType negative
+start consumable wound_atk_potion
+    consumed 50 atk_penalty
+    effect_type negative
 end
-start consumable woundDefPotion
-    consumed 50 defPenalty
-    effectType negative
+start consumable wound_def_potion
+    consumed 50 def_penalty
+    effect_type negative
 end
-start set atkBoost
+start set atk_boost
     stat add atk 5
 end
-start set defBoost
+start set def_boost
     stat add def 5
 end
-start set atkPenalty
+start set atk_penalty
     stat sub atk 5
 end
-start set defPenalty
+start set def_penalty
     stat sub def 5
 end

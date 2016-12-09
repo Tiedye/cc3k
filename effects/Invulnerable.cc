@@ -1,9 +1,9 @@
 #include "Invulnerable.h"
 
 void Invulnerable::notify(EventInfo &info) {
-    info.eventDataPointer->integer2 = false;
+    info.event_data_pointer->integer2 = false;
 }
 
-const std::vector<EventType> Invulnerable::listeningFor() const {
+const std::vector<EventType> Invulnerable::listening_for() const {
     return {ATTACKED};
 }

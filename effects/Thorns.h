@@ -2,18 +2,12 @@
 
 #include "../event/Listener.h"
 
-class DamageOnConsume : public Listener {
+class Thorns : public Listener {
 public:
-    DamageOnConsume(int amount);
-
+    Thorns(const int numerator, const int denominator);
     void notify(EventInfo &info) override;
-
     const std::vector<EventType> listening_for() const override;
-
 private:
-    static const std::vector<EventType> event_types;
-    int amount;
+    const int numerator;
+    const int denominator;
 };
-
-
-

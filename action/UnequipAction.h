@@ -6,7 +6,7 @@ class UnequipAction : public Action {
 public:
     UnequipAction();
 
-    int getRange(const Character &source) const override;
+    int get_range(const Character &source) const override;
 };
 
 

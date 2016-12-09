@@ -1,23 +1,23 @@
 start set size1
     stat base size 1 0
 end
-start item smallGold
+start item small_gold
     value 1
 end
-start item normalGold
+start item normal_gold
     value 2
 end
-start item merchantHoard
+start item merchant_hoard
     value 4
 end
-start item dragonHoard
+start item dragon_hoard
     set size1
     value 6
 end
 start equippable sword
     value 8
-    equipped hand swordSet
+    equipped hand sword_set
 end
-start set swordSet
+start set sword_set
     stat mult atk 2
 end

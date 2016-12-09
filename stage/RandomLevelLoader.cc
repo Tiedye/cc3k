@@ -11,14 +11,14 @@
 
 using namespace std;
 
-RandomLevelLoader::RandomLevelLoader(const std::shared_ptr<State> &state, const std::string &configFile) : Stage(state), configFile(configFile) {}
+RandomLevelLoader::RandomLevelLoader(const std::shared_ptr<State> &state, const std::string &config_file) : Stage(state), config_file(config_file) {}
 
-void RandomLevelLoader::SpawnSet::addGroup(int weight, const std::vector<int> &items) {
-    totalWeight += weight;
+void RandomLevelLoader::SpawnSet::add_group(int weight, const std::vector<int> &items) {
+    total_weight += weight;
     groups.emplace(weight, items);
 }
 
-std::vector<int> RandomLevelLoader::SpawnSet::getGroup(int selection) {
+std::vector<int> RandomLevelLoader::SpawnSet::get_group(int selection) {
     for (auto &group:groups) {
         if (selection < group.first) {
             return group.second;
@@ -28,118 +28,118 @@ std::vector<int> RandomLevelLoader::SpawnSet::getGroup(int selection) {
     return groups.begin()->second;
 }
 
-int RandomLevelLoader::SpawnSet::getTotalWeight() const {
-    return totalWeight;
+int RandomLevelLoader::SpawnSet::get_total_weight() const {
+    return total_weight;
 }
 
 RandomLevelLoader::SpawnSet::SpawnSet() {}
 
 int RandomLevelLoader::run(Game &game) {
-    ifstream s{configFile};
+    ifstream s{config_file};
     if (s) {
-        int initialDungeon {-1};
+        int initial_dungeon {-1};
 
         string command;
         while (s >> command) {
             if (command == "start") {
                 string object;
                 s >> object;
-                if (object == "probabilitySet") {
-                    parseProbabilitySet(s);
+                if (object == "probability_set") {
+                    parse_probability_set(s);
                 } else if (object == "dungeon") {
-                    parseDungeon(s);
+                    parse_dungeon(s);
                 } else {
                     cerr << "Unrecognized command \"" << command << "\"" << endl;
                 }
             } else if (command == "initial") {
                 string dungeon;
                 s >> dungeon;
-                initialDungeon = state->loader->parseId(dungeon);
+                initial_dungeon = state->loader->parse_id(dungeon);
             }
         }
 
         // make dungeons
 
-        for (auto &d:dungeonObjects) {
-            idMapping.emplace(d.second.id, Game::getId());
+        for (auto &d:dungeon_objects) {
+            id_mapping.emplace(d.second.id, Game::get_id());
         }
 
-        for (auto &d:dungeonObjects) {
-            auto dungeon = genDungeon(d.second);
-            game.addStage(1, dungeon);
+        for (auto &d:dungeon_objects) {
+            auto dungeon = gen_dungeon(d.second);
+            game.add_stage(1, dungeon);
         }
-        game.addStage(1, make_shared<EndScreen>(state, 0));
-        return idMapping[initialDungeon];
+        game.add_stage(1, make_shared<EndScreen>(state, 0));
+        return id_mapping[initial_dungeon];
 
     } else {
-        cerr << "Could not load level file \"" << configFile << "\"" << endl;
+        cerr << "Could not load level file \"" << config_file << "\"" << endl;
         return -1;
     }
 }
 
-void RandomLevelLoader::parseProbabilitySet(std::istream &s) {
-    ProbabilitySet probabilitySet;
+void RandomLevelLoader::parse_probability_set(std::istream &s) {
+    ProbabilitySet probability_set;
     string name;
     s >> name;
-    int id{state->loader->parseId(name)};
+    int id{state->loader->parse_id(name)};
     string command;
     while (s >> command, command != "end") {
         if (command == "param") {
             string param;
             int value;
             s >> param >> value;
-            if (param == "cellHeightMean") { probabilitySet.chm = value; }
-            else if (param == "cellHeightShift") { probabilitySet.chs = value; }
-            else if (param == "cellWidthMean") { probabilitySet.cwm = value; }
-            else if (param == "cellWidthShift") { probabilitySet.cws = value; }
-            else if (param == "cellCountMean") { probabilitySet.ccm = value; }
-            else if (param == "cellCountShift") { probabilitySet.ccs = value; }
-            else if (param == "verticalHallLengthMean") { probabilitySet.vhlm = value; }
-            else if (param == "verticalHallLengthShift") { probabilitySet.vhls = value; }
-            else if (param == "horizontalHallLengthMean") { probabilitySet.hhlm = value; }
-            else if (param == "horizontalHallLengthShift") { probabilitySet.hhls = value; }
-        } else if (command == "spawnSet") {
-            probabilitySet.spawnSets.push_back(parseSpawnSet(s));
+            if (param == "cell_height_mean") { probability_set.chm = value; }
+            else if (param == "cell_height_shift") { probability_set.chs = value; }
+            else if (param == "cell_width_mean") { probability_set.cwm = value; }
+            else if (param == "cell_width_shift") { probability_set.cws = value; }
+            else if (param == "cell_count_mean") { probability_set.ccm = value; }
+            else if (param == "cell_count_shift") { probability_set.ccs = value; }
+            else if (param == "vertical_hall_length_mean") { probability_set.vhlm = value; }
+            else if (param == "vertical_hall_length_shift") { probability_set.vhls = value; }
+            else if (param == "horizontal_hall_length_mean") { probability_set.hhlm = value; }
+            else if (param == "horizontal_hall_length_shift") { probability_set.hhls = value; }
+        } else if (command == "spawn_set") {
+            probability_set.spawn_sets.push_back(parse_spawn_set(s));
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing probability set" << endl;
         }
     }
-    probabilitySets.emplace(id, move(probabilitySet));
+    probability_sets.emplace(id, move(probability_set));
 }
 
-void RandomLevelLoader::parseDungeon(std::istream &s) {
-    DungeonObject dungeonObject;
-    string dungeonName;
-    s >> dungeonName;
-    int id{state->loader->parseId(dungeonName)};
-    dungeonObject.id = id;
+void RandomLevelLoader::parse_dungeon(std::istream &s) {
+    DungeonObject dungeon_object;
+    string dungeon_name;
+    s >> dungeon_name;
+    int id{state->loader->parse_id(dungeon_name)};
+    dungeon_object.id = id;
     string command;
     while (s >> command, command != "end") {
         if (command == "set") {
             string name;
             s >> name;
-            dungeonObject.probabilitySet = probabilitySets.at(state->loader->parseId(name));
+            dungeon_object.probability_set = probability_sets.at(state->loader->parse_id(name));
         } else if (command == "next") {
             string name;
             s >> name;
-            dungeonObject.next = state->loader->parseId(name);
+            dungeon_object.next = state->loader->parse_id(name);
         } else if (command == "size") {
             int height, width;
             s >> height >> width;
-            dungeonObject.height = height;
-            dungeonObject.width = width;
+            dungeon_object.height = height;
+            dungeon_object.width = width;
         } else {
             cerr << "Unknown Command \"" << command << "\" when parsing dungeon object" << endl;
         }
     }
-    dungeonObjects.emplace(id, move(dungeonObject));
+    dungeon_objects.emplace(id, move(dungeon_object));
 }
 
-RandomLevelLoader::SpawnSet RandomLevelLoader::parseSpawnSet(std::istream &s) {
-    SpawnSet spawnSet;
+RandomLevelLoader::SpawnSet RandomLevelLoader::parse_spawn_set(std::istream &s) {
+    SpawnSet spawn_set;
     int amount;
     s >> amount;
-    spawnSet.amount = amount;
+    spawn_set.amount = amount;
     string token;
     int weight {0};
     vector<int> current;
@@ -147,21 +147,21 @@ RandomLevelLoader::SpawnSet RandomLevelLoader::parseSpawnSet(std::istream &s) {
         if (token == "[") {
             s >> weight;
         } else if (token == "]") {
-            spawnSet.addGroup(weight, current);
+            spawn_set.add_group(weight, current);
             current.clear();
             weight = -1;
         } else {
             if (weight == -1) {
                 cerr << "Must start spawn group with \"[\" not " << token << endl;
             } else {
-                current.push_back(state->loader->parseId(token));
+                current.push_back(state->loader->parse_id(token));
             }
         }
     }
-    return spawnSet;
+    return spawn_set;
 }
 
-bool onField(const Position position, const int height, const int width) {
+bool on_field(const Position position, const int height, const int width) {
     return position.x >= 0 && position.x < width && position.y >= 0 && position.y < height;
 }
 
@@ -187,30 +187,30 @@ Position adjacent[]{
         {0,  -1}
 };
 
-std::shared_ptr<Dungeon> RandomLevelLoader::genDungeon(const DungeonObject &dungeonObject) {
-    vector<CellType> cells(dungeonObject.width * dungeonObject.height, EMPTY);
-    vector<int> rooms(dungeonObject.width * dungeonObject.height, -1);
+std::shared_ptr<Dungeon> RandomLevelLoader::gen_dungeon(const DungeonObject &dungeon_object) {
+    vector<CellType> cells(dungeon_object.width * dungeon_object.height, EMPTY);
+    vector<int> rooms(dungeon_object.width * dungeon_object.height, -1);
 
-    poisson_distribution<> h{dungeonObject.probabilitySet.chm};
-    poisson_distribution<> w{dungeonObject.probabilitySet.cwm};
+    poisson_distribution<> h{dungeon_object.probability_set.chm};
+    poisson_distribution<> w{dungeon_object.probability_set.cwm};
 
-    poisson_distribution<> c{dungeonObject.probabilitySet.ccm};
+    poisson_distribution<> c{dungeon_object.probability_set.ccm};
 
     uniform_int_distribution<> all;
     auto &gen = state->gen;
 
     /* gen rooms */
 
-    int cc = c(gen) + dungeonObject.probabilitySet.ccs;
+    int cc = c(gen) + dungeon_object.probability_set.ccs;
     for (int cn{0}; cn < cc; ++cn) {
-        int ch = h(gen) + dungeonObject.probabilitySet.chs;
-        int cw = w(gen) + dungeonObject.probabilitySet.cws;
-        int y = all(gen) % (dungeonObject.height - 2 - ch) + 1;
-        int x = all(gen) % (dungeonObject.width - 2 - cw) + 1;
+        int ch = h(gen) + dungeon_object.probability_set.chs;
+        int cw = w(gen) + dungeon_object.probability_set.cws;
+        int y = all(gen) % (dungeon_object.height - 2 - ch) + 1;
+        int x = all(gen) % (dungeon_object.width - 2 - cw) + 1;
 
         for (int yv{y}; yv < y + ch; ++yv) {
             for (int xv{x}; xv < x + cw; ++xv) {
-                cells[yv * dungeonObject.width + xv] = FLOOR;
+                cells[yv * dungeon_object.width + xv] = FLOOR;
             }
         }
     }
@@ -218,127 +218,127 @@ std::shared_ptr<Dungeon> RandomLevelLoader::genDungeon(const DungeonObject &dung
     /* !gen rooms */
     /* gen halls */
 
-    vector<vector<Position>> roomContents;
+    vector<vector<Position>> room_contents;
 
-    for (int y{0}; y < dungeonObject.height; ++y) {
-        for (int x{0}; x < dungeonObject.width; ++x) {
-            rooms[y * dungeonObject.width + x] = -1;
+    for (int y{0}; y < dungeon_object.height; ++y) {
+        for (int x{0}; x < dungeon_object.width; ++x) {
+            rooms[y * dungeon_object.width + x] = -1;
         }
     }
 
-    int roomIds{0};
-    for (int y{0}; y < dungeonObject.height; ++y) {
-        for (int x{0}; x < dungeonObject.width; ++x) {
-            if (cells[y * dungeonObject.width + x] == FLOOR && rooms[y * dungeonObject.width + x] == -1) {
-                int roomId = roomIds++;
+    int room_ids{0};
+    for (int y{0}; y < dungeon_object.height; ++y) {
+        for (int x{0}; x < dungeon_object.width; ++x) {
+            if (cells[y * dungeon_object.width + x] == FLOOR && rooms[y * dungeon_object.width + x] == -1) {
+                int room_id = room_ids++;
                 vector<Position> contents;
-                queue<Position> toFill;
-                toFill.push({y, x});
-                rooms[y * dungeonObject.width + x] = roomId;
-                while (!toFill.empty()) {
-                    Position currentPosition = toFill.front();
-                    contents.push_back(currentPosition);
-                    toFill.pop();
+                queue<Position> to_fill;
+                to_fill.push({y, x});
+                rooms[y * dungeon_object.width + x] = room_id;
+                while (!to_fill.empty()) {
+                    Position current_position = to_fill.front();
+                    contents.push_back(current_position);
+                    to_fill.pop();
                     for (Position &delta:around) {
-                        auto pos = delta + currentPosition;
-                        if (onField(pos, dungeonObject.height, dungeonObject.width) && rooms[pos.y * dungeonObject.width + pos.x] == -1 &&
-                            cells[pos.y * dungeonObject.width + pos.x] == FLOOR) {
-                            rooms[pos.y * dungeonObject.width + pos.x] = roomId;
-                            toFill.push(pos);
+                        auto pos = delta + current_position;
+                        if (on_field(pos, dungeon_object.height, dungeon_object.width) && rooms[pos.y * dungeon_object.width + pos.x] == -1 &&
+                            cells[pos.y * dungeon_object.width + pos.x] == FLOOR) {
+                            rooms[pos.y * dungeon_object.width + pos.x] = room_id;
+                            to_fill.push(pos);
                         }
                     }
                 }
-                roomContents.push_back(move(contents));
+                room_contents.push_back(move(contents));
                 break;
             }
         }
     }
 
-    poisson_distribution<> vhld{dungeonObject.probabilitySet.vhlm};
-    poisson_distribution<> hhld{dungeonObject.probabilitySet.hhlm};
+    poisson_distribution<> vhld{dungeon_object.probability_set.vhlm};
+    poisson_distribution<> hhld{dungeon_object.probability_set.hhlm};
 
-    for (auto &room:roomContents) {
+    for (auto &room:room_contents) {
         auto pos = room[uniform_int_distribution<>(0, room.size() - 1)(gen)];
-        int vhl = vhld(gen) + dungeonObject.probabilitySet.vhls;
+        int vhl = vhld(gen) + dungeon_object.probability_set.vhls;
         int end = pos.y + vhl;
         for (; pos.y != end; ++pos.y) {
-            if (onField(pos, dungeonObject.height, dungeonObject.width) && cells[pos.y * dungeonObject.width + pos.x] == EMPTY) {
-                cells[pos.y * dungeonObject.width + pos.x] = HALL;
+            if (on_field(pos, dungeon_object.height, dungeon_object.width) && cells[pos.y * dungeon_object.width + pos.x] == EMPTY) {
+                cells[pos.y * dungeon_object.width + pos.x] = HALL;
             }
         }
-        vhl = vhld(gen) + dungeonObject.probabilitySet.vhls;
+        vhl = vhld(gen) + dungeon_object.probability_set.vhls;
         end = pos.y - vhl;
         for (; pos.y != end; --pos.y) {
-            if (onField(pos, dungeonObject.height, dungeonObject.width) && cells[pos.y * dungeonObject.width + pos.x] == EMPTY) {
-                cells[pos.y * dungeonObject.width + pos.x] = HALL;
+            if (on_field(pos, dungeon_object.height, dungeon_object.width) && cells[pos.y * dungeon_object.width + pos.x] == EMPTY) {
+                cells[pos.y * dungeon_object.width + pos.x] = HALL;
             }
         }
-        int hhl = hhld(gen) + dungeonObject.probabilitySet.hhls;
+        int hhl = hhld(gen) + dungeon_object.probability_set.hhls;
         end = pos.x + hhl;
         for (; pos.x != end; ++pos.x) {
-            if (onField(pos, dungeonObject.height, dungeonObject.width) && cells[pos.y * dungeonObject.width + pos.x] == EMPTY) {
-                cells[pos.y * dungeonObject.width + pos.x] = HALL;
+            if (on_field(pos, dungeon_object.height, dungeon_object.width) && cells[pos.y * dungeon_object.width + pos.x] == EMPTY) {
+                cells[pos.y * dungeon_object.width + pos.x] = HALL;
             }
         }
-        hhl = hhld(gen) + dungeonObject.probabilitySet.hhls;
+        hhl = hhld(gen) + dungeon_object.probability_set.hhls;
         end = pos.x - hhl;
         for (; pos.x != end; --pos.x) {
-            if (onField(pos, dungeonObject.height, dungeonObject.width) && cells[pos.y * dungeonObject.width + pos.x] == EMPTY) {
-                cells[pos.y * dungeonObject.width + pos.x] = HALL;
+            if (on_field(pos, dungeon_object.height, dungeon_object.width) && cells[pos.y * dungeon_object.width + pos.x] == EMPTY) {
+                cells[pos.y * dungeon_object.width + pos.x] = HALL;
             }
         }
     }
 
-    for (int y{0}; y < dungeonObject.height; ++y) {
-        for (int x{0}; x < dungeonObject.width; ++x) {
-            if (cells[y * dungeonObject.width + x] == HALL) {
+    for (int y{0}; y < dungeon_object.height; ++y) {
+        for (int x{0}; x < dungeon_object.width; ++x) {
+            if (cells[y * dungeon_object.width + x] == HALL) {
                 int count{0};
                 Position current{y, x};
                 Position next;
                 do {
-                    if (cells[current.y * dungeonObject.width + current.x] != HALL) break;
+                    if (cells[current.y * dungeon_object.width + current.x] != HALL) break;
                     count = 0;
                     for (auto d:adjacent) {
                         auto np = d + current;
-                        if (onField(np, dungeonObject.height, dungeonObject.width) && (cells[np.y * dungeonObject.width + np.x] == HALL || cells[np.y * dungeonObject.width + np.x] == FLOOR)) {
+                        if (on_field(np, dungeon_object.height, dungeon_object.width) && (cells[np.y * dungeon_object.width + np.x] == HALL || cells[np.y * dungeon_object.width + np.x] == FLOOR)) {
                             ++count;
                             next = np;
                         }
                     }
                     if (count <= 1) {
-                        cells[current.y * dungeonObject.width + current.x] = EMPTY;
+                        cells[current.y * dungeon_object.width + current.x] = EMPTY;
                         current = next;
                     }
                 } while (count == 1);
             }
         }
     }
-    for (int y{0}; y < dungeonObject.height; ++y) {
-        for (int x{0}; x < dungeonObject.width; ++x) {
-            if (cells[y * dungeonObject.width + x] == HALL) {
+    for (int y{0}; y < dungeon_object.height; ++y) {
+        for (int x{0}; x < dungeon_object.width; ++x) {
+            if (cells[y * dungeon_object.width + x] == HALL) {
                 for (auto d:adjacent) {
                     auto p = d + Position{y, x};
-                    if (onField(p, dungeonObject.height, dungeonObject.width) && cells[p.y * dungeonObject.width + p.x] == FLOOR) {
-                        cells[y * dungeonObject.width + x] = OPEN_DOOR;
+                    if (on_field(p, dungeon_object.height, dungeon_object.width) && cells[p.y * dungeon_object.width + p.x] == FLOOR) {
+                        cells[y * dungeon_object.width + x] = OPEN_DOOR;
                     }
                 }
             }
         }
     }
 
-    for (int y{0}; y < dungeonObject.height; ++y) {
-        for (int x{0}; x < dungeonObject.width; ++x) {
-            if (cells[y * dungeonObject.width + x] == OPEN_DOOR) {
-                bool noHall{true};
+    for (int y{0}; y < dungeon_object.height; ++y) {
+        for (int x{0}; x < dungeon_object.width; ++x) {
+            if (cells[y * dungeon_object.width + x] == OPEN_DOOR) {
+                bool no_hall{true};
                 for (auto d:adjacent) {
                     auto p = d + Position{y, x};
-                    if (onField(p, dungeonObject.height, dungeonObject.width) && cells[p.y * dungeonObject.width + p.x] == HALL) {
-                        noHall = false;
+                    if (on_field(p, dungeon_object.height, dungeon_object.width) && cells[p.y * dungeon_object.width + p.x] == HALL) {
+                        no_hall = false;
                         break;
                     }
                 }
-                if (noHall) {
-                    cells[y * dungeonObject.width + x] = EMPTY;
+                if (no_hall) {
+                    cells[y * dungeon_object.width + x] = EMPTY;
                 }
             }
         }
@@ -347,13 +347,13 @@ std::shared_ptr<Dungeon> RandomLevelLoader::genDungeon(const DungeonObject &dung
     /* !gen halls */
 
     /* gen walls */
-    for (int y{0}; y < dungeonObject.height; ++y) {
-        for (int x{0}; x < dungeonObject.width; ++x) {
-            if (cells[y*dungeonObject.width+x] == EMPTY){
+    for (int y{0}; y < dungeon_object.height; ++y) {
+        for (int x{0}; x < dungeon_object.width; ++x) {
+            if (cells[y*dungeon_object.width+x] == EMPTY){
                 for(auto d:around) {
                     auto p = d+Position{y,x};
-                    if (onField(p, dungeonObject.height, dungeonObject.width) && cells[p.y*dungeonObject.width+p.x] == FLOOR) {
-                        cells[y*dungeonObject.width+x] = WALL;
+                    if (on_field(p, dungeon_object.height, dungeon_object.width) && cells[p.y*dungeon_object.width+p.x] == FLOOR) {
+                        cells[y*dungeon_object.width+x] = WALL;
                         break;
                     }
                 }
@@ -362,78 +362,78 @@ std::shared_ptr<Dungeon> RandomLevelLoader::genDungeon(const DungeonObject &dung
     }
     /* !gen walls */
 
-    auto dungeon = make_shared<Dungeon>(state, idMapping[dungeonObject.id], dungeonObject.width, dungeonObject.height);
+    auto dungeon = make_shared<Dungeon>(state, id_mapping[dungeon_object.id], dungeon_object.width, dungeon_object.height);
 
-    for (int y{0}; y < dungeonObject.height; ++y) {
-        for (int x{0}; x < dungeonObject.width; ++x) {
-            dungeon->initializeCell({y, x}, cells[y * dungeonObject.width + x]);
+    for (int y{0}; y < dungeon_object.height; ++y) {
+        for (int x{0}; x < dungeon_object.width; ++x) {
+            dungeon->initialize_cell({y, x}, cells[y * dungeon_object.width + x]);
         }
     }
 
-    int stairRoom = uniform_int_distribution<>(0, roomContents.size() - 1)(gen);
-    int spawnRoom;
-    if (roomContents.size() == 1) {
-        spawnRoom = stairRoom;
+    int stair_room = uniform_int_distribution<>(0, room_contents.size() - 1)(gen);
+    int spawn_room;
+    if (room_contents.size() == 1) {
+        spawn_room = stair_room;
     }else{
-        spawnRoom = uniform_int_distribution<>(0, roomContents.size() - 2)(gen);
-        if (spawnRoom == stairRoom) ++spawnRoom;
+        spawn_room = uniform_int_distribution<>(0, room_contents.size() - 2)(gen);
+        if (spawn_room == stair_room) ++spawn_room;
     }
 
 
     auto stair = make_shared<Entity>();
     stair->representation = '\\';
-    stair->move(roomContents[stairRoom][uniform_int_distribution<>(0, roomContents[stairRoom].size() - 1)(gen)]);
-    auto stairHandler = make_shared<Stair>(dungeonObject.next != -1 ? idMapping[dungeonObject.next] : Game::nextId(), dungeon, state->loader->getId("player"));
-    stair->addListener(stairHandler);
-    dungeon->initializeEntity(stair);
+    stair->move(room_contents[stair_room][uniform_int_distribution<>(0, room_contents[stair_room].size() - 1)(gen)]);
+    auto stair_handler = make_shared<Stair>(dungeon_object.next != -1 ? id_mapping[dungeon_object.next] : Game::next_id(), dungeon, state->loader->get_id("player"));
+    stair->add_listener(stair_handler);
+    dungeon->initialize_entity(stair);
     stair->create();
 
-    dungeon->spawnPoint = roomContents[spawnRoom][uniform_int_distribution<>(0, roomContents[spawnRoom].size() - 1)(gen)];
+    dungeon->spawn_point = room_contents[spawn_room][uniform_int_distribution<>(0, room_contents[spawn_room].size() - 1)(gen)];
 
-    int remainingCells{-2};
-    for (auto &room:roomContents) remainingCells += room.size();
-    for (auto spawnSet:dungeonObject.probabilitySet.spawnSets) {
-        for(int i {0}; i < spawnSet.amount; ++i) {
-            int selection{uniform_int_distribution<>(0, spawnSet.getTotalWeight() - 1)(gen)};
+    int remaining_cells{-2};
+    for (auto &room:room_contents) remaining_cells += room.size();
+    for (auto spawn_set:dungeon_object.probability_set.spawn_sets) {
+        for(int i {0}; i < spawn_set.amount; ++i) {
+            int selection{uniform_int_distribution<>(0, spawn_set.get_total_weight() - 1)(gen)};
             //cerr << selection << endl;
-            auto set = spawnSet.getGroup(selection);
+            auto set = spawn_set.get_group(selection);
 
-            int posIndex = uniform_int_distribution<>(0, remainingCells - 1)(gen);
-            bool posFound{false};
-            for (auto &room:roomContents) {
-                while (posIndex < room.size()) {
-                    if (dungeon->getEntityAt(room[posIndex])) {
-                        ++posIndex;
+            int pos_index = uniform_int_distribution<>(0, remaining_cells - 1)(gen);
+            bool pos_found{false};
+            for (auto &room:room_contents) {
+                while (pos_index < room.size()) {
+                    if (dungeon->get_entity_at(room[pos_index])) {
+                        ++pos_index;
                     } else {
-                        posFound = true;
+                        pos_found = true;
                         for (auto &entity:set) {
-                            shared_ptr<Entity> entityObj;
-                            switch (state->library.getType(entity)) {
+                            shared_ptr<Entity> entity_obj;
+                            switch (state->library.get_type(entity)) {
                                 case Library::MOB:
-                                    entityObj = state->library.getAMob(entity);
+                                    entity_obj = state->library.get_a_mob(entity);
                                     break;
                                 case Library::ITEM:
-                                    entityObj = state->library.getAnItem(entity);
+                                    entity_obj = state->library.get_an_item(entity);
                                     break;
                                 case Library::CONSUMABLE:
-                                    entityObj = state->library.getAConsumable(entity);
+                                    entity_obj = state->library.get_a_consumable(entity);
                                     break;
                                 case Library::EQUIPPABLE:
-                                    entityObj = state->library.getAnEquippable(entity);
+                                    entity_obj = state->library.get_an_equippable(entity);
                                     break;
                                 default:
                                     cerr << "NO SUCH ENTITY: " << entity << endl;
                                     break;
                             }
-                            entityObj->move(room[posIndex]);
-                            dungeon->initializeEntity(entityObj);
-                            entityObj->create();
+                            entity_obj->move(room[pos_index]);
+                            dungeon->initialize_entity(entity_obj);
+                            entity_obj->create();
                         }
                         break;
                     }
                 }
-                posIndex -= room.size();
-                if (posFound) break;
+                pos_index -= room.size();
+                if (pos_found) break;
             }
         }
     }

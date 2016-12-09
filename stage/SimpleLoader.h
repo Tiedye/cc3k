@@ -15,8 +15,8 @@ private:
 
     const std::vector<std::string> files;
 
-    std::map<char, int>  parseMapping(std::istream& s);
-    std::shared_ptr<Dungeon> parseDungeon(const std::map<char, int> &mapping, std::istream &s);
+    std::map<char, int>  parse_mapping(std::istream& s);
+    std::shared_ptr<Dungeon> parse_dungeon(const std::map<char, int> &mapping, std::istream &s);
 
 };
 

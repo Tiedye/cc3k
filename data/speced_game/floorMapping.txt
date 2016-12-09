@@ -1,13 +1,13 @@
-0 restoreHealthPotion
-1 boostAtkPotion
-2 boostDefPotion
-3 poisonHealthPotion
-4 woundAtkPotion
-5 woundDefPotion
-6 normalGold
-7 smallGold
-8 merchantHoard
-9 dragonHoard
+0 restore_health_potion
+1 boost_atk_potion
+2 boost_def_potion
+3 poison_health_potion
+4 wound_atk_potion
+5 wound_def_potion
+6 normal_gold
+7 small_gold
+8 merchant_hoard
+9 dragon_hoard
 H human
 W dwarf
 E elf
@@ -20,8 +20,8 @@ S sword
 A mail
 C bow
 B boots
-F ringOfHealth
-I speedPotion
+F ring_of_health
+I speed_potion
 
 G guard
-J highElf
+J high_elf

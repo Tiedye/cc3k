@@ -8,7 +8,7 @@ class Listener;
 
 struct FeatureSet {
     std::vector<std::shared_ptr<Listener>> listeners;
-    std::vector<StatModifier> statModifiers;
+    std::vector<StatModifier> stat_modifiers;
     std::vector<std::shared_ptr<Action>> actions;
 };
 

@@ -2,9 +2,9 @@
 
 #include "../event/Listener.h"
 
-class DamageOnConsume : public Listener {
+class DamageTakenModifier : public Listener {
 public:
-    DamageOnConsume(int amount);
+    DamageTakenModifier(int numerator, int denominator, int potion_id);
 
     void notify(EventInfo &info) override;
 
@@ -12,7 +12,10 @@ public:
 
 private:
     static const std::vector<EventType> event_types;
-    int amount;
+
+    int numerator;
+    int denominator;
+    int potion_id;
 };
 
 

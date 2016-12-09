@@ -1,6 +1,6 @@
 #include "EquipAction.h"
 
-int EquipAction::getRange(const Character &source) const {
+int EquipAction::get_range(const Character &source) const {
     return 1;
 }
 

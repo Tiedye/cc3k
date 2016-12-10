@@ -4,14 +4,11 @@
 
 #include <curses.h>
 
+#include "../util/curses_util.h"
+
 using namespace std;
 
 EndScreen::EndScreen(const std::shared_ptr<State> &state, const int return_id) : Stage(state), return_id{return_id} {}
-
-void print_centered(WINDOW*win, string str, int row){
-    int width {getmaxx(win)};
-    mvwaddstr(win, row, (width - str.length())/2, str.c_str());
-}
 
 int EndScreen::run(Game &game) {
     initscr();

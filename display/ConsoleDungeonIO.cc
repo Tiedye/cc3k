@@ -123,7 +123,7 @@ ConsoleDungeonIO::get_action(const std::shared_ptr<Character> &character, const 
             auto current_selection = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::MOVE; });
             if (current_selection == actions.end()) current_selection = actions.begin();
             int key;
-            bool selecting_cell{false};
+            bool selecting_cell {false};
             while (!got_action && mode == INTERACTIVE) {
                 print_mode(current_selection->action->action_type);
                 update_display();
@@ -138,9 +138,27 @@ ConsoleDungeonIO::get_action(const std::shared_ptr<Character> &character, const 
                 }
                 key = getch();
                 switch (key) {
+                    case 'v':
+                        mode = COMMAND;
+                        if (selecting_cell) disengage_selection();
+                        break;
+                    case 's': {
+                        vector<ITEM *> items{
+                                new_item("Suicide", ""),
+                                new_item("Cancel", "")
+                        };
+                        set_item_userptr(items[0], (void *) 2);
+                        set_item_userptr(items[1], (void *) 1);
+                        if (size_t(get_option(items))-1) {
+                            character->destroy();
+                        } else {
+                            break;
+                        }
+                    }
                     case 27:
                         action_and_target.action = find_if(actions.begin(), actions.end(), [](ActionAndRange ar) { return ar.action->action_type == Action::PASS; })->action;
                         got_action = true;
+                        if (selecting_cell) disengage_selection();
                         break;
                     case KEY_UP:
                         if (selecting_cell) selection_up();
@@ -218,6 +236,7 @@ ConsoleDungeonIO::get_action(const std::shared_ptr<Character> &character, const 
                                     current_selection = actions.begin() + (size_t(get_option(items)) - 1);
                                 }
                                 selecting_cell = false;
+                                get_selection({0, 0});
                                 disengage_selection();
                             }
                         }
